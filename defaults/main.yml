@@ -1,0 +1,62 @@
+---
+pdns_installation_type: packages
+pdns_repo_provider: os
+# XXX: stable doesnt work ye
+pdns_repo_branch: stable
+
+# The user and group to run as.
+# NOTE: at the moment, we don't create a user as we assume the package creates
+# a "pdns" user and group. If you change these variables, make sure to create
+# the user and groups before applying this role
+pdns_user: pdns
+pdns_group: pdns
+
+# The directory where the config is located
+pdns_config_dir: '/etc/powerdns/'
+
+# pdns_config: A dict containing all configuration options, except for backend
+# configuration and the "config-dir", "setuid" and "setgid" directives.
+# NOTE: Right now, we don't verify the options when configuring the server.
+#
+# Example:
+# pdns_config:
+#  master: yes
+#  slave: no
+#  local-address: '192.0.2.53'
+#  local-ipv6: '2001:DB8:1::53'
+#  local-port: '5300'
+pdns_config: {}
+
+# pdns_backends: A dict with all the backends you'd like to have. You can use
+# the multiple backends of the same kind by using {backend}-{instance_name}.
+#
+# For example:
+# pdns_backends:
+#   'gmysql-instanceone':
+#     'name': one
+#     'user': root
+#     'host': 127.0.0.1
+#     'password': root
+#     'dbname': pdns
+#   'gmysql-instancetwo':
+#     'name': two
+#     'user': pdns_user
+#     'host': 192.0.2.15
+#     'password': my_password
+#     'dbname': dns
+#   'bind':
+#     'config': '/etc/named/named.conf'
+#     'hybrid':  yes
+#     'dnssec-db': '{{pdns_config_dir/dnssec.db}}'
+pdns_backends: {}
+
+# These are mappings between the "launch" name of a module and the
+# package-suffix, there is probably never a need to edit this
+pdns_mapping_launch_rpm_backends:
+  'gmysql': 'mysql'
+  'gpgsql': 'postgresql'
+  'gsqlite3': 'sqlite'
+pdns_mapping_launch_deb_backends:
+  'gmysql': 'mysql'
+  'gpgsql': 'pgsql'
+  'gsqlite3': 'sqlite3'
