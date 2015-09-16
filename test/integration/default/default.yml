@@ -1,0 +1,4 @@
+---
+- hosts: test-kitchen
+  roles:
+    - role: pdns-ansible
