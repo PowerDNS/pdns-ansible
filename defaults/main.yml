@@ -12,7 +12,7 @@ pdns_user: pdns
 pdns_group: pdns
 
 # The directory where the config is located
-pdns_config_dir: '/etc/powerdns/'
+pdns_config_dir: '/etc/powerdns'
 
 # pdns_config: A dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
@@ -32,14 +32,12 @@ pdns_config: {}
 #
 # For example:
 # pdns_backends:
-#   'gmysql-instanceone':
-#     'name': one
+#   'gmysql:one':
 #     'user': root
 #     'host': 127.0.0.1
 #     'password': root
 #     'dbname': pdns
-#   'gmysql-instancetwo':
-#     'name': two
+#   'gmysql:two':
 #     'user': pdns_user
 #     'host': 192.0.2.15
 #     'password': my_password
@@ -60,3 +58,11 @@ pdns_mapping_launch_deb_backends:
   'gmysql': 'mysql'
   'gpgsql': 'pgsql'
   'gsqlite3': 'sqlite3'
+
+# Dependencies to build PowerDNS on different distros
+pdns_debian_dependencies: []
+pdns_rhel_dependencies: []
+
+# Dependency packages per backend
+pdns_backend_debian_dependencies: {}
+pdns_backend_rhel_dependencies: {}

@@ -27,4 +27,4 @@
 - name: Install module packages
   apt: name=pdns-backend-{{pdns_mapping_launch_deb_backends[item.split('-')[0]] | default(item.split('-')[0])}} state=installed
   with_items: pdns_backends.keys()
-  when: item.split('-')[0] != "bind" and item != ""
+  when: item.split(':')[0] != "bind" and item != ""

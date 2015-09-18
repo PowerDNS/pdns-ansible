@@ -1,28 +1,18 @@
 config-dir={{pdns_config_dir}}
-
-{% set launch_backends = [] -%}
-{%- for backend in pdns_backends -%}
-  {%- set proper_backend = backend.split('-') -%}
-  {% if len(proper_backend) == 1 -%}
-    {%- set launch_backends = launch_backends.append(proper_backend[0]) -%}
-  {% else -%}
-    {%- set launch_backends = launch_backends.append(proper_backend[0] + ":" + proper_backend[1]) -%}
-  {%- endif -%}
-{%- endfor -%}
-launch={{ launch_backends | join(',') }}
-
 setuid={{ pdns_user }}
 setgid={{ pdns_group }}
-
 {% for config_item in pdns_config.keys() | sort %}
 {% if config_item not in ["config-dir", "launch", "setuid", "setgid"] %}
 {{config_item}}={{pdns_config[config_item]|string}}
 {% endif %}
 {% endfor %}
 
-{% for backend in pdns_backends %}
+launch=
+{%- for backend in pdns_backends -%}
+launch+={{backend}}
   {%- for backend_item in pdns_backends[backend] %}
-{{backend}}-{{backend_item}}={{pdns_backends[backend][backend_item]}}
+{{backend | replace(':', '-')}}-{{backend_item}}={{pdns_backends[backend][backend_item]}}
   {% endfor %}
 
-{% endfor %}
+{%- endfor -%}
+
