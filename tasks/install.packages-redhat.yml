@@ -1,0 +1,23 @@
+---
+- name: Check pdns_repo_provider
+  fail: msg="pdns_repo_provider is neither 'powerdns' nor 'os'"
+  when: pdns_repo_provider not in ["os", "powerdns"]
+
+- name: Install yum-plugin-priorities
+  yum: name=yum-plugin-priorities state=installed
+  when: pdns_repo_provider == "powerdns"
+
+- name: Add PowerDNS repository
+  get_url: url=https://repo.powerdns.com/repo-files/{{ansible_os_name | lower()}}-auth-{{pdns_repo_branch}} dest=/etc/yum.repos.d/powerdns-auth-{{pdns_repo_branch}}.repo
+  when: pdns_repo_provider == "powerdns"
+
+- name: Install epel-release
+  yum: name=epel-release update_cache=yes
+
+- name: Install the PowerDNS package
+  yum: name=pdns state=installed
+
+- name: Install module packages
+  apt: name=pdns-backend-{{pdns_mapping_launch_rpm_backends[item.split('-')[0]] | default(item.split('-')[0])}} state=installed
+  with_items: pdns_backends.keys()
+  when: item.split(':')[0] != "bind" and item != ""

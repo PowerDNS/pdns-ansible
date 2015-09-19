@@ -5,12 +5,11 @@
     - packages
     - install
 
-# TODO
-#- include: install.packages-redhat.yml
-#  when: pdns_installation_type == "packages" and ansible_os_family == "RedHat"
-#  tags:
-#    - packages
-#    - install
+- include: install.packages-redhat.yml
+  when: pdns_installation_type == "packages" and ansible_os_family == "RedHat"
+  tags:
+    - packages
+    - install
 
 # TODO
 #- include: install.source-debian.yml
