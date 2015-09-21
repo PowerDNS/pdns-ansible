@@ -11,6 +11,9 @@ provisioner:
 platforms:
   - name: ubuntu-14.04
   - name: debian-8.1
+  - name: centos-7.1
+    provisioner:
+      enable_yum_epel: true
 
 suites:
   - name: default
