@@ -21,9 +21,7 @@ end
 
 describe port(53) do
   it { should be_listening.with('udp') }
-  it { should be_listening.with('udp6') }
   it { should be_listening.with('tcp') }
-  it { should be_listening.with('tcp6') }
 end
 
 describe process('pdns_server') do
