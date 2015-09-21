@@ -8,11 +8,12 @@ setgid={{ pdns_group }}
 {% endfor %}
 
 launch=
-{%- for backend in pdns_backends -%}
+
+{% for backend in pdns_backends -%}
 launch+={{backend}}
-  {%- for backend_item in pdns_backends[backend] %}
+{% for backend_item in pdns_backends[backend] -%}
 {{backend | replace(':', '-')}}-{{backend_item}}={{pdns_backends[backend][backend_item]}}
-  {% endfor %}
+{% endfor %}
 
 {%- endfor -%}
 

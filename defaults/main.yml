@@ -46,7 +46,9 @@ pdns_config: {}
 #     'config': '/etc/named/named.conf'
 #     'hybrid':  yes
 #     'dnssec-db': '{{pdns_config_dir/dnssec.db}}'
-pdns_backends: {}
+pdns_backends:
+  bind:
+    config: '/dev/null'
 
 # These are mappings between the "launch" name of a module and the
 # package-suffix, there is probably never a need to edit this
