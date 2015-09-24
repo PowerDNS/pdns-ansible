@@ -139,6 +139,4 @@ Author Information
 To Do
 -----
 * Travis CI testing (kitchen + AWS?)
-* Testing on Ubuntu
 * Installation from source
-* Installing PowerDNS from repo.powerdns.com
