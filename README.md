@@ -69,7 +69,8 @@ Run as a master using the bind backend (when you already have a named.conf):
         config: '/etc/named/named.conf'
 ```
 
-Run as a slave with the MySQL backend:
+Run the PowerDNS masterbranch from a package from repo.powerdns.com as a slave
+with the MySQL backend:
 ```
 - hosts: ns2.example.net
   roles:
@@ -86,6 +87,8 @@ Run as a slave with the MySQL backend:
         user: powerdns
         password: P0w3rDn5
         dbname: pdns
+    pdns_repo_provider: 'powerdns'
+    pdns_repo_branch: 'master'
 ```
 
 Run as a master on port 5300, using two different PostgreSQL databases:
