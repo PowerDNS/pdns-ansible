@@ -1,9 +1,13 @@
 PowerDNS Authoritative Server
 =============================
-
 An Ansible role created by the folks behind PowerDNS to install and configure
 the PowerDNS Authoritative Server.
 
+Even though PowerDNS supports numerous backends, database servers are not (and
+will not) be installed by this role.
+
+This role is considered alpha quality at the moment, but issues and pull requests
+are accepted.
 
 Requirements
 ------------
@@ -51,7 +55,7 @@ created.
 
 Example Playbook
 ----------------
-Run as a master using the bind backend:
+Run as a master using the bind backend (when you already have a named.conf):
 ```
 - hosts: ns1.example.net
   roles:
@@ -128,3 +132,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 Author Information
 ------------------
  Pieter Lexis <pieter.lexis@powerdns.com>
+
+To Do
+-----
+* Travis CI testing (kitchen + AWS?)
+* Testing on Ubuntu
+* Installation from source
+* Installing PowerDNS from repo.powerdns.com
