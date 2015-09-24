@@ -1,19 +1,44 @@
 ---
 driver:
-  name: vagrant
+  name: ec2
+  aws_ssh_key_id: "<%= ENV['AWS_SSH_KEY_ID']%>"
+  instance_type: t2.micro
+  region: eu-central-1
+  availability_zone: eu-central-1b
+  transport:
+    ssh_key: "<%= ENV['AWS_SSH_KEY']%>"
+
 
 provisioner:
   name: ansible_playbook
-  hosts: test-kitchen
+  hosts: localhost
   ansible_verbose: true
   ansible_verbosity: 4
 
 platforms:
   - name: ubuntu-14.04
+    driver:
+      image_id: ami-accff2b1
+    transport:
+      username: ubuntu
   - name: debian-8.1
+    driver:
+      image_id: ami-b092aaad
+    provisioner:
+      require_ansible_repo: false
+      require_ansible_omnibus: true
+    transport:
+      username: admin
   - name: centos-7.1
+    driver:
+      image_id: ami-7cc4f661
+    transport:
+      username: centos
     provisioner:
       enable_yum_epel: true
 
 suites:
   - name: default
+  - name: pdnsrepo
+    excludes:
+      - ubuntu-14.04

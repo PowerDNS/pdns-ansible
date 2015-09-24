@@ -8,7 +8,7 @@
   when: pdns_repo_provider == "powerdns"
 
 - name: Add PowerDNS repository
-  get_url: url=https://repo.powerdns.com/repo-files/{{ansible_os_name | lower()}}-auth-{{pdns_repo_branch}} dest=/etc/yum.repos.d/powerdns-auth-{{pdns_repo_branch}}.repo
+  get_url: url=https://repo.powerdns.com/repo-files/{{ansible_distribution | lower()}}-auth-{{pdns_repo_branch}}.repo dest=/etc/yum.repos.d/powerdns-auth-{{pdns_repo_branch}}.repo
   when: pdns_repo_provider == "powerdns"
 
 - name: Install epel-release

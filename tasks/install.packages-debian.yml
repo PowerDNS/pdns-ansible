@@ -12,6 +12,10 @@
   apt_key: url=http://repo.powerdns.com/CBC8B383-pub.asc id=D47975F8DAE32700A563E64FFF389421CBC8B383
   when: pdns_repo_provider == "powerdns" and pdns_repo_branch == "master"
 
+- name: apt-pin the PowerDNS packages to the PowerDNS repo
+  copy: dest='/etc/apt/preferences.d/pdns' src=pdns.pin owner=root group=root mode=0644
+  when: pdns_repo_provider == "powerdns"
+
 # XXX: These repo's don't exist yet
 #- name: Add the PowerDNS repository key
 #  apt_key: url=http://repo.powerdns.com/FD380FBB-pub.asc id=9FAAA5577E8FCF62093D036C1B0C6205FD380FBB
