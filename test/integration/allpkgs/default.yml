@@ -1,0 +1,40 @@
+---
+- hosts: localhost
+  roles:
+    - role: pdns-ansible
+      pdns_backends:
+        'gmysql': {}
+        'gpgsql': {}
+        'gsqlite3': {}
+        'geo': {}
+        'ldap': {}
+        'lmdb': {}
+        'lua': {}
+        'mydns': {}
+        'pipe': {}
+        'remote': {}
+      when: ansible_distribution == "Debian"
+    - role: pdns-ansible
+      pdns_backends:
+        'gmysql': {}
+        'gpgsql': {}
+        'gsqlite3': {}
+        'geo': {}
+        'ldap': {}
+        'lua': {}
+        'pipe': {}
+      when: ansible_distribution == "Ubuntu"
+    - role: pdns-ansible
+      pdns_backends:
+        'gmysql': {}
+        'gpgsql': {}
+        'gsqlite3': {}
+        'geo': {}
+        'ldap': {}
+        'lmdb': {}
+        'lua': {}
+        'mydns': {}
+        'pipe': {}
+        'remote': {}
+        'tinydns': {}
+      when: ansible_os_family == "RedHat"

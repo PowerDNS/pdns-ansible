@@ -42,3 +42,4 @@ suites:
   - name: pdnsrepo
     excludes:
       - ubuntu-14.04
+  - name: allpkgs

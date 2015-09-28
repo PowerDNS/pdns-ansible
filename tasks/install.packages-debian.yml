@@ -28,7 +28,62 @@
 - name: Install the main PowerDNS package
   apt: name=pdns-server state=present
 
-- name: Install module packages
-  apt: name=pdns-backend-{{pdns_mapping_launch_deb_backends[item.split('-')[0]] | default(item.split('-')[0])}} state=installed
+- name: Install Geo module package
+  apt: pkg=pdns-backend-geo state=installed
+  when: item.startswith('geo') and not item.startswith('geoip')
   with_items: pdns_backends.keys()
-  when: item.split(':')[0] != "bind" and item != ""
+
+- name: Install GeoIP module package
+  apt: pkg=pdns-backend-geoip state=installed
+  when: item.startswith('geoip')
+  with_items: pdns_backends.keys()
+
+- name: Install MySQL module package
+  apt: pkg=pdns-backend-mysql state=installed
+  when: item.startswith('gmysql')
+  with_items: pdns_backends.keys()
+
+- name: Install Postgresql module package
+  apt: pkg=pdns-backend-pgsql state=installed
+  when: item.startswith('gpgsql')
+  with_items: pdns_backends.keys()
+
+- name: Install gsqlite3 module package
+  apt: pkg=pdns-backend-sqlite3 state=installed
+  when: item.startswith('gsqlite3')
+  with_items: pdns_backends.keys()
+
+- name: Install ldap module package
+  apt: pkg=pdns-backend-ldap state=installed
+  when: item.startswith('ldap')
+  with_items: pdns_backends.keys()
+
+- name: Install lmdb module package
+  apt: pkg=pdns-backend-lmdb state=installed
+  when: item.startswith('lmdb')
+  with_items: pdns_backends.keys()
+
+- name: Install lua module package
+  apt: pkg=pdns-backend-lua state=installed
+  when: item.startswith('lua')
+  with_items: pdns_backends.keys()
+
+- name: Install mydns module package
+  apt: pkg=pdns-backend-mydns state=installed
+  when: item.startswith('mydns')
+  with_items: pdns_backends.keys()
+
+- name: Install pipe module package
+  apt: pkg=pdns-backend-pipe state=installed
+  when: item.startswith('pipe')
+  with_items: pdns_backends.keys()
+
+- name: Install remote module package
+  apt: pkg=pdns-backend-remote state=installed
+  when: item.startswith('remote')
+  with_items: pdns_backends.keys()
+
+- name: Install tinydns module package
+  apt: pkg=pdns-backend-tinydns state=installed
+  when: item.startswith('remote')
+  with_items: pdns_backends.keys()

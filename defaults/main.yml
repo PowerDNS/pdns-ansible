@@ -46,20 +46,11 @@ pdns_config: {}
 #     'config': '/etc/named/named.conf'
 #     'hybrid':  yes
 #     'dnssec-db': '{{pdns_config_dir/dnssec.db}}'
+#
+# This default starts just the bind-backend with an empty config file
 pdns_backends:
   bind:
     config: '/dev/null'
-
-# These are mappings between the "launch" name of a module and the
-# package-suffix, there is probably never a need to edit this
-pdns_mapping_launch_rpm_backends:
-  'gmysql': 'mysql'
-  'gpgsql': 'postgresql'
-  'gsqlite3': 'sqlite'
-pdns_mapping_launch_deb_backends:
-  'gmysql': 'mysql'
-  'gpgsql': 'pgsql'
-  'gsqlite3': 'sqlite3'
 
 # Dependencies to build PowerDNS on different distros
 pdns_debian_dependencies: []
