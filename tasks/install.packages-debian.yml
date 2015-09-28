@@ -85,5 +85,5 @@
 
 - name: Install tinydns module package
   apt: pkg=pdns-backend-tinydns state=installed
-  when: item.startswith('remote')
+  when: item.startswith('tinydns')
   with_items: pdns_backends.keys()
