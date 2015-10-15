@@ -26,7 +26,7 @@
   when: pdns_repo_provider == "powerdns"
 
 - name: Install the main PowerDNS package
-  apt: name=pdns-server state=present
+  apt: name=pdns-server state=present update_cache=yes
 
 - name: Install Geo module package
   apt: pkg=pdns-backend-geo state=installed
