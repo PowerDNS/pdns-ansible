@@ -47,11 +47,11 @@ Currently only 'master' is supported.
 
 ### pdns_user
 The user to run PowerDNS as, this is 'pdns' by default. This user is not (yet)
-created.
+created (but the package might have done that for you).
 
 ### pdns_group
 The group to run PowerDNS as, this is 'pdns' by default. This group is not (yet)
-created.
+created (but the package might have done that for you).
 
 Example Playbook
 ----------------
