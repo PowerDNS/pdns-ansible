@@ -1,7 +1,7 @@
 ---
 - name: Ensure the PowerDNS configuration directory exists
-  file: name={{pdns_config_dir | default('/etc/powerdns')}} state=directory owner="root" group="root"
+  file: name="{{pdns_config_dir | default('/etc/powerdns')}}" state=directory owner="root" group="root"
 
 - name: Add configuration for PowerDNS
-  template: src=pdns.conf.j2 dest={{pdns_config_dir | default('/etc/powerdns')}}/pdns.conf
+  template: src=pdns.conf.j2 dest="{{pdns_config_dir | default('/etc/powerdns')}}/pdns.conf"
   notify: Restart PowerDNS
