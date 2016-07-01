@@ -13,12 +13,38 @@ Requirements
 ------------
 An Ansible installation.
 
+### For MySQL backend
+If you want to use this role to automatic create user and database. You need to
+fulfill these requirements
+
+* You have to prepare root or privilege user that can create database and assign
+permission to user. This privilege user must can connect from the machine where
+you execute ansible playbook.
+* You have to install mysql library on the machine where you execute ansible
+playbook.
+
+```bash
+# Install with apt-get on Ubuntu
+sudo apt-get install python-mysqldb mysql-client
+
+# Install with pip
+sudo apt-get install python-dev libmysqlclient-dev
+pip install MySQL-python
+```
+
+* Configure **pdns_backends_mysql_credential** variable as describe below.
+
 Role Variables
 --------------
 ### pdns_backends
 A dict that allows you configure the backends, this also installs the correct
 packages for these backends. By default, no backends are installed and PowerDNS
 will be unable to start.
+
+### pdns_backends_mysql_credential
+A dict that allows you to put privilege users to create mysql database and
+assign user privilege to this database. Please read requirements before
+configure this variable
 
 ### pdns_config
 A dict detailing the configuration of PowerDNS. You should not set the following
