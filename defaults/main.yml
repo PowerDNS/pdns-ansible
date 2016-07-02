@@ -1,8 +1,8 @@
 ---
 pdns_installation_type: packages
-pdns_repo_provider: os
+pdns_repo_provider: powerdns
 # XXX: stable doesnt work ye
-pdns_repo_branch: stable
+pdns_repo_branch: master
 
 # The user and group to run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
@@ -51,6 +51,36 @@ pdns_config: {}
 pdns_backends:
   bind:
     config: '/dev/null'
+
+# MySQL credential to create database per backend
+# You must put only gmysql backend
+#
+# For example:
+# pdns_backends_mysql_credential:
+#   'gmysql:one':
+#     'priv_user': root
+#     'priv_password': my_first_password
+#     'priv_host':
+#       - "localhost"
+#       - "%"
+#   'gmysql:two':
+#     'priv_user': someprivuser
+#     'priv_password': my_second_password
+#     'priv_host':
+#       - "localhost"
+
+# Full path to mysql schema file
+pdns_mysql_schema_file:
+  os: /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql
+  powerdns: /usr/share/doc/pdns-backend-mysql/schema.mysql.sql
+
+# Dependencies to initial mysql database
+pdns_debian_mysql_dependencies:
+  - python-mysqldb
+  - mysql-client
+pdns_rhel_mysql_dependencies:
+  - MySQL-python
+  - mysql
 
 # Dependencies to build PowerDNS on different distros
 pdns_debian_dependencies: []
