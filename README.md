@@ -13,12 +13,26 @@ Requirements
 ------------
 An Ansible installation.
 
+### For MySQL backend
+If you want to use this role to automatic create user and database. You need to
+fulfill these requirements
+
+* You have to prepare root or privilege user that can create database and assign
+permission to user. This privilege user must can connect to the database from
+target machine.
+* Configure **pdns_backends_mysql_credential** variable as describe below.
+
 Role Variables
 --------------
 ### pdns_backends
 A dict that allows you configure the backends, this also installs the correct
 packages for these backends. By default, no backends are installed and PowerDNS
 will be unable to start.
+
+### pdns_backends_mysql_credential
+A dict that allows you to put privilege users to create mysql database and
+assign user privilege to this database. Please read requirements before
+configure this variable
 
 ### pdns_config
 A dict detailing the configuration of PowerDNS. You should not set the following
@@ -90,6 +104,36 @@ with the MySQL backend:
     pdns_repo_provider: 'powerdns'
     pdns_repo_branch: 'master'
 ```
+
+Run the PowerDNS master branch from a package from repo.powerdns.com as a master
+with the MySQL backend and use the root user to initialize the database and database user:
+```
+- hosts: ns2.example.net
+  roles:
+    - role: PowerDNS.pdns
+  vars:
+    pdns_config:
+      master: true
+      slave: false
+      local-address: '192.0.2.77'
+    pdns_backends:
+      gmysql:
+        host: 192.0.2.120
+        port: 3306
+        user: powerdns
+        password: P0w3rDn5
+        dbname: pdns
+    pdns_backends_mysql_credential:
+      gmysql:
+        priv_user: root
+        priv_password: myrootpass
+        priv_host:
+          - "%"
+    pdns_repo_provider: 'powerdns'
+    pdns_repo_branch: 'master'
+```
+
+Note: when using pdns_backends_mysql_credential, the `host`, `user`, `dbname` and `password` options become mandatory.
 
 Run as a master on port 5300, using two different PostgreSQL databases:
 ```

@@ -25,6 +25,11 @@
 #    - source
 #    - install
 
+- include: database.yml
+  tags:
+    - db
+    - database
+
 - include: configuration.yml
   tags:
     - conf
