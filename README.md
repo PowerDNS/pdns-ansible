@@ -105,8 +105,8 @@ with the MySQL backend:
     pdns_repo_branch: 'master'
 ```
 
-Run the PowerDNS masterbranch from a package from repo.powerdns.com as a master
-with the MySQL backend and with privilege root user to initialize database:
+Run the PowerDNS master branch from a package from repo.powerdns.com as a master
+with the MySQL backend and use the root user to initialize the database and database user:
 ```
 - hosts: ns2.example.net
   roles:
@@ -132,6 +132,8 @@ with the MySQL backend and with privilege root user to initialize database:
     pdns_repo_provider: 'powerdns'
     pdns_repo_branch: 'master'
 ```
+
+Note: when using pdns_backends_mysql_credential, the `host`, `user`, `dbname` and `password` options become mandatory.
 
 Run as a master on port 5300, using two different PostgreSQL databases:
 ```
