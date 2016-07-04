@@ -43,3 +43,6 @@ suites:
     excludes:
       - ubuntu-14.04
   - name: allpkgs
+  - name: mysql-initial-db
+    includes:
+      - debian-8.1
