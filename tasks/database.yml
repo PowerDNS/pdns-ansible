@@ -55,6 +55,7 @@
   when: item.key.startswith('gmysql')
   with_dict: "{{ pdns_backends }}"
   register: pdns_check_mysql_db
+  changed_when: False
   tags:
     - pdns-mysql-db
 
