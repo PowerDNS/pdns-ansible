@@ -13,6 +13,6 @@ galaxy_info:
   - name: Debian
     versions:
     - jessie
-  categories:
-  - system
+  galaxy_tags:
+    - system
 dependencies: []

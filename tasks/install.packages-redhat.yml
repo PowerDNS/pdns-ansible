@@ -1,78 +1,34 @@
 ---
 - name: Check pdns_repo_provider
-  fail: msg="pdns_repo_provider is neither 'powerdns' nor 'os'"
+  fail:
+    msg: "pdns_repo_provider is neither 'powerdns' nor 'os'"
   when: pdns_repo_provider not in ["os", "powerdns"]
 
 - name: Install yum-plugin-priorities
-  yum: name=yum-plugin-priorities state=installed
+  yum:
+    name: yum-plugin-priorities
+    state: installed
   when: pdns_repo_provider == "powerdns"
 
 - name: Add PowerDNS repository
-  get_url: url=https://repo.powerdns.com/repo-files/{{ansible_distribution | lower()}}-auth-{{pdns_repo_branch}}.repo dest=/etc/yum.repos.d/powerdns-auth-{{pdns_repo_branch}}.repo
+  get_url:
+    url: https://repo.powerdns.com/repo-files/{{ansible_distribution | lower()}}-auth-{{pdns_repo_branch}}.repo
+    dest: /etc/yum.repos.d/powerdns-auth-{{pdns_repo_branch}}.repo
   when: pdns_repo_provider == "powerdns"
 
 - name: Install epel-release
-  yum: name=epel-release update_cache=yes
+  yum:
+    name: epel-release
+    update_cache: yes
 
 - name: Install the PowerDNS package
-  yum: name=pdns state=installed
+  yum:
+    name: pdns
+    state: installed
 
-- name: Install Geo module package
-  yum: pkg=pdns-backend-geo state=installed
-  when: item.key.startswith('geo') and not item.key.startswith('geoip')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install GeoIP module package
-  yum: pkg=pdns-backend-geoip state=installed
-  when: item.key.startswith('geoip')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install MySQL module package
-  yum: pkg=pdns-backend-mysql state=installed
-  when: item.key.startswith('gmysql')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install Postgresql module package
-  yum: pkg=pdns-backend-postgresql state=installed
-  when: item.key.startswith('gpgsql')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install gsqlite3 module package
-  yum: pkg=pdns-backend-sqlite state=installed
-  when: item.key.startswith('gsqlite3')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install ldap module package
-  yum: pkg=pdns-backend-ldap state=installed
-  when: item.key.startswith('ldap')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install lmdb module package
-  yum: pkg=pdns-backend-lmdb state=installed
-  when: item.key.startswith('lmdb')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install lua module package
-  yum: pkg=pdns-backend-lua state=installed
-  when: item.key.startswith('lua')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install mydns module package
-  yum: pkg=pdns-backend-mydns state=installed
-  when: item.key.startswith('mydns')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install pipe module package
-  yum: pkg=pdns-backend-pipe state=installed
-  when: item.key.startswith('pipe')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install remote module package
-  yum: pkg=pdns-backend-remote state=installed
-  when: item.key.startswith('remote')
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install tinydns module package
-  yum: pkg=pdns-backend-tinydns state=installed
-  when: item.key.startswith('tinydns')
+- name: Install module package
+  yum:
+    pkg: "{{ pdns_backends_dict[item.key.split(':')[0]] }}"
+    state: installed
+  when: pdns_backends_dict[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
