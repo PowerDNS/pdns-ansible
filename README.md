@@ -57,7 +57,7 @@ When using 'packages' for pdns_installation_type, use operating system packages
 
 ### pdns_repo_branch
  When installing from the PowerDNS repository, what branch should be installed?
-Currently only 'master' is supported.
+Currently only 'master' and '40' (latest 4.0.x release) are supported.
 
 ### pdns_user
 The user to run PowerDNS as, this is 'pdns' by default. This user is not (yet)
