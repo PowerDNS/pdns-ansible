@@ -1,4 +1,13 @@
 ---
+- name: Load Distribution specific variables
+  include_vars: '{{item}}'
+  with_first_found:
+    - files:
+      - '{{ansible_os_family}}.yml'
+      - 'default.yml'
+      paths:
+        - ../vars
+
 - include: install.packages-debian.yml
   when: pdns_installation_type == "packages" and ansible_os_family == "Debian"
   tags:
