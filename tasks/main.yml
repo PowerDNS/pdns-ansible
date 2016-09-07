@@ -46,4 +46,7 @@
     - configuration
 
 - name: Start and enable the PowerDNS service
-  service: name=pdns state=started enabled=true
+  service:
+    name: pdns
+    state: started
+    enabled: true

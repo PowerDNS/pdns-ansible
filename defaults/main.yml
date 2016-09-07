@@ -14,6 +14,22 @@ pdns_group: pdns
 # The directory where the config is located
 pdns_config_dir: '/etc/powerdns'
 
+# This is the dictionary var for all backends.
+# backendname: packagename
+pdns_backends_dict:
+  geo: pdns-backend-geo
+  geoip: pdns-backend-geoip
+  gmysql: pdns-backend-mysql
+  gpgsql: pdns-backend-pgsql
+  gsqlite3: pdns-backend-sqlite3
+  ldap: pdns-backend-ldap
+  lmdb: pdns-backend-lmdb
+  lua: pdns-backend-lua
+  mydns: pdns-backend-mydns
+  pipe: pdns-backend-pipe
+  remote: pdns-backend-remote
+  tinydns: pdns-backend-tinydns
+
 # pdns_config: A dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
 # NOTE: Right now, we don't verify the options when configuring the server.

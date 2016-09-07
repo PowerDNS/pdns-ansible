@@ -24,7 +24,7 @@
     login_host: "{{ item.value.host }}"
     name: "{{ item.value.dbname }}"
     state: present
-  when: pdns_backends_mysql_credential is defined and item.key.startswith('gmysql')
+  when: pdns_backends_mysql_credential is defined and item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends | combine(pdns_backends_mysql_credential|default({}), recursive=True) }}"
   tags:
     - pdns-mysql-db
@@ -52,7 +52,7 @@
     mysql --user="{{ item.value.user }}" --password="{{ item.value.password }}"
     --host="{{ item.value.host }}" --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns` WHERE `table_schema` = '{{ item.value.dbname }}'"
-  when: item.key.startswith('gmysql')
+  when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: pdns_check_mysql_db
   changed_when: False
@@ -67,7 +67,7 @@
     name: "{{ item.item.value.dbname }}"
     state: import
     target: "{{ pdns_mysql_schema_file[pdns_repo_provider] }}"
-  when: item.item.key.startswith('gmysql') and item.stdout == "0"
+  when: item.item.key.split(':')[0] == 'gmysql' and item.stdout == "0"
   with_items: "{{ pdns_check_mysql_db.results }}"
   tags:
     - pdns-mysql-db
