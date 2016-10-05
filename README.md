@@ -34,6 +34,12 @@ A dict that allows you to put privilege users to create mysql database and
 assign user privilege to this database. Please read requirements before
 configure this variable
 
+### pdns_backends_sqlite3_databases
+A list that has the paths to gsqlite3 databases. These databases will be
+initialized by this role. Note that these will **not** be added to the PowerDNS
+configuration. This should be done with pdns_backends, see the examples. This
+variable only works on Debian-like operating systems for now.
+
 ### pdns_config
 A dict detailing the configuration of PowerDNS. You should not set the following
 options here (other variables set these):
@@ -156,6 +162,25 @@ Run as a master on port 5300, using two different PostgreSQL databases:
         user: root
         password: root
         dbname: dns
+```
+
+Run with a single gsqlite3 backend and have the role create this database:
+```
+- hosts: ns4.example.net
+  roles:
+    - role: PowerDNS.pdns
+  vars:
+    database_name: '/var/lib/powerdns/db.sqlite'
+    pdns_config:
+      master: true
+      slave: false
+      local-address: '192.0.2.73'
+    pdns_backends:
+      gsqlite3:
+        database: "{{ database_name }}"
+        dnssec: yes
+    pdns_backends_sqlite3_databases:
+      - "{{ database_name }}"
 ```
 
 License

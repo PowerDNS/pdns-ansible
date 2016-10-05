@@ -34,10 +34,19 @@
 #    - source
 #    - install
 
-- include: database.yml
+- include: database-mysql.yml
+  when: pdns_backends_mysql_credential is defined
   tags:
     - db
     - database
+    - pdns-mysql-db
+
+- include: database-sqlite3.yml
+  when: pdns_backends_sqlite3_databases is defined
+  tags:
+    - db
+    - database
+    - pdns-sqlite3-db
 
 - include: configuration.yml
   tags:

@@ -1,0 +1,22 @@
+---
+- name: Install required packages to manipulate sqlite3 databases
+  apt: name="sqlite3" state="installed"
+  when: ansible_os_family == "Debian"
+
+- name: Create and chown directory for gsqlite3 databases
+  file:
+    name: "{{ '/'.join(item.split('/')[:-1]) }}"
+    state: directory
+    owner: "{{ pdns_user }}"
+    group: "{{ pdns_group }}"
+  with_items: "{{pdns_backends_gsqlite3_databases}}"
+  when: ansible_os_family == "Debian"
+
+- name: Initiate the gsqlite3 database
+  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
+  become: true
+  become_user: "{{ pdns_user }}"
+  args:
+    creates: "{{ item }}"
+  with_items: "{{pdns_backends_gsqlite3_databases}}"
+  when: ansible_os_family == "Debian"
