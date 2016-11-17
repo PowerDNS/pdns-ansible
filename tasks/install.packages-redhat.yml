@@ -45,3 +45,4 @@
   shell: yum list installed pdns-backend-sqlite | grep pdns-backend-sqlite | awk '{print $2}' | cut -d'-' -f1
   register: pdns_sqlite_backend_version
   changed_when: False
+  when: pdns_backends_sqlite3_databases is defined
