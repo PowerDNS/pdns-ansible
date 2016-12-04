@@ -42,7 +42,7 @@
     - pdns-mysql-db
 
 - include: database-sqlite3.yml
-  when: pdns_backends_sqlite3_databases is defined
+  when: pdns_backends_sqlite3_databases is defined or pdns_backends_gsqlite3_databases is defined
   tags:
     - db
     - database
