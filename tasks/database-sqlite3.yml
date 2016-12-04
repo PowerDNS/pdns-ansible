@@ -3,6 +3,10 @@
   apt: name="sqlite3" state="installed"
   when: ansible_os_family == "Debian"
 
+- name: Install required packages to manipulate sqlite3 databases (Redhat)
+  yum: name="sqlite" state="latest"
+  when: ansible_os_family == "RedHat"
+
 - name: Create and chown directory for gsqlite3 databases
   file:
     name: "{{ '/'.join(item.split('/')[:-1]) }}"
@@ -10,7 +14,7 @@
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
   with_items: "{{pdns_backends_gsqlite3_databases}}"
-  when: ansible_os_family == "Debian"
+  when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
 
 - name: Initiate the gsqlite3 database
   shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
@@ -20,3 +24,12 @@
     creates: "{{ item }}"
   with_items: "{{pdns_backends_gsqlite3_databases}}"
   when: ansible_os_family == "Debian"
+
+- name: Initiate the gsqlite3 database (Redhat)
+  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-0.0.1357g7541e94/schema.sqlite3.sql"
+  become: true
+  become_user: "{{ pdns_user }}"
+  args:
+    creates: "{{ item }}"
+  with_items: "{{pdns_backends_gsqlite3_databases}}"
+  when: ansible_os_family == "RedHat"
