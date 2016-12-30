@@ -9,7 +9,7 @@
     state: directory
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
-  with_items: "{{pdns_backends_gsqlite3_databases}}"
+  with_items: "{{pdns_backends_sqlite3_databases|default([])}}"
   when: ansible_os_family == "Debian"
 
 - name: Initiate the gsqlite3 database
@@ -18,5 +18,5 @@
   become_user: "{{ pdns_user }}"
   args:
     creates: "{{ item }}"
-  with_items: "{{pdns_backends_gsqlite3_databases}}"
+  with_items: "{{pdns_backends_sqlite3_databases|default([])}}"
   when: ansible_os_family == "Debian"
