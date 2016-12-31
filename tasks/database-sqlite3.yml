@@ -1,6 +1,9 @@
 ---
 - name: Install required packages to manipulate sqlite3 databases
-  apt: name="sqlite3" state="installed"
+  apt: name="{{item}}" state="installed"
+  with_items:
+    - sqlite3
+    - pdns-backend-sqlite3
   when: ansible_os_family == "Debian"
 
 - name: Create and chown directory for gsqlite3 databases
