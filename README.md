@@ -37,8 +37,7 @@ configure this variable
 ### pdns_backends_sqlite3_databases
 A list that has the paths to gsqlite3 databases. These databases will be
 initialized by this role. Note that these will **not** be added to the PowerDNS
-configuration. This should be done with pdns_backends, see the examples. This
-variable only works on Debian-like operating systems for now.
+configuration. This should be done with pdns_backends, see the examples.
 
 ### pdns_config
 A dict detailing the configuration of PowerDNS. You should not set the following

@@ -4,7 +4,6 @@
   with_items:
     - sqlite3
     - pdns-backend-sqlite3
-  when: ansible_os_family == "Debian"
 
 - name: Create and chown directory for gsqlite3 databases
   file:
@@ -13,7 +12,6 @@
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
   with_items: "{{pdns_backends_sqlite3_databases|default([])}}"
-  when: ansible_os_family == "Debian"
 
 - name: Initiate the gsqlite3 database
   shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
@@ -22,4 +20,3 @@
   args:
     creates: "{{ item }}"
   with_items: "{{pdns_backends_sqlite3_databases|default([])}}"
-  when: ansible_os_family == "Debian"

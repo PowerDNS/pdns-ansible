@@ -41,8 +41,17 @@
     - database
     - pdns-mysql-db
 
-- include: database-sqlite3.yml
-  when: pdns_backends_sqlite3_databases is defined
+- include: database-sqlite3-debian.yml
+  static: false
+  when: pdns_backends_sqlite3_databases is defined and ansible_os_family == "Debian"
+  tags:
+    - db
+    - database
+    - pdns-sqlite3-db
+
+- include: database-sqlite3-redhat.yml
+  static: false
+  when: pdns_backends_sqlite3_databases is defined and ansible_os_family == "RedHat"
   tags:
     - db
     - database
