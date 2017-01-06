@@ -18,7 +18,22 @@ ansible:
           gsqlite3:
             database: '/var/lib/powerdns/pdns.db'
             dnssec: yes
-
+    mysql:
+      - pdns_repo_provider: 'powerdns'
+        pdns_repo_branch: '40'
+        pdns_backends_mysql_credential:
+          gmysql:
+            priv_user: 'root'
+            priv_password: ''
+            priv_host:
+              - '%'
+              - 'localhost'
+        pdns_backends:
+          gmysql:
+            host: 'localhost'
+            dbname: pdns
+            user: pdns
+            password: pdns
 
 driver:
   name: vagrant
@@ -43,3 +58,6 @@ vagrant:
     - name: sqlite
       ansible_groups:
         - sqlite
+    - name: mysql
+      ansible_groups:
+        - mysql

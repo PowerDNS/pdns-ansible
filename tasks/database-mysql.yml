@@ -59,6 +59,23 @@
   tags:
     - pdns-mysql-db
 
+- name: Get the version of the installed MySQL backend
+  yum_madison:
+    name: 'pdns-backend-mysql'
+  register: pdns_mysql_backend_version
+  changed_when: False
+  when: pdns_backends_mysql_credential is defined and ansible_os_family == "RedHat"
+
+- name: Set the directory for the schema (RedHat)
+  set_fact:
+    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_mysql_backend_version.versions | map(attribute='version') | first | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
+  when: pdns_backends_mysql_credential is defined and ansible_os_family == "RedHat"
+
+- name: Set the directory for the schema (Debian)
+  set_fact:
+    pdns_mysql_schema_file: "{{pdns_mysql_debian_schema_file[pdns_repo_provider]}}"
+  when: pdns_backends_mysql_credential is defined and ansible_os_family == "Debian"
+
 - name: Import initial mysql schema
   mysql_db:
     login_user: "{{ item.item.value.user }}"
@@ -66,7 +83,7 @@
     login_host: "{{ item.item.value.host }}"
     name: "{{ item.item.value.dbname }}"
     state: import
-    target: "{{ pdns_mysql_schema_file[pdns_repo_provider] }}"
+    target: "{{ pdns_mysql_schema_file }}"
   when: item.item.key.split(':')[0] == 'gmysql' and item.stdout == "0"
   with_items: "{{ pdns_check_mysql_db.results }}"
   tags:

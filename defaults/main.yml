@@ -86,7 +86,7 @@ pdns_backends:
 #       - "localhost"
 
 # Full path to mysql schema file
-pdns_mysql_schema_file:
+pdns_mysql_debian_schema_file:
   os: /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql
   powerdns: /usr/share/doc/pdns-backend-mysql/schema.mysql.sql
 

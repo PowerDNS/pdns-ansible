@@ -1,4 +1,22 @@
 ---
+- hosts: mysql
+  tasks:
+    - name: Install mariadb (RedHat)
+      yum:
+        name: "{{ item }}"
+      with_items: ['mariadb', 'mariadb-server', 'MySQL-python']
+      when: ansible_os_family == 'RedHat'
+    - name: start mariadb (RedHat)
+      service:
+        name: mariadb
+        state: running
+      when: ansible_os_family == 'RedHat'
+    - name: Install MySQL (Debian)
+      apt:
+        name: "{{ item }}"
+      with_items: ['mysql-client', 'mysql-server', 'python-mysqldb']
+      when: ansible_os_family == 'Debian'
+
 - hosts: all
   roles:
     - { role: pdns-ansible }
