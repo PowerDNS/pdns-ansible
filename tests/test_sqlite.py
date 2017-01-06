@@ -3,9 +3,17 @@ import testinfra.utils.ansible_runner
 testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     '.molecule/ansible_inventory').get_hosts('sqlite')
 
+debian_os = ['debian', 'ubuntu']
+rhel_os = ['redhat', 'centos']
 
-def test_package(Package):
-    p = Package('pdns-backend-sqlite3')
+
+def test_package(Package, SystemInfo):
+    p = None
+    if SystemInfo.distribution in debian_os:
+        p = Package('pdns-backend-sqlite3')
+    if SystemInfo.distribution in rhel_os:
+        p = Package('pdns-backend-sqlite')
+
     assert p.is_installed
 
 
