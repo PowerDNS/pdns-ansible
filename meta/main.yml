@@ -15,4 +15,5 @@ galaxy_info:
     - jessie
   galaxy_tags:
     - system
-dependencies: []
+dependencies:
+  - atosatto.packages-extras

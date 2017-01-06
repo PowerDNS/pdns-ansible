@@ -14,7 +14,7 @@
   with_items: "{{pdns_backends_sqlite3_databases|default([])}}"
 
 - name: Initiate the gsqlite3 database
-  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
+  shell: "umask 022; sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
   become: true
   become_user: "{{ pdns_user }}"
   args:
