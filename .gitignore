@@ -7,7 +7,6 @@
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
 
-
 ### Vim ###
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]
@@ -16,6 +15,16 @@ Session.vim
 .netrwhist
 *~
 
-# test-kitchen relates
-.kitchen/
-.kitchen.local.yml
+### Ansible ###
+*.retry
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+### Molecule ###
+.cache
+.molecule
+.vagrant

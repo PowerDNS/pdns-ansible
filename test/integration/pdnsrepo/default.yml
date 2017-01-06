@@ -1,5 +1,0 @@
----
-- hosts: localhost
-  roles:
-    - {role: pdns-ansible, pdns_repo_provider: 'powerdns', pdns_repo_branch: 'master'}
-
