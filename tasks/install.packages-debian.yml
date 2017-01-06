@@ -30,7 +30,7 @@
 #    id: 9FAAA5577E8FCF62093D036C1B0C6205FD380FBB
 #  when: pdns_repo_provider == "powerdns" pdns_repo_branch in ["40", "stable"]
 
-- name: Add the PowerDNS repository
+- name: Add the PowerDNS apt-repository
   apt_repository:
     repo: "deb [arch=amd64] http://repo.powerdns.com/{{ansible_lsb.id | lower}} {{ansible_distribution_release|lower}}-auth-{{pdns_repo_branch}} main"
   when: pdns_repo_provider == "powerdns"
