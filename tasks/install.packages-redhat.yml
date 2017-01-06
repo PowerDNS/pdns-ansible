@@ -34,11 +34,11 @@
   when: pdns_backends_dict[item.key.split(':')[0]] is defined and item.key.split(':')[0] != 'gsqlite3'
   with_dict: "{{ pdns_backends }}"
 
-- name: Install sqlite backend 
+- name: Install sqlite backend
   yum:
     pkg: "pdns-backend-sqlite"
     state: installed
-  when: pdns_backends_sqlite3_databases is defined 
+  when: pdns_backends_sqlite3_databases is defined
 
 # query the installed version to be used getting the schema path
 - name: Get the sqlite_backend version
