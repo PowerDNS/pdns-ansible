@@ -13,7 +13,7 @@ pdns_group: pdns
 
 # The directory where the config is located
 pdns_config_dir: '/etc/powerdns'
-pdns_config_dir_user: '/etc/powerdns/pdns.d'
+pdns_config_dir_user: "{{ pdns_config_dir }}/pdns.d"
 
 # This is the dictionary var for all backends.
 # backendname: packagename

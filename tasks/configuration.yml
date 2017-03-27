@@ -16,12 +16,12 @@
 - name: Add configuration for PowerDNS
   template:
     src: pdns.local.conf.j2
-    dest: "{{ pdns_config_dir | default('/etc/powerdns') }}/pdns.d/pdns.local.conf"
+    dest: "{{ pdns_config_dir_user }}/pdns.local.conf"
   notify: Restart PowerDNS
 
 - name: "Add configuration for Backend {{ item }}"
   template:
     src: pdns.local.backends.conf.j2
-    dest: "{{ pdns_config_dir | default('/etc/powerdns') }}/pdns.d/pdns.local.{{ item }}.conf"
+    dest: "{{ pdns_config_dir_user }}/pdns.local.{{ item }}.conf"
   with_items:
     - "{{ pdns_backends.keys() }}"
