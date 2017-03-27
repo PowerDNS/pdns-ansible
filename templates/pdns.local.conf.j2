@@ -1,0 +1,16 @@
+config-dir={{pdns_config_dir}}
+setuid={{ pdns_user }}
+setgid={{ pdns_group }}
+{% for config_item, value in pdns_config.items() %}
+{% if config_item not in ["config-dir", "launch", "setuid", "setgid"] %}
+{% if value == True %}
+{{config_item}}=yes
+{% elif value == False %}
+{{config_item}}=no
+{% else %}
+{{config_item}}={{value|string}}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+launch=
