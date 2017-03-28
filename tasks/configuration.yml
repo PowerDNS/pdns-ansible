@@ -1,14 +1,14 @@
 ---
 - name: Ensure the PowerDNS configuration directory exists
   file:
-    name: "{{ pdns_config_dir | default('/etc/powerdns') }}"
+    name: "{{ pdns_config_dir }}"
     state: directory
     owner: "root"
     group: "root"
 
 - name: Ensure the PowerDNS configuration directory exists
   file:
-    name: "{{ pdns_config_dir_user | default('/etc/powerdns/pdns.d') }}"
+    name: "{{ pdns_config_dir_user }}"
     state: directory
     owner: "root"
     group: "root"
