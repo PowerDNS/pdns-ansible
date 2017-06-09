@@ -98,11 +98,15 @@ pdns_backends:
   bind:
     config: '/dev/null'
 
-# MySQL credential to create database per backend
+
+# Credentials to create the PowerDNS MySQL backend databases
+# and users.
+pdns_mysql_databases_credentials: {}
+
 # You must put only gmysql backend
 #
 # For example:
-# pdns_backends_mysql_credential:
+# pdns_mysql_databases_credentials:
 #   'gmysql:one':
 #     'priv_user': root
 #     'priv_password': my_first_password
@@ -115,12 +119,8 @@ pdns_backends:
 #     'priv_host':
 #       - "localhost"
 
-# This will create the following list of SQLite databases
-# NOTE: This requries the SQLite CLI tools to be available in the machine and the gsqlite3
+# This will create the PowerDNS backend SQLite database
+# in the given locations.
+# NOTE: Requries the SQLite CLI tools to be available in the machine and the gsqlite3
 # backend to be installed on the machine.
-pdns_create_sqlite_databases: []
-  
-# Full path to mysql schema file
-pdns_mysql_debian_schema_file:
-  os: /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql
-  powerdns: /usr/share/doc/pdns-backend-mysql/schema.mysql.sql
+pdns_sqlite_databases_locations: []

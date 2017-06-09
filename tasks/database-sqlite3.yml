@@ -6,7 +6,7 @@
     state: directory
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
-  with_items: "{{ pdns_create_sqlite_databases }}"
+  with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - name: Initiate the SQLite databases (RedHat)
   become: true
@@ -14,7 +14,7 @@
   shell: "umask 022; sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ pdns_version | regex_replace('-[^-]*$', '') }}/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
-  with_items: "{{ pdns_create_sqlite_databases }}"
+  with_items: "{{ pdns_sqlite_databases_locations }}"
   when: ansible_os_family == "RedHat"
 
 - name: Initiate the SQLite databases (Debian)
@@ -23,5 +23,5 @@
   shell: "umask 022; sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
-  with_items: "{{ pdns_create_sqlite_databases }}"
+  with_items: "{{ pdns_sqlite_databases_locations }}"
   when: ansible_os_family == "Debian"

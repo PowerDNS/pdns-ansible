@@ -33,13 +33,13 @@
 - include: "inspect-{{ ansible_os_family }}.yml"
 
 - include: database-mysql.yml
-  when: pdns_backends_mysql_credential is defined
+  when: "{{ pdns_mysql_databases_credentials.keys | length > 0 }}"
   tags:
     - db
     - mysql 
 
 - include: database-sqlite3.yml
-  when: "{{ pdns_create_sqlite_database | length > 0 }}"
+  when: "{{ pdns_sqlite_databases_locations | length > 0 }}"
   tags:
     - db
     - sqlite
