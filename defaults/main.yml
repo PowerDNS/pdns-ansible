@@ -3,10 +3,6 @@
 # By default, PowerDNS is installed from the os default repositories.
 pdns_install_repo: ""
 
-# Install the EPEL repository.
-# EPEL is needed to satisfy some PowerDNS dependencies like protobuf
-pdns_install_epel: True
-
 # You can install the PowerDNS packages from the 'master' branch as
 # follows:
 # - hosts: all
@@ -35,6 +31,10 @@ pdns_install_epel: True
 #       yum_repo_name: "powerdns"       # used to select only the pdns packages coming from this repo
 #   roles:
 #    - { role: PowerDNS.pdns }
+
+# Install the EPEL repository.
+# EPEL is needed to satisfy some PowerDNS dependencies like protobuf
+pdns_install_epel: True
 
 # The user and group to run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
