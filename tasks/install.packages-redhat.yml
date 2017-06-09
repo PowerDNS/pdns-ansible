@@ -1,29 +1,5 @@
 ---
 
-- name: Install epel-release
-  yum:
-    name: epel-release
-    update_cache: yes
-
-- name: Install the PowerDNS yum package
-  yum:
-    name: pdns
-    state: installed
-
-# install backend module packages excluding sqlite
-- name: Install module package
-  yum:
-    pkg: "{{ pdns_backends_dict[item.key.split(':')[0]] }}"
-    state: installed
-  when: pdns_backends_dict[item.key.split(':')[0]] is defined and item.key.split(':')[0] != 'gsqlite3'
-  with_dict: "{{ pdns_backends }}"
-
-- name: Install sqlite backend
-  yum:
-    pkg: "pdns-backend-sqlite"
-    state: installed
-  when: pdns_backends_sqlite3_databases is defined
-
 # query the installed version to be used getting the schema path
 - name: Get the sqlite_backend version
   yum_madison:

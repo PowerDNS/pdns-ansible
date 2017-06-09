@@ -1,4 +1,5 @@
 ---
+
 - name: Install required packages to manipulate sqlite databases
   yum: name="sqlite" state="installed"
 

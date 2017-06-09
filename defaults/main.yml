@@ -47,6 +47,15 @@ pdns_group: pdns
 pdns_config_dir: "{{ default_pdns_backends_dict }}"
 pdns_config_file: "pdns.conf"
 
+# Name of the PowerDNS Service
+pdns_service_name: "pdns"
+
+# Force the execution of the handlers at the end of the role.
+# This is required if using this role to configure multiple recursor instances
+# in a single play to make sure that on configuration changes the correct pnds_recursor 
+# instance is restarted.
+pdns_flush_handlers: False
+
 # Dictionary of packages that should be installed to enable the backends.
 # backendname: packagename
 pdns_backends_dict: {{ default_pdns_backends_dict }}
