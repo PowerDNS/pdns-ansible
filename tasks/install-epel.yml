@@ -1,0 +1,14 @@
+---
+
+- name: Install epel-release on CentOS/RedHat
+  yum:
+    name: epel-release
+    state: present
+  when: ansible_distribution in [ 'RedHat', 'CentOS' ]
+
+- name: Install epel-release on OracleLinux 6
+  yum:
+    name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm'
+    state: present
+  when: ansible_distribution in [ 'OracleLinux' ]
+    and ansible_distribution_major_version == '6'

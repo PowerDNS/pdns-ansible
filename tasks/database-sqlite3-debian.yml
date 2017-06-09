@@ -1,4 +1,5 @@
 ---
+
 - name: Install required packages to manipulate sqlite3 databases
   apt: name="{{item}}" state="installed"
   with_items:
