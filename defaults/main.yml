@@ -44,7 +44,7 @@ pdns_user: pdns
 pdns_group: pdns
 
 # PowerDNS configuration files and directories 
-pdns_config_dir: "{{ default_pdns_backends_dict }}"
+pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
 
 # Name of the PowerDNS Service
@@ -58,7 +58,7 @@ pdns_flush_handlers: False
 
 # Dictionary of packages that should be installed to enable the backends.
 # backendname: packagename
-pdns_backends_packages: {{ default_pdns_backends_dict }}
+pdns_backends_packages: "{{ default_pdns_backends_packages }}"
 
 # pdns_config: A dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.

@@ -25,7 +25,7 @@
   package:
     name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}"
     state: installed
-  when: pdns_backends_dict[item.key.split(':')[0]] is defined
+  when: pdns_backends_packages[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
   tags:
     - install 
@@ -33,13 +33,13 @@
 - include: "inspect-{{ ansible_os_family }}.yml"
 
 - include: database-mysql.yml
-  when: "{{ pdns_mysql_databases_credentials.keys | length > 0 }}"
+  when: "pdns_mysql_databases_credentials | length > 0"
   tags:
     - db
     - mysql 
 
 - include: database-sqlite3.yml
-  when: "{{ pdns_sqlite_databases_locations | length > 0 }}"
+  when: "pdns_sqlite_databases_locations | length > 0"
   tags:
     - db
     - sqlite

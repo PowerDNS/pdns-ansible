@@ -7,7 +7,7 @@
     login_host: "{{ item.value.host }}"
     name: "{{ item.value.dbname }}"
     state: present
-  when: item.key.split(':')[0] == 'gmysql'
+  when: "item.key.split(':')[0] == 'gmysql'"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
 - name: Grant PowerDNS access to the databases
@@ -38,17 +38,17 @@
 - name: Define the PowerDNS schema definition file path (RedHat)
   set_fact:
     pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_version | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
-  when: ansible_os_family == "RedHat"
+  when: "ansible_os_family == 'RedHat'"
 
 - name: Define the PowerDNS schema definition file path (Debian)
   set_fact:
     pdns_mysql_schema_file: "/usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql"
-  when: ansible_os_family == "Debian" and pdns_install_repo == ""
+  when: "ansible_os_family == 'Debian' and pdns_install_repo == ''"
 
 - name: Define the PowerDNS schema definition file path (Debian)
   set_fact:
     pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
-  when: ansible_os_family == "Debian" and pdns_install_repo != ""
+  when: "ansible_os_family == 'Debian' and pdns_install_repo != ''"
 
 - name: Import the initial PowerDNS MySQL schema
   mysql_db:
@@ -58,5 +58,5 @@
     name: "{{ item.item.value.dbname }}"
     state: import
     target: "{{ pdns_mysql_schema_file }}"
-  when: item.item.key.split(':')[0] == 'gmysql' and item.stdout == "0"
+  when: "item.item.key.split(':')[0] == 'gmysql' and item.stdout == '0'"
   with_items: "{{ pdns_check_mysql_db.results }}"
