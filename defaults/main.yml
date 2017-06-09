@@ -101,10 +101,6 @@ pdns_backends:
 
 # Credentials to create the PowerDNS MySQL backend databases
 # and users.
-pdns_mysql_databases_credentials: {}
-
-# You must put only gmysql backend
-#
 # For example:
 # pdns_mysql_databases_credentials:
 #   'gmysql:one':
@@ -118,6 +114,7 @@ pdns_mysql_databases_credentials: {}
 #     'priv_password': my_second_password
 #     'priv_host':
 #       - "localhost"
+pdns_mysql_databases_credentials: {}
 
 # This will create the PowerDNS backend SQLite database
 # in the given locations.
