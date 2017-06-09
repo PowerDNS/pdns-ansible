@@ -1,21 +1,4 @@
 ---
-- name: Install required packaged to initial mysql database for Debian family OS
-  apt:
-     pkg: "{{ item }}"
-     state: installed
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "Debian"
-  with_items: "{{ pdns_debian_mysql_dependencies }}"
-  tags:
-    - pdns-mysql-db
-
-- name: Install required packaged to initial mysql database for RedHat family OS
-  yum:
-     pkg: "{{ item }}"
-     state: installed
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "RedHat"
-  with_items: "{{ pdns_rhel_mysql_dependencies }}"
-  tags:
-    - pdns-mysql-db
 
 - name: Create database for PowerDNS
   mysql_db:
@@ -26,8 +9,6 @@
     state: present
   when: pdns_backends_mysql_credential is defined and item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends | combine(pdns_backends_mysql_credential|default({}), recursive=True) }}"
-  tags:
-    - pdns-mysql-db
 
 - name: Grant access to the DB for the PowerDNS
   mysql_user:

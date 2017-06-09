@@ -1,7 +1,7 @@
 ---
 
 # List of PowerDNS Backends RedHat packages
-default_pdns_backends_dict:
+default_pdns_backends_packages:
   geo: pdns-backend-geo
   geoip: pdns-backend-geoip
   gmysql: pdns-backend-mysql

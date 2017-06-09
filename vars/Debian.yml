@@ -1,7 +1,7 @@
 ---
 
 # List of PowerDNS Backends Debian packages
-default_pdns_backends_dict:
+default_pdns_backends_packages:
   geo: pdns-backend-geo
   geoip: pdns-backend-geoip
   gmysql: pdns-backend-mysql
@@ -16,4 +16,4 @@ default_pdns_backends_dict:
   tinydns: pdns-backend-tinydns
 
 # The directory where the PowerDNS configuration is located 
-pdns_config_dir: '/etc/powerdns'
+default_pdns_config_dir: '/etc/powerdns'

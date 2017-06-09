@@ -3,15 +3,13 @@
 - name: Include OS-specific variables
   include_vars: "{{ ansible_os_family }}.yml"
 
-- name: Setup PowerDNS Repo
-  include: "repo-{{ ansible_os_family }}.yml"
+- include: "repo-{{ ansible_os_family }}.yml"
   when: pdns_install_repo != ""
   tags:
     - install
     - repository
 
-- name: Install EPEL (when required)
-  include: install-epel.yml
+- include: install-epel.yml
   when: ansible_os_family == 'RedHat' and pdns_install_epel
   tags:
     - install
@@ -25,12 +23,14 @@
 
 - name: Install module package
   package:
-    name: "{{ pdns_backends_dict[item.key.split(':')[0]] }}"
+    name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}"
     state: installed
   when: pdns_backends_dict[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
   tags:
     - install 
+
+- include: "inspect-{{ ansible_os_family }}.yml"
 
 - include: database-mysql.yml
   when: pdns_backends_mysql_credential is defined
@@ -38,19 +38,11 @@
     - db
     - mysql 
 
-- include: database-sqlite3-debian.yml
-  static: false
-  when: pdns_backends_sqlite3_databases is defined and ansible_os_family == "Debian"
+- include: database-sqlite3.yml
+  when: "{{ pdns_create_sqlite_database | length > 0 }}"
   tags:
     - db
     - sqlite
-
-- include: database-sqlite3-redhat.yml
-  static: false
-  when: pdns_backends_sqlite3_databases is defined and ansible_os_family == "RedHat"
-  tags:
-    - db
-    - pdns-sqlite3-db
 
 - include: configure.yml
   tags:

@@ -58,7 +58,7 @@ pdns_flush_handlers: False
 
 # Dictionary of packages that should be installed to enable the backends.
 # backendname: packagename
-pdns_backends_dict: {{ default_pdns_backends_dict }}
+pdns_backends_packages: {{ default_pdns_backends_dict }}
 
 # pdns_config: A dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
@@ -115,15 +115,12 @@ pdns_backends:
 #     'priv_host':
 #       - "localhost"
 
+# This will create the following list of SQLite databases
+# NOTE: This requries the SQLite CLI tools to be available in the machine and the gsqlite3
+# backend to be installed on the machine.
+pdns_create_sqlite_databases: []
+  
 # Full path to mysql schema file
 pdns_mysql_debian_schema_file:
   os: /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql
   powerdns: /usr/share/doc/pdns-backend-mysql/schema.mysql.sql
-
-# Dependencies to initial mysql database
-pdns_debian_mysql_dependencies:
-  - python-mysqldb
-  - mysql-client
-pdns_rhel_mysql_dependencies:
-  - MySQL-python
-  - mysql
