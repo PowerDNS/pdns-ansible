@@ -1,1 +1,2 @@
 pdns_config_dir: '/etc/pdns'
+pdns_config_dir_user: "{{ pdns_config_dir }}/pdns.d"

@@ -21,14 +21,38 @@ def test_config(File, SystemInfo, Sudo):
             f = File('/etc/powerdns/pdns.conf')
         if SystemInfo.distribution in rhel_os:
             f = File('/etc/pdns/pdns.conf')
+            
+        assert f.exists
+        assert 'launch=' in f.content
+            
+def test_config_user(File, SystemInfo, Sudo):
+    with Sudo():
+        f = None
+        if SystemInfo.distribution in debian_os:
+            f = File('/etc/powerdns/pdns.d/pdns.local.conf')
+        if SystemInfo.distribution in rhel_os:
+            f = File('/etc/pdns//pdns.d/pdns.local.conf')
+            
+        assert f.exists
+        assert 'config-dir=' in f.content
+        assert 'setuid=' in f.content
+        assert 'setgid=' in f.content
+        assert ! 'launch=' in f.content
 
+def test_config_mysql(File, SystemInfo, Sudo):
+    with Sudo():
+        f = None
+        if SystemInfo.distribution in debian_os:
+            f = File('/etc/powerdns/pdns.d/pdns.local.gmysql.conf')
+        if SystemInfo.distribution in rhel_os:
+            f = File('/etc/pdns/pdns.d/pdns.local.gmysql.conf')
+            
         assert f.exists
         assert 'launch+=gmysql' in f.content
         assert 'gmysql-host=localhost' in f.content
         assert 'gmysql-password=pdns' in f.content
         assert 'gmysql-dbname=pdns' in f.content
         assert 'gmysql-user=pdns' in f.content
-
 
 @pytest.mark.parametrize("table", [
     ('domains'),

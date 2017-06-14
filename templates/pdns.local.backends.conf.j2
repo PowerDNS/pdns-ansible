@@ -1,0 +1,13 @@
+launch+={{item}}
+{% set backend_string = item | replace(':', '-') %}
+{% for backend_item, value in pdns_backends[item].items() -%}
+{% if value == True %}
+{{backend_string}}-{{backend_item}}=yes
+{% elif backend_item == False %}
+{{backend_string}}-{{backend_item}}=no
+{% elif backend_item == None %}
+{{backend_string}}-{{backend_item}}=
+{% else %}
+{{backend_string}}-{{backend_item}}={{value | string}}
+{% endif %}
+{% endfor %}
