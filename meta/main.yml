@@ -3,7 +3,7 @@ galaxy_info:
   author: Pieter Lexis
   description: PowerDNS Authoritative Server role
   company: PowerDNS.COM BV
-  license: GPLv2
+  license: MIT
   min_ansible_version: 0.9
   platforms:
   - name: EL
