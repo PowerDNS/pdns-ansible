@@ -36,6 +36,9 @@ pdns_install_repo: ""
 # EPEL is needed to satisfy some PowerDNS dependencies like protobuf
 pdns_install_epel: True
 
+# The name of the PowerDNS package
+pdns_package_name: "{{ default_pdns_package_name }}"
+
 # The user and group to run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
 # a "pdns" user and group. If you change these variables, make sure to create

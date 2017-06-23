@@ -1,3 +1,0 @@
-Package: pdns-*
-Pin: origin {{ pdns_rec_install_repo['apt_repo_origin'] }}
-Pin-Priority: 600

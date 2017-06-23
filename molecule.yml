@@ -1,4 +1,5 @@
 ---
+
 dependency:
   name: galaxy
   requirements_file: 'tests/requirements.yml'
@@ -7,33 +8,30 @@ ansible:
   playbook: 'tests/playbook.yml'
   group_vars:
     master:
-      - pdns_repo_provider: 'powerdns'
-        pdns_repo_branch: 'master'
+      pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
     sqlite:
-      - pdns_repo_provider: 'powerdns'
-        pdns_repo_branch: 'master'
-        pdns_backends_sqlite3_databases:
-          - '/var/lib/powerdns/pdns.db'
-        pdns_backends:
-          gsqlite3:
-            database: '/var/lib/powerdns/pdns.db'
-            dnssec: yes
+      pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
+      pdns_backends_sqlite3_databases:
+        - '/var/lib/powerdns/pdns.db'
+      pdns_backends:
+        gsqlite3:
+          database: '/var/lib/powerdns/pdns.db'
+          dnssec: yes
     mysql:
-      - pdns_repo_provider: 'powerdns'
-        pdns_repo_branch: '40'
-        pdns_backends_mysql_credential:
-          gmysql:
-            priv_user: 'root'
-            priv_password: ''
-            priv_host:
-              - '%'
-              - 'localhost'
-        pdns_backends:
-          gmysql:
-            host: 'localhost'
-            dbname: pdns
-            user: pdns
-            password: pdns
+      pdns_install_repo: "{{ pdns_auth_powerdns_repo_40 }}"
+      pdns_backends_mysql_credential:
+        gmysql:
+          priv_user: 'root'
+          priv_password: ''
+          priv_host:
+            - '%'
+            - 'localhost'
+      pdns_backends:
+        gmysql:
+          host: 'localhost'
+          dbname: pdns
+          user: pdns
+          password: pdns
 
 driver:
   name: vagrant
@@ -50,6 +48,11 @@ vagrant:
       options:
         cpu_mode: 'host-passthrough'
         memory: 512
+        cpus: 2
+    - name: virtualbox
+      type: virtualbox
+      options:
+        memory: 512 
         cpus: 2
   instances:
     - name: master

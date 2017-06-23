@@ -16,12 +16,12 @@
 
 - name: Install PowerDNS
   package:
-    name: pdns
+    name: "{{ pdns_package_name }}" 
     state: present
   tags:
     - install
 
-- name: Install module package
+- name: Install module packages
   package:
     name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}"
     state: installed

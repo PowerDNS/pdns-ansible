@@ -58,14 +58,17 @@ The roles also supports custom repositories
       roles:
         - { role: PowerDNS.pdns }
 
-If targeting only a specific platform (e.g. Debian) it's not needed to provide other platform (e.g. yum) repositories informations.
+If targeting only a specific platform (e.g. Debian) it's not needed to provide other platform (e.g. yum) repositories information.
 
     pdns_install_epel: True
 
-By default the role installs also the EPEL repository.
+On RedHat-like system, by default the role installs EPEL.
 EPEL is needed to satisfy some PowerDNS dependencies like `protobuf`.
-If these dependencies are included into other repositories already configured in the
-host or in the custom `pdns_install_epel`, override this variable to `False` to skip EPEL installation.
+To skip EPEL installation set `pdns_install_epel` to `False`.
+
+    pdns_package_name: "{{ default_pdns_package_name }}"
+
+The name of the PowerDNS Server package, `pdns` on RedHat-like systems and `pdns-server` on Debian-like systems.
 
     pdns_user: pdns
     pdns_group: pdns

@@ -1,7 +1,7 @@
 ---
 
 pdns_auth_powerdns_repo_master:
-  apt_repo_origin: "repo.powerdns.com"
+  apt_repo_origin: "PowerDNS"
   apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-master main"
   gpg_key: "http://repo.powerdns.com/CBC8B383-pub.asc"
   gpg_key_id: "D47975F8DAE32700A563E64FFF389421CBC8B383"
@@ -9,7 +9,7 @@ pdns_auth_powerdns_repo_master:
   yum_repo_name: "powerdns-auth"
 
 pdns_auth_powerdns_repo_40:
-  apt_repo_origin: "repo.powerdns.com"
+  apt_repo_origin: "PowerDNS"
   apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-40 main"
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
