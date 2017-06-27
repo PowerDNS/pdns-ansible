@@ -1,35 +1,16 @@
 ---
-- name: Install required packaged to initial mysql database for Debian family OS
-  apt:
-     pkg: "{{ item }}"
-     state: installed
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "Debian"
-  with_items: "{{ pdns_debian_mysql_dependencies }}"
-  tags:
-    - pdns-mysql-db
 
-- name: Install required packaged to initial mysql database for RedHat family OS
-  yum:
-     pkg: "{{ item }}"
-     state: installed
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "RedHat"
-  with_items: "{{ pdns_rhel_mysql_dependencies }}"
-  tags:
-    - pdns-mysql-db
-
-- name: Create database for PowerDNS
+- name: Create the PowerDNS databases
   mysql_db:
     login_user: "{{ item.value.priv_user }}"
     login_password: "{{ item.value.priv_password }}"
     login_host: "{{ item.value.host }}"
     name: "{{ item.value.dbname }}"
     state: present
-  when: pdns_backends_mysql_credential is defined and item.key.split(':')[0] == 'gmysql'
-  with_dict: "{{ pdns_backends | combine(pdns_backends_mysql_credential|default({}), recursive=True) }}"
-  tags:
-    - pdns-mysql-db
+  when: "item.key.split(':')[0] == 'gmysql'"
+  with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
-- name: Grant access to the DB for the PowerDNS
+- name: Grant PowerDNS access to the databases
   mysql_user:
     login_user: "{{ item.0.priv_user }}"
     login_password: "{{ item.0.priv_password }}"
@@ -39,15 +20,12 @@
     host: "{{ item.1 }}"
     state: present
     priv: "{{ item.0.dbname }}.*:ALL"
-  when: pdns_backends_mysql_credential is defined
   with_subelements:
-    - "{{ pdns_backends | combine(pdns_backends_mysql_credential|default({}), recursive=True) }}"
+    - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host
     - skip_missing: yes
-  tags:
-    - pdns-mysql-db
 
-- name: Check if mysql database is empty
+- name: Check if the PowerDNS databases are empty
   command: >
     mysql --user="{{ item.value.user }}" --password="{{ item.value.password }}"
     --host="{{ item.value.host }}" --batch --skip-column-names
@@ -56,27 +34,23 @@
   with_dict: "{{ pdns_backends }}"
   register: pdns_check_mysql_db
   changed_when: False
-  tags:
-    - pdns-mysql-db
 
-- name: Get the version of the installed MySQL backend
-  yum_madison:
-    name: 'pdns-backend-mysql'
-  register: pdns_mysql_backend_version
-  changed_when: False
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "RedHat"
-
-- name: Set the directory for the schema (RedHat)
+- name: Define the PowerDNS schema definition file path (RedHat)
   set_fact:
-    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_mysql_backend_version.versions | map(attribute='version') | first | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "RedHat"
+    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_version | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
+  when: "ansible_os_family == 'RedHat'"
 
-- name: Set the directory for the schema (Debian)
+- name: Define the PowerDNS schema definition file path (Debian)
   set_fact:
-    pdns_mysql_schema_file: "{{pdns_mysql_debian_schema_file[pdns_repo_provider]}}"
-  when: pdns_backends_mysql_credential is defined and ansible_os_family == "Debian"
+    pdns_mysql_schema_file: "/usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql"
+  when: "ansible_os_family == 'Debian' and pdns_install_repo == ''"
 
-- name: Import initial mysql schema
+- name: Define the PowerDNS schema definition file path (Debian)
+  set_fact:
+    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
+  when: "ansible_os_family == 'Debian' and pdns_install_repo != ''"
+
+- name: Import the initial PowerDNS MySQL schema
   mysql_db:
     login_user: "{{ item.item.value.user }}"
     login_password: "{{ item.item.value.password }}"
@@ -84,7 +58,5 @@
     name: "{{ item.item.value.dbname }}"
     state: import
     target: "{{ pdns_mysql_schema_file }}"
-  when: item.item.key.split(':')[0] == 'gmysql' and item.stdout == "0"
+  when: "item.item.key.split(':')[0] == 'gmysql' and item.stdout == '0'"
   with_items: "{{ pdns_check_mysql_db.results }}"
-  tags:
-    - pdns-mysql-db

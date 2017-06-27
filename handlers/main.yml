@@ -1,5 +1,6 @@
 ---
+
 - name: Restart PowerDNS
   service:
-    name: pdns
+    name: "{{ pdns_service_name }}"
     state: restarted

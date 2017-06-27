@@ -1,8 +1,43 @@
 ---
-pdns_installation_type: packages
-pdns_repo_provider: os
-# XXX: stable doesnt work yet
-pdns_repo_branch: master
+
+# By default, PowerDNS is installed from the os default repositories.
+pdns_install_repo: ""
+
+# You can install the PowerDNS packages from the 'master' branch as
+# follows:
+# - hosts: all
+#   roles:
+#    - { role: PowerDNS.pdns,
+#        pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
+#
+# To install the PowerDNS package from the '40' branch of
+# the PowerDNS official repository use the following playbook
+# - hosts: all
+#   roles:
+#    - { role: PowerDNS.pdns,
+#        pdns_install_repo: "{{ pdns_auth_powerdns_repo_40 }}"
+#
+# To install the PowerDNS Recursor package from a custom repository
+# override the `pdns_install_repo` default value in your playbook.
+# e.g.
+# - hosts: all
+#   vars:
+#     pdns_install_repo:
+#       apt_repo_origin: "my.repo.com"  # used to pin the pdns to the provided repository
+#       apt_repo: "deb http://my.repo.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
+#       gpg_key: "http://my.repo.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
+#       gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
+#       yum_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns"
+#       yum_repo_name: "powerdns"       # used to select only the pdns packages coming from this repo
+#   roles:
+#    - { role: PowerDNS.pdns }
+
+# Install the EPEL repository.
+# EPEL is needed to satisfy some PowerDNS dependencies like protobuf
+pdns_install_epel: True
+
+# The name of the PowerDNS package
+pdns_package_name: "{{ default_pdns_package_name }}"
 
 # The user and group to run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
@@ -11,24 +46,22 @@ pdns_repo_branch: master
 pdns_user: pdns
 pdns_group: pdns
 
-# The directory where the config is located
-pdns_config_dir: '/etc/powerdns'
+# PowerDNS configuration files and directories 
+pdns_config_dir: "{{ default_pdns_config_dir }}"
+pdns_config_file: "pdns.conf"
 
-# This is the dictionary var for all backends.
+# Name of the PowerDNS Service
+pdns_service_name: "pdns"
+
+# Force the execution of the handlers at the end of the role.
+# This is required if using this role to configure multiple recursor instances
+# in a single play to make sure that on configuration changes the correct pnds_recursor 
+# instance is restarted.
+pdns_flush_handlers: False
+
+# Dictionary of packages that should be installed to enable the backends.
 # backendname: packagename
-pdns_backends_dict:
-  geo: pdns-backend-geo
-  geoip: pdns-backend-geoip
-  gmysql: pdns-backend-mysql
-  gpgsql: pdns-backend-pgsql
-  gsqlite3: pdns-backend-sqlite3
-  ldap: pdns-backend-ldap
-  lmdb: pdns-backend-lmdb
-  lua: pdns-backend-lua
-  mydns: pdns-backend-mydns
-  pipe: pdns-backend-pipe
-  remote: pdns-backend-remote
-  tinydns: pdns-backend-tinydns
+pdns_backends_packages: "{{ default_pdns_backends_packages }}"
 
 # pdns_config: A dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
@@ -44,7 +77,7 @@ pdns_backends_dict:
 pdns_config: {}
 
 # pdns_backends: A dict with all the backends you'd like to have. You can use
-# the multiple backends of the same kind by using {backend}-{instance_name}.
+# the multiple backends of the same kind by using {backend}:{instance_name}.
 #
 # For example:
 # pdns_backends:
@@ -61,18 +94,18 @@ pdns_config: {}
 #   'bind':
 #     'config': '/etc/named/named.conf'
 #     'hybrid':  yes
-#     'dnssec-db': '{{pdns_config_dir/dnssec.db}}'
+#     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
 #
 # This default starts just the bind-backend with an empty config file
 pdns_backends:
   bind:
     config: '/dev/null'
 
-# MySQL credential to create database per backend
-# You must put only gmysql backend
-#
+
+# Credentials to create the PowerDNS MySQL backend databases
+# and users.
 # For example:
-# pdns_backends_mysql_credential:
+# pdns_mysql_databases_credentials:
 #   'gmysql:one':
 #     'priv_user': root
 #     'priv_password': my_first_password
@@ -84,24 +117,10 @@ pdns_backends:
 #     'priv_password': my_second_password
 #     'priv_host':
 #       - "localhost"
+pdns_mysql_databases_credentials: {}
 
-# Full path to mysql schema file
-pdns_mysql_debian_schema_file:
-  os: /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql
-  powerdns: /usr/share/doc/pdns-backend-mysql/schema.mysql.sql
-
-# Dependencies to initial mysql database
-pdns_debian_mysql_dependencies:
-  - python-mysqldb
-  - mysql-client
-pdns_rhel_mysql_dependencies:
-  - MySQL-python
-  - mysql
-
-# Dependencies to build PowerDNS on different distros
-pdns_debian_dependencies: []
-pdns_rhel_dependencies: []
-
-# Dependency packages per backend
-pdns_backend_debian_dependencies: {}
-pdns_backend_rhel_dependencies: {}
+# This will create the PowerDNS backend SQLite database
+# in the given locations.
+# NOTE: Requries the SQLite CLI tools to be available in the machine and the gsqlite3
+# backend to be installed on the machine.
+pdns_sqlite_databases_locations: []

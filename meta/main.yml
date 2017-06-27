@@ -1,19 +1,31 @@
 ---
+
 galaxy_info:
-  author: Pieter Lexis
+  author: PowerDNS Engineering Team
   description: PowerDNS Authoritative Server role
   company: PowerDNS.COM BV
   license: MIT
-  min_ansible_version: 0.9
+  min_ansible_version: 2.0
   platforms:
-  - name: EL
-    versions:
-    - 6
-    - 7
-  - name: Debian
-    versions:
-    - jessie
+    - name: EL
+      versions:
+        - 7
+    - name: Debian
+      versions:
+        - jessie
+    - name: Ubuntu
+      versions:
+        - trusty
+        - utopic
+        - vivid
+        - wily
+        - xenial
   galaxy_tags:
     - system
+    - dns
+    - pdns
+    - powerdns
+    - pdns-auth
+
 dependencies:
-  - atosatto.packages-extras
+  - src: atosatto.packages-extras

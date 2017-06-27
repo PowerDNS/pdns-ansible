@@ -1,0 +1,24 @@
+---
+
+- name: Import the PowerDNS APT Repository key
+  apt_key:
+    url: "{{ pdns_install_repo['gpg_key'] }}"
+    id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
+    state: present
+  register: pdns_apt_key
+
+- name: Add the PowerDNS APT Repository
+  apt_repository:
+    repo: "{{ pdns_install_repo['apt_repo'] }}"
+    state: present
+  register: pdns_apt_repo
+
+- name: Update the APT cache
+  apt:
+    update_cache: yes
+  when: "pdns_apt_key.changed or pdns_apt_repo.changed"
+
+- name: Pin the PowerDNS to the given APT Repository
+  template:
+    src: pdns.pin.j2
+    dest: /etc/apt/preferences.d/pdns

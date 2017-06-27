@@ -1,17 +1,16 @@
-PowerDNS Authoritative Server
-=============================
+PowerDNS Authoritative Server Role
+==================================
+
 An Ansible role created by the folks behind PowerDNS to install and configure
 the PowerDNS Authoritative Server.
 
 Even though PowerDNS supports numerous backends, database servers are not (and
 will not) be installed by this role.
 
-This role is considered alpha quality at the moment, but issues and pull requests
-are accepted.
-
 Requirements
 ------------
-An Ansible installation.
+
+An Ansible 2.0 or higher installation.
 
 ### For MySQL backend
 If you want to use this role to automatic create user and database. You need to
@@ -24,53 +23,141 @@ target machine.
 
 Role Variables
 --------------
-### pdns_backends
-A dict that allows you configure the backends, this also installs the correct
-packages for these backends. By default, no backends are installed and PowerDNS
-will be unable to start.
 
-### pdns_backends_mysql_credential
-A dict that allows you to put privilege users to create mysql database and
-assign user privilege to this database. Please read requirements before
-configure this variable
+Available variables are listed below, along with default values (see `defaults/main.yml`):
 
-### pdns_backends_sqlite3_databases
-A list that has the paths to gsqlite3 databases. These databases will be
-initialized by this role. Note that these will **not** be added to the PowerDNS
-configuration. This should be done with pdns_backends, see the examples.
+    pdns_install_repo: ""
 
-### pdns_config
-A dict detailing the configuration of PowerDNS. You should not set the following
-options here (other variables set these):
- * config-dir
- * set-uid
- * set-gid
- * any backend related options
+By default, PowerDNS is installed from the os default repositories.
+You can install the PowerDNS packages from the official PowerDNS repository
+ovveriding the `pdns_install_repo` variable as follows:
 
-See below for an example.
+    # Install PowerDNS from the master branch
+    - hosts: all
+      roles:
+        - { role: PowerDNS.pdns,
+            pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 
-### pdns_config_dir
-The directory where the configuration (`pdns.conf`) is stored. '/etc/powerdns'
-by default.
+    # Install the PowerDNS package from the '40' branch 
+    - hosts: all
+      roles:
+        - { role: PowerDNS.pdns,
+            pdns_install_repo: "{{ pdns_auth_powerdns_repo_40 }}"
 
-### pdns_installation_type
-How to install PowerDNS, either 'packages' or 'source'. 'packages' by default.
+The roles also supports custom repositories
 
-### pdns_repo_provider
-When using 'packages' for pdns_installation_type, use operating system packages
-('os') or the PowerDNS repository ('powerdns'). This is 'os' by default.
+    - hosts: all
+      vars:
+        pdns_install_repo:
+          apt_repo_origin: "my.repo.com"  # used to pin the pdns to the provided repository
+          apt_repo: "deb http://my.repo.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
+          gpg_key: "http://my.repo.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
+          gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
+          yum_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns"
+          yum_repo_name: "powerdns"       # used to select only the pdns packages coming from this repo
+      roles:
+        - { role: PowerDNS.pdns }
 
-### pdns_repo_branch
- When installing from the PowerDNS repository, what branch should be installed?
-Currently only 'master' and '40' (latest 4.0.x release) are supported.
+If targeting only a specific platform (e.g. Debian) it's not needed to provide other platform (e.g. yum) repositories information.
 
-### pdns_user
-The user to run PowerDNS as, this is 'pdns' by default. This user is not (yet)
-created (but the package might have done that for you).
+    pdns_install_epel: True
 
-### pdns_group
-The group to run PowerDNS as, this is 'pdns' by default. This group is not (yet)
-created (but the package might have done that for you).
+On RedHat-like system, by default the role installs EPEL.
+EPEL is needed to satisfy some PowerDNS dependencies like `protobuf`.
+To skip EPEL installation set `pdns_install_epel` to `False`.
+
+    pdns_package_name: "{{ default_pdns_package_name }}"
+
+The name of the PowerDNS Server package, `pdns` on RedHat-like systems and `pdns-server` on Debian-like systems.
+
+    pdns_user: pdns
+    pdns_group: pdns
+
+The user and group the PowerDNS will run as.
+**NOTE**: This role does not create any user or group as we assume that they're created
+by the package or other roles.
+
+    pdns_service_name: "pdns"
+
+Name of the PowerDNS service.
+
+    pdns_flush_handlers: False
+
+Force the execution of the flushing of the handlers at the end of the role.
+**NOTE:** This is required, for instance, if using this role to do configure PowerDNS virtualhosting 
+(https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system)
+
+    pdns_config_dir: "{{ default_pdns_config_dir }}"
+    pdns_config_file: "pdns.conf"
+
+The PowerDNS configuration files and directories.
+
+    pdns_config: {}
+
+A dict containing all configuration options, except for backend
+configuration and the `config-dir`, `setuid` and `setgid` directives.
+For example:
+
+    pdns_config:
+      master: yes
+      slave: no
+      local-address: '192.0.2.53'
+      local-ipv6: '2001:DB8:1::53'
+      local-port: '5300'
+
+configures PowerDNS to listen incoming DNS requests on port 5300.
+
+    pdns_backends:
+      bind:
+        config: '/dev/null'
+
+A dict with all the backends you'd like to have. You can use
+multiple backends of the same kind by using the `{backend}:{instance_name}` syntax.
+For example:
+
+    pdns_backends:
+      'gmysql:one':
+        'user': root
+        'host': 127.0.0.1
+        'password': root
+        'dbname': pdns
+      'gmysql:two':
+        'user': pdns_user
+        'host': 192.0.2.15
+        'password': my_password
+        'dbname': dns
+      'bind':
+        'config': '/etc/named/named.conf'
+        'hybrid':  yes
+        'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
+
+By default this role starts just the bind-backend with an empty config file.
+
+    pdns_mysql_databases_credentials: {}
+
+Credentials to create the PowerDNS MySQL backend databases and users.
+For example:
+
+    pdns_mysql_databases_credentials:
+      'gmysql:one':
+        'priv_user': root
+        'priv_password': my_first_password
+        'priv_host':
+          - "localhost"
+          - "%"
+      'gmysql:two':
+        'priv_user': someprivuser
+        'priv_password': my_second_password
+        'priv_host':
+          - "localhost"
+
+Notice that this must only containes the credentials 
+for the `gmysql` backends provided in `pdns_backends`.
+
+    pdns_sqlite_databases_locations: []
+
+List of the locations of the SQLite databases that have to be created if using the 
+`gsqlite3` backend.
 
 Example Playbook
 ----------------
@@ -78,7 +165,7 @@ Run as a master using the bind backend (when you already have a named.conf):
 ```
 - hosts: ns1.example.net
   roles:
-    - role: PowerDNS.pdns
+    - { role: PowerDNS.pdns }
   vars:
     pdns_config:
       master: true
@@ -93,7 +180,7 @@ with the MySQL backend:
 ```
 - hosts: ns2.example.net
   roles:
-    - role: PowerDNS.pdns
+    - { role: PowerDNS.pdns }
   vars:
     pdns_config:
       master: false
@@ -106,8 +193,7 @@ with the MySQL backend:
         user: powerdns
         password: P0w3rDn5
         dbname: pdns
-    pdns_repo_provider: 'powerdns'
-    pdns_repo_branch: 'master'
+    pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 ```
 
 Run the PowerDNS master branch from a package from repo.powerdns.com as a master
@@ -115,7 +201,7 @@ with the MySQL backend and use the root user to initialize the database and data
 ```
 - hosts: ns2.example.net
   roles:
-    - role: PowerDNS.pdns
+    - { role: PowerDNS.pdns }
   vars:
     pdns_config:
       master: true
@@ -128,23 +214,22 @@ with the MySQL backend and use the root user to initialize the database and data
         user: powerdns
         password: P0w3rDn5
         dbname: pdns
-    pdns_backends_mysql_credential:
+    pdns_mysql_databases_credentials:
       gmysql:
         priv_user: root
         priv_password: myrootpass
         priv_host:
           - "%"
-    pdns_repo_provider: 'powerdns'
-    pdns_repo_branch: 'master'
+    pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 ```
 
-Note: when using pdns_backends_mysql_credential, the `host`, `user`, `dbname` and `password` options become mandatory.
+Note: when using `pdns_mysql_databases_credential`, the `host`, `user`, `dbname` and `password` options become mandatory.
 
 Run as a master on port 5300, using two different PostgreSQL databases:
 ```
 - hosts: ns2.example.net
   roles:
-    - role: PowerDNS.pdns
+    - { role: PowerDNS.pdns }
   vars:
     pdns_config:
       master: true
@@ -167,7 +252,7 @@ Run with a single gsqlite3 backend and have the role create this database:
 ```
 - hosts: ns4.example.net
   roles:
-    - role: PowerDNS.pdns
+    - { role: PowerDNS.pdns }
   vars:
     database_name: '/var/lib/powerdns/db.sqlite'
     pdns_config:
@@ -178,7 +263,7 @@ Run with a single gsqlite3 backend and have the role create this database:
       gsqlite3:
         database: "{{ database_name }}"
         dnssec: yes
-    pdns_backends_sqlite3_databases:
+    pdns_sqlite_databases_locations:
       - "{{ database_name }}"
 ```
 
