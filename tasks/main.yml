@@ -16,7 +16,7 @@
 
 - name: Install PowerDNS
   package:
-    name: "{{ pdns_package_name }}" 
+    name: "{{ pdns_package_name }}"
     state: present
   tags:
     - install
@@ -28,7 +28,7 @@
   when: pdns_backends_packages[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
   tags:
-    - install 
+    - install
 
 - include: "inspect-{{ ansible_os_family }}.yml"
 
@@ -36,7 +36,7 @@
   when: "pdns_mysql_databases_credentials | length > 0"
   tags:
     - db
-    - mysql 
+    - mysql
 
 - include: database-sqlite3.yml
   when: "pdns_sqlite_databases_locations | length > 0"
