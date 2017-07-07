@@ -28,4 +28,5 @@ galaxy_info:
     - pdns-auth
 
 dependencies:
-  - src: atosatto.packages-extras
+  - name: atosatto.packages-extras
+    src: atosatto.packages-extras
