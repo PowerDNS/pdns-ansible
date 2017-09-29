@@ -16,7 +16,7 @@
 
 - name: Get the PowerDNS version information from the Package Manager 
   include: "inspect-{{ ansible_os_family }}.yml"
-  when: "pdns_rec_package_version == ''"
+  when: "pdns_package_version == ''"
 
 - name: Append the version to the PowerDNS package name 
   set_fact:
