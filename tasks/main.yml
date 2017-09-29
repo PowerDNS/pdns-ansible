@@ -20,7 +20,7 @@
 
 - name: Append the version to the PowerDNS package name 
   set_fact:
-  pdns_package_name: "{{ pdns_package_name }}-{{ pdns_package_version }}"
+    pdns_package_name: "{{ pdns_package_name }}-{{ pdns_package_version }}"
 
 - name: Install PowerDNS
   package:
