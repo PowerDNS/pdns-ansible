@@ -14,6 +14,14 @@
   tags:
     - install
 
+- name: Get the PowerDNS version information from the Package Manager 
+  include: "inspect-{{ ansible_os_family }}.yml"
+  when: "pdns_rec_package_version == ''"
+
+- name: Append the version to the PowerDNS package name 
+  set_fact:
+  pdns_package_name: "{{ pdns_package_name }}-{{ pdns_package_version }}"
+
 - name: Install PowerDNS
   package:
     name: "{{ pdns_package_name }}"
@@ -29,8 +37,6 @@
   with_dict: "{{ pdns_backends }}"
   tags:
     - install
-
-- include: "inspect-{{ ansible_os_family }}.yml"
 
 - include: database-mysql.yml
   when: "pdns_mysql_databases_credentials | length > 0"

@@ -37,7 +37,7 @@
 
 - name: Define the PowerDNS schema definition file path (RedHat)
   set_fact:
-    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_version | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
+    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_package_version | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
   when: "ansible_os_family == 'RedHat'"
 
 - name: Define the PowerDNS schema definition file path (Debian)

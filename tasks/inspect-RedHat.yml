@@ -9,7 +9,7 @@
 
 - name: Export the pdns_version variable for RedHat
   set_fact:
-    pdns_version: |
+    pdns_package_version: |
       {% if pdns_install_repo != "" %}
       {{ pdns_version_result.versions | selectattr('repo_name', 'equalto', pdns_install_repo['yum_repo_name']) | map(attribute='version') | sort(reverse=True) | first }}
       {% else %}
