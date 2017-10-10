@@ -7,12 +7,9 @@
   changed_when: False
   register: pdns_version_result
 
-- debug:
-    msg="{{ pdns_version_result }}"
-
 - name: Export the pdns_version variable for Debian
   set_fact:
-    pdns_version: |
+    pdns_package_version: |
       {% if pdns_install_repo != "" %}
       {{ pdns_version_result.versions | selectattr('repo_site', 'equalto', pdns_install_repo['apt_repo_origin']) | map(attribute='version') | sort(reverse=True) | first }}
       {% else %}

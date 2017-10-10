@@ -12,3 +12,12 @@
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
   notify: Restart PowerDNS
+
+- name: Ensure that the include-dir configuration directory exists 
+  file:
+    name: "{{ pdns_config['include-dir'] }}"
+    state: directory
+    owner: root
+    group: root
+  when: "pdns_config['include-dir'] is defined" 
+
