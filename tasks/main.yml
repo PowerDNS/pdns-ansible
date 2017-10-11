@@ -2,6 +2,8 @@
 
 - name: Include OS-specific variables
   include_vars: "{{ ansible_os_family }}.yml"
+  tags:
+    - always
 
 - include: "repo-{{ ansible_os_family }}.yml"
   when: pdns_install_repo != ""
@@ -65,3 +67,6 @@
 - name: Force handlers flush
   meta: flush_handlers
   when: pdns_flush_handlers
+  tags:
+    - config
+    - service
