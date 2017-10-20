@@ -18,15 +18,21 @@
 
 - name: Get the PowerDNS version information from the Package Manager 
   include: "inspect-{{ ansible_os_family }}.yml"
-  when: "pdns_package_version == ''"
+  when: pdns_package_version == ''
 
-- name: Append the version to the PowerDNS package name 
+- name: Append the version to the PowerDNS package name on RedHat
   set_fact:
-    pdns_package_name: "{{ pdns_package_name }}-{{ pdns_package_version }}"
+    pdns_package_versioned_name: "{{ pdns_package_name }}-{{ pdns_package_version }}"
+  when: ansible_os_family == 'RedHat'
+
+- name: Append the version to the PowerDNS package name on Debian
+  set_fact:
+    pdns_package_versioned_name: "{{ pdns_package_name }}={{ pdns_package_version }}"
+  when: ansible_os_family == 'Debian'
 
 - name: Install PowerDNS
   package:
-    name: "{{ pdns_package_name }}"
+    name: "{{ pdns_package_versioned_name }}"
     state: present
   tags:
     - install
