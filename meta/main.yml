@@ -2,7 +2,7 @@
 
 galaxy_info:
   author: PowerDNS Engineering Team
-  description: PowerDNS Authoritative Server role
+  description: Install and configure the PowerDNS Authoritative DNS Server
   company: PowerDNS.COM BV
   license: MIT
   min_ansible_version: 2.0
@@ -26,7 +26,3 @@ galaxy_info:
     - pdns
     - powerdns
     - pdns-auth
-
-dependencies:
-  - name: atosatto.packages-extras
-    src: atosatto.packages-extras

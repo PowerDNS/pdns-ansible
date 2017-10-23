@@ -13,7 +13,7 @@
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
   notify: Restart PowerDNS
 
-- name: Ensure that the include-dir configuration directory exists 
+- name: Ensure that the include-dir configuration directory exists
   file:
     name: "{{ pdns_config['include-dir'] }}"
     state: directory
