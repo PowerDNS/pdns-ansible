@@ -54,7 +54,7 @@ The roles also support custom repositories
           gpg_key: "http://my.repo.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
           gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
           yum_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns"
-          yum_repo_name: "powerdns"       # used to select only the pdns packages coming from this repo
+          name: "powerdns"       # the name of the repository 
       roles:
         - { role: PowerDNS.pdns }
 

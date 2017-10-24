@@ -1,5 +1,23 @@
 ---
 
+- name: Install the MySQL dependencies on RedHat
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - mysql
+    - MySQL-python
+  when: ansible_os_family == 'RedHat'
+
+- name: Install the MySQL dependencies on Debian
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - mysql-client
+    - python-mysqldb
+  when: ansible_os_family == 'Debian'
+
 - name: Create the PowerDNS databases
   mysql_db:
     login_user: "{{ item.value.priv_user }}"
@@ -18,8 +36,9 @@
     name: "{{ item.0.user }}"
     password: "{{ item.0.password }}"
     host: "{{ item.1 }}"
-    state: present
     priv: "{{ item.0.dbname }}.*:ALL"
+    append_privs: yes
+    state: present
   with_subelements:
     - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host
@@ -29,26 +48,31 @@
   command: >
     mysql --user="{{ item.value.user }}" --password="{{ item.value.password }}"
     --host="{{ item.value.host }}" --batch --skip-column-names
-    --execute="SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns` WHERE `table_schema` = '{{ item.value.dbname }}'"
+    --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item.value.dbname }}'"
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: pdns_check_mysql_db
   changed_when: False
 
-- name: Define the PowerDNS schema definition file path (RedHat)
+- name: Define the PowerDNS DB schema file path on RedHat < 7
   set_fact:
-    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_package_version | regex_replace('-[^-]*$', '')}}/schema.mysql.sql"
-  when: "ansible_os_family == 'RedHat'"
+    pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.mysql.sql"
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version | int < 7
 
-- name: Define the PowerDNS schema definition file path (Debian)
+- name: Define the PowerDNS DB schema file path on RedHat >= 7
+  set_fact:
+    pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ pdns_package_version }}/schema.mysql.sql"
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version | int >= 7
+
+- name: Define the PowerDNS DB schema file path on Debian
   set_fact:
     pdns_mysql_schema_file: "/usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql"
-  when: "ansible_os_family == 'Debian' and pdns_install_repo == ''"
+  when: ansible_os_family == 'Debian' and pdns_install_repo == ''
 
-- name: Define the PowerDNS schema definition file path (Debian)
+- name: Define the PowerDNS DB schema file path on Debian
   set_fact:
     pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
-  when: "ansible_os_family == 'Debian' and pdns_install_repo != ''"
+  when: ansible_os_family == 'Debian' and pdns_install_repo != ''
 
 - name: Import the initial PowerDNS MySQL schema
   mysql_db:

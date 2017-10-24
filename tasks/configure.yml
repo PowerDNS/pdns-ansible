@@ -19,5 +19,4 @@
     state: directory
     owner: root
     group: root
-  when: "pdns_config['include-dir'] is defined" 
-
+  when: "pdns_config['include-dir'] is defined"

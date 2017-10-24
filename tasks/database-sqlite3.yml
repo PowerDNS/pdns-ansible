@@ -8,12 +8,19 @@
     state: directory
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
-- name: Initiate the SQLite databases on RedHat
-  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ pdns_package_version | regex_replace('-[^-]*$', '') }}/schema.sqlite3.sql"
+- name: Initiate the SQLite databases on RedHat < 7
+  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"
-  when: ansible_os_family == "RedHat"
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version | int < 7
+
+- name: Initiate the SQLite databases on RedHat >= 7
+  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ pdns_package_version }}/schema.sqlite3.sql"
+  args:
+    creates: "{{ item }}"
+  with_items: "{{ pdns_sqlite_databases_locations }}"
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version | int >= 7
 
 - name: Initiate the SQLite databases on Debian
   shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"

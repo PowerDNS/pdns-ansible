@@ -31,4 +31,3 @@
   with_dict: "{{ pdns_backends }}"
   tags:
     - install
-

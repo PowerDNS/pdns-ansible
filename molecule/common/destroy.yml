@@ -1,0 +1,15 @@
+---
+
+- name: Destroy the Molecule Test Resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - config_vars.yml
+  tasks:
+    - name: Destroy the target Platforms instance(s)
+      docker_container:
+        name: "{{ item.name }}"
+        state: absent
+        force_kill: "{{ item.force_kill | default(True) }}"
+      with_items: "{{ molecule_yml.platforms }}"
