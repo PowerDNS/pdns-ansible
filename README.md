@@ -13,24 +13,24 @@ Requirements
 An Ansible 2.0 or higher installation.
 
 ### For MySQL backend
-If you want to use this role to automatic create user and database. You need to
-fulfill these requirements
+If you want to use this role to automatically create user and database, you need to
+fulfill these requirements:
 
-* You have to prepare root or privilege user that can create database and assign
-permission to user. This privilege user must can connect to the database from
+* You have to prepare root or a privileged user that can create the database and assign
+permissions to the user. This privileged user must be able to connect to the database from the
 target machine.
 * Configure **pdns_backends_mysql_credential** variable as describe below.
 
 Role Variables
 --------------
 
-Available variables are listed below, along with default values (see `defaults/main.yml`):
+Available variables are listed below, along with their default values (see `defaults/main.yml`):
 
     pdns_install_repo: ""
 
-By default, PowerDNS is installed from the os default repositories.
-You can install the PowerDNS packages from the official PowerDNS repository
-ovveriding the `pdns_install_repo` variable as follows:
+By default, PowerDNS is installed from the OS' default repositories.
+You can install the PowerDNS packages from the official PowerDNS repository by
+overriding the `pdns_install_repo` variable as follows:
 
     # Install PowerDNS from the master branch
     - hosts: all
@@ -44,7 +44,7 @@ ovveriding the `pdns_install_repo` variable as follows:
         - { role: PowerDNS.pdns,
             pdns_install_repo: "{{ pdns_auth_powerdns_repo_40 }}"
 
-The roles also supports custom repositories
+The roles also support custom repositories
 
     - hosts: all
       vars:
@@ -58,7 +58,7 @@ The roles also supports custom repositories
       roles:
         - { role: PowerDNS.pdns }
 
-If targeting only a specific platform (e.g. Debian) it's not needed to provide other platform (e.g. yum) repositories information.
+When targeting only a specific platform (e.g. Debian) it's not necessary to provide other platform (e.g. yum) repositories' information.
 
     pdns_install_epel: True
 
@@ -73,8 +73,8 @@ The name of the PowerDNS Server package, `pdns` on RedHat-like systems and `pdns
     pdns_user: pdns
     pdns_group: pdns
 
-The user and group the PowerDNS will run as.
-**NOTE**: This role does not create any user or group as we assume that they're created
+The user and group the PowerDNS process will run as.
+**NOTE**: This role does not create the user or group as we assume that they've been created
 by the package or other roles.
 
     pdns_service_name: "pdns"
@@ -84,7 +84,7 @@ Name of the PowerDNS service.
     pdns_flush_handlers: False
 
 Force the execution of the flushing of the handlers at the end of the role.
-**NOTE:** This is required, for instance, if using this role to do configure PowerDNS virtualhosting 
+**NOTE:** This is required, for instance, if using this role to configure PowerDNS virtual hosting 
 (https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system)
 
     pdns_config_dir: "{{ default_pdns_config_dir }}"
@@ -156,7 +156,7 @@ for the `gmysql` backends provided in `pdns_backends`.
 
     pdns_sqlite_databases_locations: []
 
-List of the locations of the SQLite databases that have to be created if using the 
+List of the locations of the SQLite3 databases that have to be created if using the 
 `gsqlite3` backend.
 
 Example Playbook
@@ -175,7 +175,7 @@ Run as a master using the bind backend (when you already have a named.conf):
         config: '/etc/named/named.conf'
 ```
 
-Run the PowerDNS masterbranch from a package from repo.powerdns.com as a slave
+Run the PowerDNS master branch from a package from repo.powerdns.com as a slave
 with the MySQL backend:
 ```
 - hosts: ns2.example.net
@@ -223,7 +223,7 @@ with the MySQL backend and use the root user to initialize the database and data
     pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 ```
 
-Note: when using `pdns_mysql_databases_credential`, the `host`, `user`, `dbname` and `password` options become mandatory.
+Note: when using `pdns_mysql_databases_credentials`, the `host`, `user`, `dbname` and `password` options become mandatory.
 
 Run as a master on port 5300, using two different PostgreSQL databases:
 ```
