@@ -47,8 +47,6 @@ platforms:
     # will link it to the others Platforms containers
     # on creation.
     is_service: yes
-    groups:
-      - mysql
 
 provisioner:
   name: ansible
