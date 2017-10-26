@@ -68,7 +68,7 @@ The name of the PowerDNS package, `pdns` on RedHat-like systems and `pdns-server
 
     pdns_package_version: ""
 
-The version of the PowerDNS package to be installed.
+The version of the PowerDNS package to be installed. <br />
 **NOTE:** The usage of this variable makes only sense on RedHat-like systems, where each YUM repository can contains multiple versions of the same package.
 For that reason, we highly recommend to not override the default value on Debian.
 
@@ -85,7 +85,7 @@ Name of the PowerDNS service.
 
     pdns_flush_handlers: False
 
-Force the execution of the handlers at the end of the role.
+Force the execution of the handlers at the end of the role. <br />
 **NOTE:** This is required if using this role to configure multiple PowerDNS instances in the same play.
 See PowerDNS virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
 
@@ -96,7 +96,7 @@ PowerDNS configuration file and directory.
 
     pdns_config: {}
 
-A dict containing the PowerDNS configuration.
+A dict containing the PowerDNS configuration. <br />
 **NOTE:** The PowerDNS backends configuration and the `config-dir`, `setuid` and `setgid` directives must be configured through the `pdns_user`, `pdns_group` and `pdns_backends` role variables (see `templates/pdns.conf.j2`).
 For example:
 
@@ -223,7 +223,7 @@ Provides also the MySQL administrative credentials to automatically create and i
               - "%"
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
 
-Note: when using `pdns_mysql_databases_credentials`, the `host`, `user`, `dbname` and `password` options become mandatory.
+**NOTE:** In this case the role will use the credentials provided in `pdns_mysql_databases_credentials` to automatically create and initialize the user (`user`, `password`) and database (`dbname`) connecting to the MySQL server (`host`, `port`).
 
 
 Configure PowerDNS in 'master' mode reading zones from two different PostgreSQL databases:
