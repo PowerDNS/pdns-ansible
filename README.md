@@ -255,21 +255,21 @@ Configure PowerDNS to run with the gsqlite3 backend.
 The SQLite database will be created and initialized by the role
 in the location specified by the `database_name` variable.
 
-- hosts: ns4.example.net
-  roles:
-    - { role: PowerDNS.pdns }
-  vars:
-    database_name: '/var/lib/powerdns/db.sqlite'
-    pdns_config:
-      master: true
-      slave: false
-      local-address: '192.0.2.73'
-    pdns_backends:
-      gsqlite3:
-        database: "{{ database_name }}"
-        dnssec: yes
-    pdns_sqlite_databases_locations:
-      - "{{ database_name }}"
+    - hosts: ns4.example.net
+      roles:
+        - { role: PowerDNS.pdns }
+      vars:
+        database_name: '/var/lib/powerdns/db.sqlite'
+        pdns_config:
+          master: true
+          slave: false
+          local-address: '192.0.2.73'
+        pdns_backends:
+          gsqlite3:
+            database: "{{ database_name }}"
+            dnssec: yes
+        pdns_sqlite_databases_locations:
+          - "{{ database_name }}"
 
 License
 -------
