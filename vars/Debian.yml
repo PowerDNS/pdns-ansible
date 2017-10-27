@@ -18,5 +18,5 @@ default_pdns_backends_packages:
   remote: pdns-backend-remote
   tinydns: pdns-backend-tinydns
 
-# The directory where the PowerDNS configuration is located 
+# The directory where the PowerDNS configuration is located
 default_pdns_config_dir: '/etc/powerdns'

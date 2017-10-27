@@ -1,0 +1,11 @@
+---
+
+- name: Obtain the PowerDNS version
+  shell: "pdns_server --version 2>&1 | awk '/PowerDNS Authoritative/{print $7}'"
+  register: pdns_version_output
+  check_mode: no
+  changed_when: False
+
+- name: Export the PowerDNS Version variable
+  set_fact:
+    pdns_package_version: "{{ pdns_version_output['stdout'] }}"

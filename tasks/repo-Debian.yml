@@ -1,5 +1,10 @@
 ---
 
+- name: Install gnupg
+  package:
+    name: gnupg
+    state: present
+
 - name: Import the PowerDNS APT Repository key
   apt_key:
     url: "{{ pdns_install_repo['gpg_key'] }}"
@@ -10,6 +15,7 @@
 - name: Add the PowerDNS APT Repository
   apt_repository:
     repo: "{{ pdns_install_repo['apt_repo'] }}"
+    filename: "{{ pdns_install_repo['name'] }}"
     state: present
   register: pdns_apt_repo
 

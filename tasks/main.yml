@@ -16,35 +16,16 @@
   tags:
     - install
 
-- name: Get the PowerDNS version information from the Package Manager 
-  include: "inspect-{{ ansible_os_family }}.yml"
-  when: pdns_package_version == ''
-
-- name: Append the version to the PowerDNS package name on RedHat
-  set_fact:
-    pdns_package_versioned_name: "{{ pdns_package_name }}-{{ pdns_package_version }}"
-  when: ansible_os_family == 'RedHat'
-
-- name: Append the version to the PowerDNS package name on Debian
-  set_fact:
-    pdns_package_versioned_name: "{{ pdns_package_name }}={{ pdns_package_version }}"
-  when: ansible_os_family == 'Debian'
-
-- name: Install PowerDNS
-  package:
-    name: "{{ pdns_package_versioned_name }}"
-    state: present
+- include: install-pdns.yml
   tags:
     - install
 
-- name: Install module packages
-  package:
-    name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}"
-    state: installed
-  when: pdns_backends_packages[item.key.split(':')[0]] is defined
-  with_dict: "{{ pdns_backends }}"
+- include: inspect.yml
   tags:
-    - install
+    - db
+    - mysql
+    - sqlite
+    - config
 
 - include: database-mysql.yml
   when: "pdns_mysql_databases_credentials | length > 0"

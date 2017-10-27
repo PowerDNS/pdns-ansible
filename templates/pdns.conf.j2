@@ -1,14 +1,14 @@
-config-dir={{pdns_config_dir}}
+config-dir={{ pdns_config_dir }}
 setuid={{ pdns_user }}
 setgid={{ pdns_group }}
 {% for config_item, value in pdns_config.items() | sort() %}
 {% if config_item not in ["config-dir", "launch", "setuid", "setgid"] %}
 {% if value == True %}
-{{config_item}}=yes
+{{ config_item }}=yes
 {% elif value == False %}
-{{config_item}}=no
+{{ config_item }}=no
 {% else %}
-{{config_item}}={{value|string}}
+{{ config_item }}={{ value|string }}
 {% endif %}
 {% endif %}
 {% endfor %}
@@ -16,17 +16,17 @@ setgid={{ pdns_group }}
 launch=
 
 {% for backend in pdns_backends | sort() -%}
-launch+={{backend}}
+launch+={{ backend }}
 {% set backend_string = backend | replace(':', '-') %}
 {% for backend_item, value in pdns_backends[backend].items() | sort() -%}
 {% if value == True %}
-{{backend_string}}-{{backend_item}}=yes
+{{ backend_string }}-{{ backend_item }}=yes
 {% elif backend_item == False %}
-{{backend_string}}-{{backend_item}}=no
+{{ backend_string }}-{{ backend_item }}=no
 {% elif backend_item == None %}
-{{backend_string}}-{{backend_item}}=
+{{ backend_string }}-{{ backend_item }}=
 {% else %}
-{{backend_string}}-{{backend_item}}={{value | string}}
+{{ backend_string }}-{{ backend_item }}={{ value | string }}
 {% endif %}
 {% endfor %}
 

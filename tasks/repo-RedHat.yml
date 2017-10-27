@@ -7,7 +7,7 @@
 
 - name: Add the PowerDNS YUM Repository
   yum_repository:
-    name: "{{ pdns_install_repo['yum_repo_name'] }}"
+    name: "{{ pdns_install_repo['name'] }}"
     description: PowerDNS Auth Repository
     baseurl: "{{ pdns_install_repo['yum_repo_baseurl'] }}"
     gpgkey: "{{ pdns_install_repo['gpg_key'] }}"

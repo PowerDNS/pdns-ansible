@@ -1,0 +1,27 @@
+---
+
+- name: Prepare the Molecule Test Resources
+  hosts: pdns
+  tasks:
+    # This is required to be sure yum install the
+    # default MySQL and SQLite schemas in /usr/share/doc/
+    - name: Disable the YUM 'nodocs' option
+      lineinfile:
+        line: tsflags=nodocs
+        path: /etc/yum.conf
+        state: absent
+      when: ansible_pkg_mgr == 'yum'
+
+    # Install rsyslog to capture the PDNS log messages
+    # when the service is not managed by systemd
+    - block:
+        - name: Install rsyslog
+          package:
+            name: rsyslog
+            state: present
+
+        - name: Start rsyslog
+          service:
+            name: rsyslog
+            state: started
+      when: ansible_service_mgr != 'systemd'

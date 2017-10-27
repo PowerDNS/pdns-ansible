@@ -1,34 +1,41 @@
 ---
 
-# By default, PowerDNS is installed from the os default repositories.
+# By default, no PowerDNS repository will be configured by the role
 pdns_install_repo: ""
 
-# You can install the PowerDNS packages from the 'master' branch as
-# follows:
+# To install PowerDNS from the 'master' official repository
+# use the following playbook snippet
 # - hosts: all
 #   roles:
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 #
-# To install the PowerDNS package from the '40' branch of
-# the PowerDNS official repository use the following playbook
+# To install PowerDNS from the '4.0.x' official repository
+# use the following playbook snippet
 # - hosts: all
 #   roles:
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_40 }}"
 #
-# To install the PowerDNS Recursor package from a custom repository
-# override the `pdns_install_repo` default value in your playbook.
-# e.g.
+# To install PowerDNS from the '4.1.x' official repository
+# use the following playbook snippet
+# - hosts: all
+#   roles:
+#    - { role: PowerDNS.pdns,
+#        pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
+#
+# To make this role configure a custom repository and install
+# PowerDNS from it override the `pdns_install_repo` variable
+# as follows
 # - hosts: all
 #   vars:
 #     pdns_install_repo:
-#       apt_repo_origin: "my.repo.com"  # used to pin the pdns to the provided repository
+#       apt_repo_origin: "my.repo.com"  # Pin the PowerDNS packages to the provided repository origin
 #       apt_repo: "deb http://my.repo.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
 #       gpg_key: "http://my.repo.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
 #       gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
 #       yum_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns"
-#       yum_repo_name: "powerdns"       # used to select only the pdns packages coming from this repo
+#       name: "powerdns"       # the name of the repository
 #   roles:
 #    - { role: PowerDNS.pdns }
 
@@ -38,27 +45,30 @@ pdns_install_epel: True
 
 # The name of the PowerDNS package
 pdns_package_name: "{{ default_pdns_package_name }}"
+
+# Install a specific version of the PowerDNS package
+# NB: The usage of this variable makes only sense on RedHat-like systems,
+#     where each YUM repository can contains multiple versions of the same package.
 pdns_package_version: ""
 
-# The user and group to run as.
+# The user and group the PowerDNS process will run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
 # a "pdns" user and group. If you change these variables, make sure to create
 # the user and groups before applying this role
 pdns_user: pdns
 pdns_group: pdns
 
-# PowerDNS configuration files and directories 
-pdns_config_dir: "{{ default_pdns_config_dir }}"
-pdns_config_file: "pdns.conf"
-
 # Name of the PowerDNS Service
 pdns_service_name: "pdns"
 
 # Force the execution of the handlers at the end of the role.
-# This is required if using this role to configure multiple recursor instances
-# in a single play to make sure that on configuration changes the correct pnds_recursor 
-# instance is restarted.
+# This is required if using this role to configure multiple pdns auth instance in the same single play.
+# See PowerDNS virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
 pdns_flush_handlers: False
+
+# PowerDNS configuration file and directory
+pdns_config_dir: "{{ default_pdns_config_dir }}"
+pdns_config_file: "pdns.conf"
 
 # Dictionary of packages that should be installed to enable the backends.
 # backendname: packagename
@@ -66,7 +76,6 @@ pdns_backends_packages: "{{ default_pdns_backends_packages }}"
 
 # pdns_config: A dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
-# NOTE: Right now, we don't verify the options when configuring the server.
 #
 # Example:
 # pdns_config:
@@ -77,7 +86,7 @@ pdns_backends_packages: "{{ default_pdns_backends_packages }}"
 #  local-port: '5300'
 pdns_config: {}
 
-# pdns_backends: A dict with all the backends you'd like to have. You can use
+# pdns_backends: A dict with all the backends you'd like to configure. You can use
 # the multiple backends of the same kind by using {backend}:{instance_name}.
 #
 # For example:
@@ -102,9 +111,7 @@ pdns_backends:
   bind:
     config: '/dev/null'
 
-
-# Credentials to create the PowerDNS MySQL backend databases
-# and users.
+# Administrative credentials to create the PowerDNS MySQL backend database and user.
 # For example:
 # pdns_mysql_databases_credentials:
 #   'gmysql:one':
