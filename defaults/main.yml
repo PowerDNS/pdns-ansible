@@ -11,7 +11,7 @@ pdns_install_repo: ""
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 #
 # To install PowerDNS from the '4.0.x' official repository
-# use the following playbook snippet 
+# use the following playbook snippet
 # - hosts: all
 #   roles:
 #    - { role: PowerDNS.pdns,
@@ -24,7 +24,7 @@ pdns_install_repo: ""
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
 #
-# To make this role configure a custom repository and install 
+# To make this role configure a custom repository and install
 # PowerDNS from it override the `pdns_install_repo` variable
 # as follows
 # - hosts: all
