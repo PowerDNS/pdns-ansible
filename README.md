@@ -1,6 +1,8 @@
 PowerDNS Authoritative DNS Server Role
 ======================================
 
+[![Build Status](https://travis-ci.org/PowerDNS/pdns-ansible.svg?branch=master)](https://travis-ci.org/PowerDNS/pdns-ansible)
+
 An Ansible role created by the folks behind PowerDNS to install and configure
 the PowerDNS Authoritative Server.
 
