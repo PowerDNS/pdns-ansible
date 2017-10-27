@@ -6,11 +6,15 @@
     state: directory
     owner: "root"
     group: "root"
+    mode: 0750
 
 - name: Generate the PowerDNS configuration
   template:
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
+    owner: "root"
+    group: "root"
+    mode: 0640
   notify: Restart PowerDNS
 
 - name: Ensure that the include-dir configuration directory exists
@@ -19,4 +23,5 @@
     state: directory
     owner: root
     group: root
+    mode: 0750
   when: "pdns_config['include-dir'] is defined"
