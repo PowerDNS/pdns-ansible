@@ -28,3 +28,6 @@
   template:
     src: pdns.pin.j2
     dest: /etc/apt/preferences.d/pdns
+    owner: root
+    group: root
+    mode: 0644
