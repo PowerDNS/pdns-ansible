@@ -9,7 +9,7 @@ the PowerDNS Authoritative Server.
 Requirements
 ------------
 
-An Ansible 2.0 or higher installation.
+An Ansible 2.2 or higher installation.
 
 Role Variables
 --------------
@@ -270,6 +270,21 @@ in the location specified by the `database_name` variable.
             dnssec: yes
         pdns_sqlite_databases_locations:
           - "{{ database_name }}"
+
+Testing
+-------
+
+Tests are performed by [Molecule](http://molecule.readthedocs.org/en/latest/).
+
+    $ pip install tox
+
+To test all the scenarios run
+
+    $ tox
+
+To run a custom molecule command
+
+    $ tox -e py27-ansible22 -- molecule test -s pdns-41
 
 License
 -------

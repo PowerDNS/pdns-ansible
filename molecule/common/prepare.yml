@@ -8,7 +8,7 @@
     - name: Disable the YUM 'nodocs' option
       lineinfile:
         line: tsflags=nodocs
-        path: /etc/yum.conf
+        dest: /etc/yum.conf
         state: absent
       when: ansible_pkg_mgr == 'yum'
 

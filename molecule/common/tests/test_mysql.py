@@ -22,7 +22,7 @@ def test_config(host):
         if host.system_info.distribution.lower() in rhel_os:
             f = host.file('/etc/pdns/pdns.conf')
 
-        dbname = host.ansible.get_variables()['inventory_hostname'].replace('.', '_')
+        dbname = host.check_output('hostname -s').replace('.', '_')
 
         assert f.exists
         assert 'launch+=gmysql' in f.content
@@ -33,8 +33,8 @@ def test_config(host):
 
 
 def test_database_tables(host):
-    dbname = host.ansible.get_variables()['inventory_hostname'].replace('.', '_')
-    
+    dbname = host.check_output('hostname -s').replace('.', '_')
+
     cmd = host.run("mysql --user=\"pdns\" --password=\"pdns\" --host=\"mysql\" " + 
                           "--batch --skip-column-names " +
                           "--execute=\"SELECT DISTINCT table_name FROM information_schema.columns WHERE table_schema = '%s'\"" % dbname)
