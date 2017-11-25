@@ -11,11 +11,11 @@ services:
 
 # Install molecule and docker-py
 install:
-  - pip install -r test-requirements.txt
+  - pip install tox-travis
 
-# Test all the scenarios
+# Test all the scenarios against the Ansible versions defined in the tox.ini file
 script:
-  - molecule test --all
+  - tox
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

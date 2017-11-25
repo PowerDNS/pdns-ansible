@@ -8,6 +8,7 @@ __pycache__/
 *$py.class
 
 ### Molecule ###
+.tox
 .cache
 .molecule
 .vagrant

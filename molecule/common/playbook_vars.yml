@@ -27,8 +27,8 @@ pdns_backends:
     database: /var/lib/powerdns/pdns.db
     dnssec: yes
   gmysql:
-    host: "mysql"                                                    # This is relying on Docker's service discovery
-    dbname: "{{ inventory_hostname | replace('.', '_') }}"   # Each Platform will have its MySQL DB
+    host: "mysql"                                          # This is relying on Docker's service discovery
+    dbname: "{{ ansible_hostname | replace('.', '_') }}"   # Each Platform will have its MySQL DB
     user: pdns
     password: pdns
 
