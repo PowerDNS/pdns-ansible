@@ -1,0 +1,7 @@
+---
+
+##
+# PowerDNS Master Repository
+##
+
+pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"

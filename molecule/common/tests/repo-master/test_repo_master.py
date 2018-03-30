@@ -1,7 +1,3 @@
-import testinfra.utils.ansible_runner
-
-testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
-    '.molecule/ansible_inventory.yml').get_hosts('pdns')
 
 debian_os = ['debian', 'ubuntu']
 rhel_os = ['redhat', 'centos']
@@ -15,10 +11,10 @@ def test_pdns_repo(host):
         f = host.file('/etc/yum.repos.d/powerdns-auth.repo')
 
     assert f.exists
-    assert f.contains('auth-41')
+    assert f.contains('auth-master')
 
 
 def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
-    assert 'PowerDNS Authoritative Server 4.1.' in cmd.stderr
+    assert 'PowerDNS Authoritative Server 0.0.' in cmd.stderr

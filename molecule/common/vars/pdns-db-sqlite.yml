@@ -1,0 +1,13 @@
+---
+
+##
+# SQLite backend configuration
+##
+
+pdns_backends:
+  gsqlite3:
+    database: /var/lib/powerdns/pdns.db
+    dnssec: yes
+
+pdns_sqlite_databases_locations:
+  - '/var/lib/powerdns/pdns.db'

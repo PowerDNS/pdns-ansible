@@ -1,0 +1,82 @@
+---
+
+scenario:
+  name: pdns-41-mysql
+
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+
+platforms:
+  - name: centos-6
+    image: centos:6
+    groups:
+      - pdns
+
+  - name: centos-7
+    image: centos:7
+    dockerfile_tpl: centos-systemd
+    groups:
+      - pdns
+
+  - name: ubuntu-1604
+    image: ubuntu:16.04
+    dockerfile_tpl: debian-systemd
+    groups:
+      - pdns
+
+  - name: ubuntu-1710
+    image: ubuntu:17.10
+    groups:
+      - pdns
+
+  - name: debian-8
+    image: debian:8
+    groups:
+      - pdns
+
+  - name: debian-9
+    image: debian:9
+    groups:
+      - pdns
+
+  # In order to run the tests we need
+  # a MySQL container to be up & running
+  - name: mysql
+    image: mysql:5.7
+    env:
+      MYSQL_ROOT_PASSWORD: pdns
+    # Declaring the container as service,
+    # will link it to the others Platforms containers
+    # on creation.
+    is_service: yes
+
+provisioner:
+  name: ansible
+  options:
+    diff: True
+    v: True
+  playbooks:
+    create: ../common/create.yml
+    destroy: ../common/destroy.yml
+    prepare: ../common/prepare.yml
+  lint:
+    name: ansible-lint
+
+lint:
+  name: yamllint
+
+verifier:
+  name: testinfra
+  options:
+    hosts: "pdns"
+    vvv: True
+  directory: ../common/tests/all
+  additional_files_or_dirs:
+    # path relative to 'directory'
+    - ../repo-41/
+    - ../db-mysql/
+  lint:
+    name: flake8

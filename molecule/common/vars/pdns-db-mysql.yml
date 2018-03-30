@@ -1,47 +1,15 @@
 ---
 
 ##
-# PowerDNS Configuration
+# PowerDNS MySQL backend
 ##
 
-pdns_config:
-
-  # Turns on master operations
-  master: true
-
-  # Listen Address
-  local-address: "127.0.0.1"
-  local-port: "53"
-
-  # API Configuration
-  api: yes
-  api-key: "powerdns"
-
-  # Embedded webserver
-  webserver: yes
-  webserver-address: "0.0.0.0"
-  webserver-port: "8001"
-
 pdns_backends:
-  gsqlite3:
-    database: /var/lib/powerdns/pdns.db
-    dnssec: yes
   gmysql:
     host: "mysql"                                          # This is relying on Docker's service discovery
     dbname: "{{ ansible_hostname | replace('.', '_') }}"   # Each Platform will have its MySQL DB
     user: pdns
     password: pdns
-
-##
-# SQLite backend configuration
-##
-
-pdns_sqlite_databases_locations:
-  - '/var/lib/powerdns/pdns.db'
-
-##
-# MySQL backend configuration
-##
 
 pdns_mysql_databases_credentials:
   gmysql:

@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-master
+  name: pdns-master-mysql
 
 driver:
   name: docker
@@ -24,6 +24,11 @@ platforms:
   - name: ubuntu-1604
     image: ubuntu:16.04
     dockerfile_tpl: debian-systemd
+    groups:
+      - pdns
+
+  - name: ubuntu-1710
+    image: ubuntu:17.10
     groups:
       - pdns
 
@@ -65,7 +70,13 @@ lint:
 
 verifier:
   name: testinfra
+  options:
+    hosts: "pdns"
+    vvv: True
+  directory: ../common/tests/all
   additional_files_or_dirs:
-    - ../common/tests/
+    # path relative to 'directory'
+    - ../repo-master/
+    - ../db-mysql/
   lint:
     name: flake8

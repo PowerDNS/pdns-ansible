@@ -11,12 +11,7 @@
     - install
     - repository
 
-- include: install-epel.yml
-  when: ansible_os_family == 'RedHat' and pdns_install_epel
-  tags:
-    - install
-
-- include: install-pdns.yml
+- include: install.yml
   tags:
     - install
 

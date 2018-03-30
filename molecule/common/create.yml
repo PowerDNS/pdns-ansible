@@ -1,11 +1,11 @@
 ---
 
-- name: Create the Molecule Test Resources
+- name: Create
   hosts: localhost
   connection: local
   gather_facts: False
   vars_files:
-    - config_vars.yml
+    - vars/molecule.yml
   tasks:
 
     - set_fact:
@@ -13,20 +13,20 @@
     - set_fact:
         molecule_platform_instances: "{{ molecule_yml.platforms | difference(molecule_service_instances) }}"
 
-    - name: Create Dockerfiles for the target Platforms
+    - name: Create Dockerfiles from image names
       template:
         src: "Dockerfile.{{ item.dockerfile_tpl | default('default') }}.j2"
         dest: "{{ molecule_ephemeral_directory }}/Dockerfile_{{ item.image | regex_replace('[^a-zA-Z0-9_]', '_') }}"
       with_items: "{{ molecule_platform_instances }}"
       register: platforms
 
-    - name: Discover the Platforms Docker images
+    - name: Discover local Docker images
       docker_image_facts:
         name: "molecule_local/{{ item.item.name }}"
       with_items: "{{ platforms.results }}"
       register: docker_images
 
-    - name: Build an Ansible compatible image for the target Platforms
+    - name: Build an Ansible compatible image
       docker_image:
         path: "{{ molecule_ephemeral_directory }}"
         name: "molecule_local/{{ item.item.image }}"
@@ -35,20 +35,19 @@
       with_items: "{{ platforms.results }}"
       when: platforms.changed or docker_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
 
-    - name: Create the required Services instance(s)
+    - name: Create molecule instance(s)
       docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
         image: "{{ item.image }}"
         state: started
         recreate: False
-        log_driver: syslog
         env: "{{ item.env | default(omit) }}"
         privileged: "no"
         volumes: "{{ item.volumes | default(omit) }}"
       with_items: "{{ molecule_service_instances }}"
 
-    - name: Create the target Platforms instance(s)
+    - name: Create the required Services instance(s)
       docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
@@ -56,7 +55,6 @@
         links: "{{ molecule_service_instances | map(attribute='name') | list }}"
         state: started
         recreate: False
-        log_driver: syslog
         privileged: "yes"
         volumes:
           # Mount the cgroups fs to allow SystemD to run into the containers

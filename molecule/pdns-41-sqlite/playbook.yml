@@ -1,0 +1,9 @@
+---
+
+- hosts: pdns
+  vars_files:
+    - ../common/vars/pdns-common.yml
+    - ../common/vars/pdns-repo-41.yml
+    - ../common/vars/pdns-db-sqlite.yml
+  roles:
+    - { role: pdns-ansible }
