@@ -14,18 +14,18 @@
 
   when: pdns_package_version != ''
 
-- name: Install PowerDNS
+- name: Install the PowerDNS Authoritative Server
   package:
     name: "{{ pdns_package_name }}{{ pdns_package_version }}"
     state: present
 
-- name: Install PowerDNS debug package
+- name: Install PowerDNS Authoritative Server debug symbols
   package:
-    name: "{{ pdns_debug_package_name }}{{ pdns_package_version }}"
+    name: "{{ pdns_debug_symbols_package_name }}{{ pdns_package_version }}"
     state: present
-  when: pdns_install_debug_package
+  when: pdns_install_debug_symbols_package
 
-- name: Install the PowerDNS backends
+- name: Install the PowerDNS Authoritative Server backends
   package:
     name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}{{ pdns_package_version }}"
     state: present

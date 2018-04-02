@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure the PowerDNS configuration directory exists
+- name: Ensure the PowerDNS Authoritative Server configuration directory exists
   file:
     name: "{{ pdns_config_dir }}"
     state: directory
@@ -8,7 +8,7 @@
     group: "root"
     mode: 0755
 
-- name: Generate the PowerDNS configuration
+- name: Generate the PowerDNS Authoritative Server configuration
   template:
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
@@ -17,7 +17,7 @@
     mode: 0640
   notify: Restart PowerDNS
 
-- name: Ensure that the include-dir configuration directory exists
+- name: Ensure that the PowerDNS Authoritative Server include-dir configuration directory exists
   file:
     name: "{{ pdns_config['include-dir'] }}"
     state: directory

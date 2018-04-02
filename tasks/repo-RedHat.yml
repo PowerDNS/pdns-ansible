@@ -22,23 +22,25 @@
     state: present
   when: ansible_distribution in [ 'CentOS' ]
 
-- name: Add the PowerDNS Repository
+- name: Add the PowerDNS Authoritative Server Repository
   yum_repository:
     name: "{{ pdns_install_repo['name'] }}"
-    description: PowerDNS Auth Repository
+    file: "{{ pdns_install_repo['name'] }}"
+    description: PowerDNS Authoritative Server
     baseurl: "{{ pdns_install_repo['yum_repo_baseurl'] }}"
     gpgkey: "{{ pdns_install_repo['gpg_key'] }}"
     gpgcheck: yes
     priority: 90
     state: present
 
-- name: Add the PowerDNS debug Repository
+- name: Add the PowerDNS Authoritative Server debug symbols Repository
   yum_repository:
     name: "{{ pdns_install_repo['name'] }}-debuginfo"
-    description: PowerDNS Auth Repository
-    baseurl: "{{ pdns_install_repo['yum_debug_repo_baseurl'] }}"
+    file: "{{ pdns_install_repo['name'] }}"
+    description: PowerDNS Authoritative Server - debug symbols
+    baseurl: "{{ pdns_install_repo['yum_debug_symbols_repo_baseurl'] }}"
     gpgkey: "{{ pdns_install_repo['gpg_key'] }}"
     gpgcheck: yes
     priority: 90
     state: present
-  when: pdns_install_debug_package
+  when: pdns_install_debug_symbols_package

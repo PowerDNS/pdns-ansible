@@ -5,14 +5,14 @@
     name: gnupg
     state: present
 
-- name: Import the PowerDNS APT Repository key
+- name: Import the PowerDNS Authoritative Server Repository APT key
   apt_key:
     url: "{{ pdns_install_repo['gpg_key'] }}"
     id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
     state: present
   register: pdns_apt_key
 
-- name: Add the PowerDNS APT Repository
+- name: Add the PowerDNS Authoritative Server APT Repository
   apt_repository:
     repo: "{{ pdns_install_repo['apt_repo'] }}"
     filename: "{{ pdns_install_repo['name'] }}"
@@ -24,7 +24,7 @@
     update_cache: yes
   when: "pdns_apt_key.changed or pdns_apt_repo.changed"
 
-- name: Pin the PowerDNS to the given APT Repository
+- name: Pin the PowerDNS Authoritative Server APT Repository
   template:
     src: pdns.pin.j2
     dest: /etc/apt/preferences.d/pdns

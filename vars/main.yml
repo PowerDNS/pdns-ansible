@@ -6,8 +6,8 @@ pdns_auth_powerdns_repo_master:
   gpg_key: "http://repo.powerdns.com/CBC8B383-pub.asc"
   gpg_key_id: "D47975F8DAE32700A563E64FFF389421CBC8B383"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master"
-  yum_debug_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master/debug"
-  name: "powerdns-auth"
+  yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master/debug"
+  name: "powerdns-auth-master"
 
 pdns_auth_powerdns_repo_40:
   apt_repo_origin: "repo.powerdns.com"
@@ -15,8 +15,8 @@ pdns_auth_powerdns_repo_40:
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-40"
-  yum_debug_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-40/debug"
-  name: "powerdns-auth"
+  yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-40/debug"
+  name: "powerdns-auth-40"
 
 pdns_auth_powerdns_repo_41:
   apt_repo_origin: "repo.powerdns.com"
@@ -24,5 +24,5 @@ pdns_auth_powerdns_repo_41:
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-41"
-  yum_debug_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-41/debug"
-  name: "powerdns-auth"
+  yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-41/debug"
+  name: "powerdns-auth-41"
