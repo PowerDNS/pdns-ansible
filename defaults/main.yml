@@ -51,6 +51,12 @@ pdns_package_name: "{{ default_pdns_package_name }}"
 #     where each YUM repository can contains multiple versions of the same package.
 pdns_package_version: ""
 
+# Install PowerDNS debug package
+pdns_install_debug_package: True
+
+# The name of the PowerDNS debug package
+pdns_debug_package_name: "{{ default_pdns_debug_package_name }}"
+
 # The user and group the PowerDNS process will run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
 # a "pdns" user and group. If you change these variables, make sure to create

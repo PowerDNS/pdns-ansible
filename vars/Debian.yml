@@ -3,6 +3,9 @@
 # The name of the PowerDNS package
 default_pdns_package_name: "pdns-server"
 
+# The name of the PowerDNS debug package
+default_pdns_debug_package_name: "pdns-server-dbg"
+
 # List of PowerDNS Backends Debian packages
 default_pdns_backends_packages:
   geo: pdns-backend-geo

@@ -2,8 +2,8 @@
 
 - hosts: pdns
   vars_files:
-    - ../common/vars/pdns-common.yml
-    - ../common/vars/pdns-repo-master.yml
-    - ../common/vars/pdns-db-mysql.yml
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-master.yml
+    - ../resources/vars/pdns-db-mysql.yml
   roles:
     - { role: pdns-ansible }

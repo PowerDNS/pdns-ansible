@@ -61,7 +61,7 @@ Note that not all the keys of the `pdns_install_repo` dictionary are required. i
 
     pdns_install_epel: True
 
-On RedHat-like system, this role configures EPEL by default.
+On RedHat-like systems, this role configures EPEL by default.
 EPEL is needed to satisfy some PowerDNS dependencies like `protobuf`.
 To skip EPEL installation set `pdns_install_epel` to `False`.
 
@@ -70,6 +70,14 @@ To skip EPEL installation set `pdns_install_epel` to `False`.
 The name of the PowerDNS package, `pdns` on RedHat-like systems and `pdns-server` on Debian-like systems.
 
     pdns_package_version: ""
+
+By default, install PowerDNS debug package.
+
+    pdns_install_debug_package: True
+
+The name of the PowerDNS debug package, `pdns-debuginfo` on RedHat-like systems and `pdns-server-dbg` on Debian-like systems.
+
+    pdns_debug_package_name: "{{ default_pdns_debug_package_name }}"
 
 The version of the PowerDNS package to be installed. <br />
 **NOTE:** The usage of this variable makes only sense on RedHat-like systems, where each YUM repository can contains multiple versions of the same package.

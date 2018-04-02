@@ -59,9 +59,9 @@ provisioner:
     diff: True
     v: True
   playbooks:
-    create: ../common/create.yml
-    destroy: ../common/destroy.yml
-    prepare: ../common/prepare.yml
+    create: ../resources/create.yml
+    destroy: ../resources/destroy.yml
+    prepare: ../resources/prepare.yml
   lint:
     name: ansible-lint
 
@@ -73,7 +73,7 @@ verifier:
   options:
     hosts: "pdns"
     vvv: True
-  directory: ../common/tests/all
+  directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
     - ../repo-master/
