@@ -12,10 +12,11 @@ services:
 # Parallel testing of the supported
 # Ansible versions
 env:
-  - ANSIBLE=2.2
-  - ANSIBLE=2.3
-  - ANSIBLE=2.4
-  - ANSIBLE=2.5
+  matrix:
+    - ANSIBLE=2.2
+    - ANSIBLE=2.3
+    - ANSIBLE=2.4
+    - ANSIBLE=2.5
 
 # Install tox
 install:
