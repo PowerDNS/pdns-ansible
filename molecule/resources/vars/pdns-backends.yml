@@ -1,15 +1,21 @@
 ---
 
 ##
-# PowerDNS MySQL backend
+# PowerDNS Backends
 ##
 
 pdns_backends:
+  gsqlite3:
+    database: /var/lib/powerdns/pdns.db
+    dnssec: yes
   gmysql:
     host: "mysql"                                          # This is relying on Docker's service discovery
     dbname: "{{ ansible_hostname | replace('.', '_') }}"   # Each Platform will have its MySQL DB
     user: pdns
     password: pdns
+
+pdns_sqlite_databases_locations:
+  - '/var/lib/powerdns/pdns.db'
 
 pdns_mysql_databases_credentials:
   gmysql:

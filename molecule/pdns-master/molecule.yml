@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-41-mysql
+  name: pdns-master
 
 driver:
   name: docker
@@ -76,7 +76,8 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../repo-41/
-    - ../db-mysql/
+    - ../repo-master/
+    - ../backend-sqlite/
+    - ../backend-mysql/
   lint:
     name: flake8

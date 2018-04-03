@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-master-sqlite
+  name: pdns-41
 
 driver:
   name: docker
@@ -42,6 +42,17 @@ platforms:
     groups:
       - pdns
 
+  # In order to run the tests we need
+  # a MySQL container to be up & running
+  - name: mysql
+    image: mysql:5.7
+    env:
+      MYSQL_ROOT_PASSWORD: pdns
+    # Declaring the container as service,
+    # will link it to the others Platforms containers
+    # on creation.
+    is_service: yes
+
 provisioner:
   name: ansible
   options:
@@ -65,7 +76,8 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../repo-master/
-    - ../db-sqlite/
+    - ../repo-41/
+    - ../backend-sqlite/
+    - ../backend-mysql/
   lint:
     name: flake8
