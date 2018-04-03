@@ -10,19 +10,19 @@
     url: "{{ pdns_install_repo['gpg_key'] }}"
     id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
     state: present
-  register: pdns_apt_key
+  register: _pdns_apt_key
 
 - name: Add the PowerDNS Authoritative Server APT Repository
   apt_repository:
     repo: "{{ pdns_install_repo['apt_repo'] }}"
     filename: "{{ pdns_install_repo['name'] }}"
     state: present
-  register: pdns_apt_repo
+  register: _pdns_apt_repo
 
 - name: Update the APT cache
   apt:
     update_cache: yes
-  when: "pdns_apt_key.changed or pdns_apt_repo.changed"
+  when: "_pdns_apt_key.changed or _pdns_apt_repo.changed"
 
 - name: Pin the PowerDNS Authoritative Server APT Repository
   template:
