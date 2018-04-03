@@ -23,16 +23,18 @@
     login_user: "{{ item.value.priv_user }}"
     login_password: "{{ item.value.priv_password }}"
     login_host: "{{ item.value.host }}"
+    login_port: "{{ item.value.port | default('3306') }}"
     name: "{{ item.value.dbname }}"
     state: present
   when: "item.key.split(':')[0] == 'gmysql'"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
-- name: Grant PowerDNS Authoritative Server access to the MySQL databases
+- name: Grant the PowerDNS Authoritative Server access to the MySQL databases
   mysql_user:
     login_user: "{{ item.0.priv_user }}"
     login_password: "{{ item.0.priv_password }}"
     login_host: "{{ item.0.host }}"
+    login_port: "{{ item.0.port | default('3306') }}"
     name: "{{ item.0.user }}"
     password: "{{ item.0.password }}"
     host: "{{ item.1 }}"
@@ -47,7 +49,7 @@
 - name: Check if the PowerDNS Authoritative Server MySQL databases are empty
   command: >
     mysql --user="{{ item.value.user }}" --password="{{ item.value.password }}"
-    --host="{{ item.value.host }}" --batch --skip-column-names
+    --host="{{ item.value.host }}" --port "{{ item.value.port | default('3306') }}" --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item.value.dbname }}'"
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
@@ -79,6 +81,7 @@
     login_user: "{{ item.item.value.user }}"
     login_password: "{{ item.item.value.password }}"
     login_host: "{{ item.item.value.host }}"
+    login_port: "{{ item.item.port | default('3306') }}"
     name: "{{ item.item.value.dbname }}"
     state: import
     target: "{{ pdns_mysql_schema_file }}"

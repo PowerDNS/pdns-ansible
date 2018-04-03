@@ -105,6 +105,7 @@ pdns_config: {}
 #   'gmysql:two':
 #     'user': pdns_user
 #     'host': 192.0.2.15
+#     'port': 3307
 #     'password': my_password
 #     'dbname': dns
 #   'bind':
