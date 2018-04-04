@@ -22,9 +22,9 @@ env:
 install:
   - pip install tox-travis
 
-# Test all the scenarios against the Ansible versions defined in the tox.ini file
+# Test the current PowerDNS Authoritative Server stable release
 script:
-  - tox
+  - tox -- molecule test -s pdns-41
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
