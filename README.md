@@ -20,7 +20,7 @@ Available variables are listed below, along with their default values (see `defa
     pdns_install_repo: ""
 
 By default, no PowerDNS Authoritative Server repository will be configured by this role.
-You can install the PowerDNS Authoritative Server packages from the official PowerDNS 
+You can install the PowerDNS Authoritative Server packages from the official PowerDNS
 repository overriding the `pdns_install_repo` variable as follows:
 
     # Install the PowerDNS Authoritative Server from the 'master' official repository
@@ -54,7 +54,7 @@ To install the PowerDNS Authoritative Server from a custom repositories follow t
           gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
           yum_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns"
           yum_debug_symbols_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns/debug"
-          name: "powerdns"       # the name of the repository 
+          name: "powerdns"       # the name of the repository
       roles:
         - { role: PowerDNS.pdns }
 
@@ -72,9 +72,9 @@ The name of the PowerDNS Authoritative Server package, `pdns` on RedHat-like sys
 
     pdns_package_version: ""
 
-By default, install PowerDNS Authoritative Server debug symbols.
+Install the PowerDNS Authoritative Server debug symbols.
 
-    pdns_install_debug_symbols_package: True
+    pdns_install_debug_symbols_package: False
 
 The name of the PowerDNS Authoritative Server debug package, `pdns-debuginfo` on RedHat-like systems and `pdns-server-dbg` on Debian-like systems.
 
@@ -165,12 +165,12 @@ For example:
         'priv_host':
           - "localhost"
 
-Notice that this must only containes the credentials 
+Notice that this must only containes the credentials
 for the `gmysql` backends provided in `pdns_backends`.
 
     pdns_sqlite_databases_locations: []
 
-Locations of the SQLite3 databases that have to be created if using the 
+Locations of the SQLite3 databases that have to be created if using the
 `gsqlite3` backend.
 
 Example Playbooks
