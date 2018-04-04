@@ -52,7 +52,7 @@ pdns_package_name: "{{ default_pdns_package_name }}"
 pdns_package_version: ""
 
 # Install the PowerDNS Authoritative Server debug symbols package
-pdns_install_debug_symbols_package: False 
+pdns_install_debug_symbols_package: False
 
 # The name of the PowerDNS Authoritative Server debug symbols package
 pdns_debug_symbols_package_name: "{{ default_pdns_debug_symbols_package_name }}"
