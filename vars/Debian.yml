@@ -1,9 +1,12 @@
 ---
 
-# The name of the PowerDNS package
+# The name of the PowerDNS Authoritative Server package
 default_pdns_package_name: "pdns-server"
 
-# List of PowerDNS Backends Debian packages
+# The name of the PowerDNS Authoritative Server debug package
+default_pdns_debug_symbols_package_name: "pdns-server-dbg"
+
+# List of PowerDNS Authoritative Server Backends packages on Debian
 default_pdns_backends_packages:
   geo: pdns-backend-geo
   geoip: pdns-backend-geoip
@@ -18,5 +21,5 @@ default_pdns_backends_packages:
   remote: pdns-backend-remote
   tinydns: pdns-backend-tinydns
 
-# The directory where the PowerDNS configuration is located
-default_pdns_config_dir: '/etc/powerdns'
+# The directory where the PowerDNS Authoritative Server configuration is located
+default_pdns_config_dir: "/etc/powerdns"

@@ -1,8 +1,3 @@
-import testinfra.utils.ansible_runner
-
-testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
-    '.molecule/ansible_inventory.yml').get_hosts('pdns')
-
 
 debian_os = ['debian', 'ubuntu']
 rhel_os = ['redhat', 'centos']

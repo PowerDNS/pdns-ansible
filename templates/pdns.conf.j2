@@ -8,7 +8,7 @@ setgid={{ pdns_group }}
 {% elif value == False %}
 {{ config_item }}=no
 {% else %}
-{{ config_item }}={{ value|string }}
+{{ config_item }}={{ value | string }}
 {% endif %}
 {% endif %}
 {% endfor %}

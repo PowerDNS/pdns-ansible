@@ -11,12 +11,7 @@
     - install
     - repository
 
-- include: install-epel.yml
-  when: ansible_os_family == 'RedHat' and pdns_install_epel
-  tags:
-    - install
-
-- include: install-pdns.yml
+- include: install.yml
   tags:
     - install
 
@@ -43,7 +38,7 @@
   tags:
     - config
 
-- name: Start and enable the PowerDNS service
+- name: Start and enable the PowerDNS Authoritative Server service
   service:
     name: "{{ pdns_service_name }}"
     state: started

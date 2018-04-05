@@ -1,12 +1,9 @@
 ---
 
-- name: Install PowerDNS
-  hosts: pdns
-  # Scenario specific viriables
-  vars:
-    pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
-  # Include the common variables
+- hosts: pdns
   vars_files:
-    - ../common/playbook_vars.yml
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-41.yml
+    - ../resources/vars/pdns-backends.yml
   roles:
     - { role: pdns-ansible }

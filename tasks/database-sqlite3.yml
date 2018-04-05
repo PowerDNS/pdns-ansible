@@ -1,6 +1,6 @@
 ---
 
-- name: Create the directory for the SQLite databases
+- name: Ensure that the directories containing the PowerDNS Authoritative Server SQLite databases exist
   file:
     name: "{{ '/'.join(item.split('/')[:-1]) }}"
     owner: "{{ pdns_user }}"
@@ -9,28 +9,28 @@
     mode: 0750
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
-- name: Initiate the SQLite databases on RedHat < 7
+- name: Create the PowerDNS Authoritative Server SQLite databases on RedHat < 7
   shell: "sqlite3 {{ item }} < /usr/share/doc/pdns/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version | int < 7
 
-- name: Initiate the SQLite databases on RedHat >= 7
+- name: Create the PowerDNS Authoritative Server SQLite databases on RedHat >= 7
   shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ pdns_package_version | regex_replace('-rc[\\d]*$', '') }}/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version | int >= 7
 
-- name: Initiate the SQLite databases on Debian
+- name: Create the PowerDNS Authoritative Server SQLite databases on Debian
   shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"
   when: ansible_os_family == "Debian"
 
-- name: Check the SQLite databases permissions
+- name: Check the PowerDNS Authoritative Server SQLite databases permissions
   file:
     name: "{{ item }}"
     owner: "{{ pdns_user }}"

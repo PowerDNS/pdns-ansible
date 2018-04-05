@@ -1,31 +1,31 @@
 ---
 
-# By default, no PowerDNS repository will be configured by the role
+# By default, no PowerDNS Authoritative Server repository will be configured by the role
 pdns_install_repo: ""
 
-# To install PowerDNS from the 'master' official repository
+# To install tje PowerDNS Authoritative Server from the 'master' official repository
 # use the following playbook snippet
 # - hosts: all
 #   roles:
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 #
-# To install PowerDNS from the '4.0.x' official repository
+# To install the PowerDNS Authoritative Server from the '4.0.x' official repository
 # use the following playbook snippet
 # - hosts: all
 #   roles:
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_40 }}"
 #
-# To install PowerDNS from the '4.1.x' official repository
+# To install the PowerDNS Authoritative Server from the '4.1.x' official repository
 # use the following playbook snippet
 # - hosts: all
 #   roles:
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
 #
-# To make this role configure a custom repository and install
-# PowerDNS from it override the `pdns_install_repo` variable
+# To make this role configure a custom repository and install the
+# PowerDNS Authoritative Server from it override the `pdns_install_repo` variable
 # as follows
 # - hosts: all
 #   vars:
@@ -40,33 +40,39 @@ pdns_install_repo: ""
 #    - { role: PowerDNS.pdns }
 
 # Install the EPEL repository.
-# EPEL is needed to satisfy some PowerDNS dependencies like protobuf
+# EPEL is needed to satisfy some PowerDNS Authoritative Server dependencies like protobuf
 pdns_install_epel: True
 
-# The name of the PowerDNS package
+# The name of the PowerDNS Authoritative Server package
 pdns_package_name: "{{ default_pdns_package_name }}"
 
-# Install a specific version of the PowerDNS package
+# Install a specific version of the PowerDNS Authoritative Server package
 # NB: The usage of this variable makes only sense on RedHat-like systems,
 #     where each YUM repository can contains multiple versions of the same package.
 pdns_package_version: ""
 
-# The user and group the PowerDNS process will run as.
+# Install the PowerDNS Authoritative Server debug symbols package
+pdns_install_debug_symbols_package: False
+
+# The name of the PowerDNS Authoritative Server debug symbols package
+pdns_debug_symbols_package_name: "{{ default_pdns_debug_symbols_package_name }}"
+
+# The user and group the PowerDNS Authoritative Server process will run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
 # a "pdns" user and group. If you change these variables, make sure to create
 # the user and groups before applying this role
 pdns_user: pdns
 pdns_group: pdns
 
-# Name of the PowerDNS Service
+# Name of the PowerDNS Authoritative Server Service
 pdns_service_name: "pdns"
 
 # Force the execution of the handlers at the end of the role.
 # This is required if using this role to configure multiple pdns auth instance in the same single play.
-# See PowerDNS virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
+# See PowerDNS Authoritative Server virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
 pdns_flush_handlers: False
 
-# PowerDNS configuration file and directory
+# PowerDNS Authoritative Server configuration file and directory
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
 
@@ -99,6 +105,7 @@ pdns_config: {}
 #   'gmysql:two':
 #     'user': pdns_user
 #     'host': 192.0.2.15
+#     'port': 3307
 #     'password': my_password
 #     'dbname': dns
 #   'bind':
@@ -111,7 +118,7 @@ pdns_backends:
   bind:
     config: '/dev/null'
 
-# Administrative credentials to create the PowerDNS MySQL backend database and user.
+# Administrative credentials to create the PowerDNS Authoritative Server MySQL backend database and user.
 # For example:
 # pdns_mysql_databases_credentials:
 #   'gmysql:one':
@@ -127,7 +134,7 @@ pdns_backends:
 #       - "localhost"
 pdns_mysql_databases_credentials: {}
 
-# This will create the PowerDNS backend SQLite database
+# This will create the PowerDNS Authoritative Server backend SQLite database
 # in the given locations.
 # NOTE: Requries the SQLite CLI tools to be available in the machine and the gsqlite3
 # backend to be installed on the machine.
