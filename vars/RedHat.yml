@@ -11,7 +11,7 @@ default_pdns_backends_packages:
   geo: pdns-backend-geo
   geoip: pdns-backend-geoip
   gmysql: pdns-backend-mysql
-  gpgsql: pdns-backend-pgsql
+  gpgsql: pdns-backend-postgresql
   gsqlite3: pdns-backend-sqlite
   ldap: pdns-backend-ldap
   lmdb: pdns-backend-lmdb
