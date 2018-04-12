@@ -22,14 +22,14 @@
 
     - name: Discover local Docker images
       docker_image_facts:
-        name: "molecule_local/{{ item.item.name }}"
+        name: "molecule_pdns/{{ item.item.name }}"
       with_items: "{{ platforms.results }}"
       register: docker_images
 
     - name: Build an Ansible compatible image
       docker_image:
         path: "{{ molecule_ephemeral_directory }}"
-        name: "molecule_local/{{ item.item.image }}"
+        name: "molecule_pdns/{{ item.item.image }}"
         dockerfile: "{{ item.item.dockerfile | default(item.invocation.module_args.dest) }}"
         force: "{{ item.item.force | default(True) }}"
       with_items: "{{ platforms.results }}"
@@ -51,8 +51,9 @@
       docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
-        image: "molecule_local/{{ item.image }}"
+        image: "molecule_pdns/{{ item.image }}"
         links: "{{ molecule_service_instances | map(attribute='name') | list }}"
+        command: "{{ item.command | default(omit) }}"
         state: started
         recreate: False
         privileged: "yes"

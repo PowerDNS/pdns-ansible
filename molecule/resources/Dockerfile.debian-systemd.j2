@@ -2,6 +2,9 @@
 
 FROM {{ item.image }}
 
+RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get upgrade -y && apt-get install -y systemd && apt-get clean; fi
+RUN if [ ! -e /sbin/init ]; then ln -s /lib/systemd/systemd /sbin/init ; fi
+
 ENV container docker
 
 # Don't start the optional systemd services. 
