@@ -5,4 +5,4 @@
     name: "{{ pdns_service_name }}"
     state: restarted
     sleep: 1  # the sleep is needed to make sure the service has been
-              # correctly started after being stopped during restarts
+    # correctly started after being stopped during restarts
