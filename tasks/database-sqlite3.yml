@@ -17,7 +17,7 @@
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version | int < 7
 
 - name: Create the PowerDNS Authoritative Server SQLite databases on RedHat >= 7
-  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ pdns_package_version | regex_replace('-rc[\\d]*$', '') }}/schema.sqlite3.sql"
+  shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version | regex_replace('-rc[\\d]*$', '') }}/schema.sqlite3.sql"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"

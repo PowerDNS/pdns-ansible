@@ -5,7 +5,7 @@
     name: gnupg
     state: present
 
-- name: Import the PowerDNS Authoritative Server Repository APT key
+- name: Import the PowerDNS Authoritative Server APT Repository key
   apt_key:
     url: "{{ pdns_install_repo['gpg_key'] }}"
     id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
@@ -14,8 +14,8 @@
 
 - name: Add the PowerDNS Authoritative Server APT Repository
   apt_repository:
-    repo: "{{ pdns_install_repo['apt_repo'] }}"
     filename: "{{ pdns_install_repo['name'] }}"
+    repo: "{{ pdns_install_repo['apt_repo'] }}"
     state: present
   register: _pdns_apt_repo
 

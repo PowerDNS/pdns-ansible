@@ -4,30 +4,30 @@
 
   - name: Prefix the version with the correct separator on RedHat
     set_fact:
-      pdns_package_version: "-{{ pdns_package_version }}"
+      _pdns_package_version: "-{{ pdns_package_version }}"
     when: ansible_os_family == 'RedHat'
 
   - name: Prefix the version with the correct separator on Debian
     set_fact:
-      pdns_package_version: "={{ pdns_package_version }}"
+      _pdns_package_version: "={{ pdns_package_version }}"
     when: ansible_os_family == 'Debian'
 
   when: pdns_package_version != ''
 
 - name: Install the PowerDNS Authoritative Server
   package:
-    name: "{{ pdns_package_name }}{{ pdns_package_version }}"
+    name: "{{ pdns_package_name }}{{ _pdns_package_version | default('') }}"
     state: present
 
-- name: Install PowerDNS Authoritative Server debug symbols
+- name: Install the PowerDNS Authoritative Server debug symbols
   package:
-    name: "{{ pdns_debug_symbols_package_name }}{{ pdns_package_version }}"
+    name: "{{ pdns_debug_symbols_package_name }}{{ _pdns_package_version | default('') }}"
     state: present
   when: pdns_install_debug_symbols_package
 
 - name: Install the PowerDNS Authoritative Server backends
   package:
-    name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}{{ pdns_package_version }}"
+    name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}{{ _pdns_package_version | default('') }}"
     state: present
   when: pdns_backends_packages[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
