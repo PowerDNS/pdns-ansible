@@ -53,12 +53,12 @@ The examples above, show how to install the PowerDNS Authoritative Server from t
   vars:
     pdns_install_repo:
       name: "powerdns" # the name of the repository
-      apt_repo_origin: "my.repo.com"  # used to pin the PowerDNS packages to the provided repository
-      apt_repo: "deb http://my.repo.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
-      gpg_key: "http://my.repo.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
+      apt_repo_origin: "example.com"  # used to pin the PowerDNS packages to the provided repository
+      apt_repo: "deb http://example.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
+      gpg_key: "http://example.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
       gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
-      yum_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns"
-      yum_debug_symbols_repo_baseurl: "http://my.repo.com/centos/$basearch/$releasever/pdns/debug"
+      yum_repo_baseurl: "http://example.com/centos/$basearch/$releasever/pdns"
+      yum_debug_symbols_repo_baseurl: "http://example.com/centos/$basearch/$releasever/pdns/debug"
   roles:
     - { role: PowerDNS.pdns }
 ```
