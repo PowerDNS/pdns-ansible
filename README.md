@@ -147,6 +147,13 @@ pdns_config:
 configures PowerDNS Authoritative Server to listen incoming DNS requests on port 5300.
 
 ```yaml
+pdns_service_overrides: {}
+```
+
+Dict with overrides for the service (systemd only).
+This can be used to change any systemd settings in the `[Service]` category.
+
+```yaml
 pdns_backends:
   bind:
     config: '/dev/null'

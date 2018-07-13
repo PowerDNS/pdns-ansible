@@ -1,12 +1,32 @@
 ---
 
+- block:
+
+  - name: Ensure the override directory exists (systemd)
+    file:
+      name: "/etc/systemd/system/{{ pdns_service_name }}.service.d"
+      state: directory
+      owner: root
+      group: root
+
+  - name: Override the PowerDNS Authoritative Server unit (systemd)
+    template:
+      src: "override-service.systemd.conf.j2"
+      dest: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"
+      owner: root
+      group: root
+    notify: reload systemd and restart PowerDNS
+
+  when: pdns_service_overrides != {}
+    and ansible_service_mgr == "systemd"
+
 - name: Ensure that the PowerDNS Authoritative Server configuration directory exists
   file:
     name: "{{ pdns_config_dir }}"
     state: directory
     owner: "root"
     group: "root"
-    mode: 0755
+    mode: 0750
 
 - name: Generate the PowerDNS Authoritative Server configuration
   template:
@@ -15,7 +35,7 @@
     owner: "root"
     group: "root"
     mode: 0640
-  notify: Restart PowerDNS
+  notify: restart PowerDNS
 
 - name: Ensure that the PowerDNS Authoritative Server 'include-dir' directory exists
   file:
@@ -23,5 +43,5 @@
     state: directory
     owner: "root"
     group: "root"
-    mode: 0755
+    mode: 0750
   when: "pdns_config['include-dir'] is defined"

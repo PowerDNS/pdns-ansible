@@ -1,0 +1,4 @@
+[Service]
+{% for k, v in pdns_service_overrides.items() %}
+{{ k }}={{ v }}
+{% endfor %}
