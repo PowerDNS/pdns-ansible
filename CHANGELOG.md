@@ -4,6 +4,8 @@ NEW FEATURES:
 - Allow to manage systemd overrides ([\#53](https://github.com/PowerDNS/pdns-ansible/pull/53))
 
 IMPROVEMENTS:
+
+- Stricter `pdns_config_dir` and `pdns_config['include-dir']` folders permissions ([\#53](https://github.com/PowerDNS/pdns-ansible/pull/53))
 - Improved documentation ([\#52](https://github.com/PowerDNS/pdns-ansible/pull/52))
 - Upgrade molecule to 2.14.0 ([\#51](https://github.com/PowerDNS/pdns-ansible/pull/51))
 - Improved systemd support in the tests ([\#49](https://github.com/PowerDNS/pdns-ansible/pull/49))

@@ -9,4 +9,4 @@
 
 - name: reload systemd and restart PowerDNS
   command: systemctl daemon-reload
-  notify: restart PowerDNS Recursor
+  notify: restart PowerDNS
