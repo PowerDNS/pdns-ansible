@@ -1,8 +1,11 @@
 ## v1.3.0 (To be released)
 
+NEW FEATURES:
+- Allow to manage systemd overrides ([\#53](https://github.com/PowerDNS/pdns-ansible/pull/53))
+
 IMPROVEMENTS:
-- Upgrade molecule to 2.14.0 ([\#51](https://github.com/PowerDNS/pdns-ansible/pull/51))
 - Improved documentation ([\#52](https://github.com/PowerDNS/pdns-ansible/pull/52))
+- Upgrade molecule to 2.14.0 ([\#51](https://github.com/PowerDNS/pdns-ansible/pull/51))
 - Improved systemd support in the tests ([\#49](https://github.com/PowerDNS/pdns-ansible/pull/49))
 
 ## v1.2.1 (2018-04-06)
@@ -12,12 +15,12 @@ BUG FIXES:
 
 ## v1.2.0 (2018-04-05)
 
+NEW FEATURES:
+- Debug packages installation ([\#47](https://github.com/PowerDNS/pdns-ansible/pull/47))
+
 IMPROVEMENTS:
 - Improved test-suite ([\#47](https://github.com/PowerDNS/pdns-ansible/pull/47))
 - Improved config files permissions ([\#45](https://github.com/PowerDNS/pdns-ansible/pull/45))
-
-NEW FEATURES:
-- Debug packages installation ([\#47](https://github.com/PowerDNS/pdns-ansible/pull/47))
 
 ## v1.1.0 (2017-11-25)
 

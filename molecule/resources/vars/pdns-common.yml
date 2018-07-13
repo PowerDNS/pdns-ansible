@@ -21,3 +21,6 @@ pdns_config:
   webserver: yes
   webserver-address: "0.0.0.0"
   webserver-port: "8001"
+
+pdns_service_overrides:
+  LimitCORE: infinity

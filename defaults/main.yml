@@ -76,26 +76,30 @@ pdns_flush_handlers: False
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
 
-# Dictionary of packages that should be installed to enable the backends.
-# backendname: packagename
-pdns_backends_packages: "{{ default_pdns_backends_packages }}"
-
-# pdns_config: A dict containing all configuration options, except for backend
+# Ddict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
-#
-# Example:
+pdns_config: {}
 # pdns_config:
 #  master: yes
 #  slave: no
 #  local-address: '192.0.2.53'
 #  local-ipv6: '2001:DB8:1::53'
 #  local-port: '5300'
-pdns_config: {}
 
-# pdns_backends: A dict with all the backends you'd like to configure. You can use
-# the multiple backends of the same kind by using {backend}:{instance_name}.
-#
-# For example:
+# Dict with overrides for the service (systemd only)
+pdns_service_overrides: {}
+# pdns_service_overrides:
+#   LimitNOFILE: 10000
+
+# Dictionary of packages that should be installed to enable the backends.
+# backendname: packagename
+pdns_backends_packages: "{{ default_pdns_backends_packages }}"
+
+# A dict with all the backends you'd like to configure.
+# This default starts just the bind-backend with an empty config file
+pdns_backends:
+  bind:
+    config: '/dev/null'
 # pdns_backends:
 #   'gmysql:one':
 #     'user': root
@@ -112,14 +116,9 @@ pdns_config: {}
 #     'config': '/etc/named/named.conf'
 #     'hybrid':  yes
 #     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
-#
-# This default starts just the bind-backend with an empty config file
-pdns_backends:
-  bind:
-    config: '/dev/null'
 
 # Administrative credentials to create the PowerDNS Authoritative Server MySQL backend database and user.
-# For example:
+pdns_mysql_databases_credentials: {}
 # pdns_mysql_databases_credentials:
 #   'gmysql:one':
 #     'priv_user': root
@@ -132,7 +131,6 @@ pdns_backends:
 #     'priv_password': my_second_password
 #     'priv_host':
 #       - "localhost"
-pdns_mysql_databases_credentials: {}
 
 # This will create the PowerDNS Authoritative Server backend SQLite database
 # in the given locations.

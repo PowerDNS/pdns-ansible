@@ -32,6 +32,11 @@ platforms:
     groups:
       - pdns
 
+  - name: ubuntu-1804
+    image: ubuntu:18.04
+    groups:
+      - pdns
+
   - name: debian-8
     image: debian:8
     groups:
@@ -64,6 +69,9 @@ provisioner:
     prepare: ../resources/prepare.yml
   lint:
     name: ansible-lint
+    options:
+      # excludes "systemctl used in place of systemd module"
+      x: ["ANSIBLE0006"]
 
 lint:
   name: yamllint
