@@ -54,7 +54,7 @@ Initial release.
 
 NEW FEATURES:
 - PostgreSQL and SQLite databases initialization
-- PowerDNS Authortiative Server installation and configuration Red-Hat and Debian support
+- PowerDNS Authoritative Server installation and configuration Red-Hat and Debian support
 - Continuous testing with TravisCI
 
 IMPROVEMENTS:
