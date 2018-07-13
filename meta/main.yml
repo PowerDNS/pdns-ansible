@@ -29,3 +29,5 @@ galaxy_info:
     - pdns
     - powerdns
     - pdns-auth
+
+dependencies: []
