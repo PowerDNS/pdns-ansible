@@ -1,4 +1,7 @@
-## v1.3.1 (Unreleased)
+## v1.4.0 (Unreleased)
+
+BUG FIXES:
+- Ensure that lists are expanded in the PowerDNS configuration template ([\#55](https://github.com/PowerDNS/pdns-ansible/pull/55))
 
 NEW FEATURES:
 - Add an option (`pdns_disable_handlers`) to disable the automated restart of the service on configuration changes ([\#54](https://github.com/PowerDNS/pdns-ansible/pull/54))
