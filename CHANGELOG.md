@@ -1,4 +1,4 @@
-## v1.4.0 (Unreleased)
+## v1.4.0 (2018-12-02)
 
 BUG FIXES:
 - Ensure that lists are expanded in the PowerDNS configuration template ([\#55](https://github.com/PowerDNS/pdns-ansible/pull/55))
