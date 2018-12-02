@@ -121,6 +121,12 @@ Force the execution of the handlers at the end of the role. <br />
 See PowerDNS Authoritative Server virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
 
 ```yaml
+pdns_disable_handlers: False
+```
+
+Disable automated service restart on configuration changes.
+
+```yaml
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
 ```

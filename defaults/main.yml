@@ -72,6 +72,9 @@ pdns_service_name: "pdns"
 # See PowerDNS Authoritative Server virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
 pdns_flush_handlers: False
 
+# When True, disable the automated restart of the PowerDNS service
+pdns_disable_handlers: False
+
 # PowerDNS Authoritative Server configuration file and directory
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"

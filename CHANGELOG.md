@@ -1,10 +1,14 @@
+## v1.3.1 (Unreleased)
+
+NEW FEATURES:
+- Add an option (`pdns_disable_handlers`) to disable the automated restart of the service on configuration changes ([\#54](https://github.com/PowerDNS/pdns-ansible/pull/54))
+
 ## v1.3.0 (2018-07-13)
 
 NEW FEATURES:
 - Allow to manage systemd overrides ([\#53](https://github.com/PowerDNS/pdns-ansible/pull/53))
 
 IMPROVEMENTS:
-
 - Stricter `pdns_config_dir` and `pdns_config['include-dir']` folders permissions ([\#53](https://github.com/PowerDNS/pdns-ansible/pull/53))
 - Improved documentation ([\#52](https://github.com/PowerDNS/pdns-ansible/pull/52))
 - Upgrade molecule to 2.14.0 ([\#51](https://github.com/PowerDNS/pdns-ansible/pull/51))
