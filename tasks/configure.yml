@@ -15,7 +15,7 @@
       dest: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"
       owner: root
       group: root
-    notify: reload systemd and restart PowerDNS
+    notify: Restart PowerDNS
 
   when: pdns_service_overrides != {}
     and ansible_service_mgr == "systemd"
@@ -35,7 +35,7 @@
     owner: "root"
     group: "root"
     mode: 0640
-  notify: restart PowerDNS
+  notify: Restart PowerDNS
 
 - name: Ensure that the PowerDNS Authoritative Server 'include-dir' directory exists
   file:
