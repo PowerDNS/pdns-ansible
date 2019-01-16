@@ -24,9 +24,6 @@
   file:
     name: "{{ pdns_config_dir }}"
     state: directory
-    owner: "root"
-    group: "root"
-    mode: 0750
 
 - name: Generate the PowerDNS Authoritative Server configuration
   template:
