@@ -1,5 +1,9 @@
 ---
 
+pdns_fileowner:
+  user: root
+  group: root
+
 pdns_auth_powerdns_repo_master:
   apt_repo_origin: "repo.powerdns.com"
   apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-master main"

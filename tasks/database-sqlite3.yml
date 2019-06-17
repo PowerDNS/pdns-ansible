@@ -30,6 +30,13 @@
   with_items: "{{ pdns_sqlite_databases_locations }}"
   when: ansible_os_family == "Debian"
 
+- name: Create the PowerDNS Authoritative Server SQLite databases on FreeBSD
+  shell: "sqlite3 {{ item }} < /usr/local/share/doc/powerdns/schema.sqlite3.sql"
+  args:
+    creates: "{{ item }}"
+  with_items: "{{ pdns_sqlite_databases_locations }}"
+  when: ansible_os_family == "FreeBSD"
+
 - name: Check the PowerDNS Authoritative Server SQLite databases permissions
   file:
     name: "{{ item }}"

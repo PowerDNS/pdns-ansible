@@ -11,7 +11,13 @@
     - install
     - repository
 
-- include: install.yml
+- include: install-Linux.yml
+  when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+  tags:
+    - install
+
+- include: install-FreeBSD.yml
+  when: ansible_os_family == "FreeBSD" 
   tags:
     - install
 

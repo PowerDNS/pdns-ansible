@@ -18,6 +18,12 @@
     - python-mysqldb
   when: ansible_os_family == 'Debian'
 
+- name: Install the MySQL dependencies on FreeBSD
+  pkgng:
+    name: "mysql56-client"
+    state: present
+  when: ansible_os_family == 'FreeBSD'
+
 - name: Create the PowerDNS Authoritative Server MySQL databases
   mysql_db:
     login_user: "{{ item['value']['priv_user'] }}"
@@ -75,6 +81,12 @@
   set_fact:
     _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
   when: ansible_os_family == 'Debian' and pdns_install_repo != ''
+
+- name: Define the PowerDNS Authoritative Server database MySQL schema file path on Debian
+  set_fact:
+    _pdns_mysql_schema_file: "/usr/local/share/doc/powerdns/schema.mysql.sql"
+  when: ansible_os_family == 'FreeBSD'
+
 
 - name: Import the PowerDNS Authoritative Server MySQL schema
   mysql_db:
