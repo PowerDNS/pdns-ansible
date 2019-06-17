@@ -8,9 +8,9 @@
 - name: Install the PowerDNS Authoritative Server debug symbols
   debug:
     msg: Feature not supported on FreeBSD
-  when: pdns_install_debug_symbols_package
+  when: not pdns_install_debug_symbols_package
 
 - name: Install the PowerDNS Authoritative Server backends
   debug:
     msg: Feature not supported on FreeBSD
-  when: pdns_backends_packages is defined
+  when: not pdns_backends_packages 
