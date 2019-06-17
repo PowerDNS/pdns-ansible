@@ -11,5 +11,5 @@ pdns_fileowner:
   user: root
   group: wheel
 
-default_pdns_backends_packages: "powerdns-backend"
+default_pdns_backends_packages: false
 default_pdns_debug_symbols_package_name: false
