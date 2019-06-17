@@ -17,7 +17,7 @@
     - install
 
 - include: install-FreeBSD.yml
-  when: ansible_os_family == "FreeBSD" 
+  when: ansible_os_family == "FreeBSD"
   tags:
     - install
 

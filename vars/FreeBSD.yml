@@ -29,4 +29,3 @@ default_pdns_backends_packages:
   pipe: pdns-backend-pipe
   remote: pdns-backend-remote
   tinydns: pdns-backend-tinydns
-
