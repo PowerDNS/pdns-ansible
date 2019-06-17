@@ -82,7 +82,7 @@
     _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
   when: ansible_os_family == 'Debian' and pdns_install_repo != ''
 
-- name: Define the PowerDNS Authoritative Server database MySQL schema file path on Debian
+- name: Define the PowerDNS Authoritative Server database MySQL schema file path on FreeBSD
   set_fact:
     _pdns_mysql_schema_file: "/usr/local/share/doc/powerdns/schema.mysql.sql"
   when: ansible_os_family == 'FreeBSD'
