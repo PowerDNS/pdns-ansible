@@ -27,4 +27,3 @@ default_pdns_config_dir: "/etc/pdns"
 pdns_mysql_dependencies:
   - mysql
   - MySQL-python
-#  - PyMySQL
