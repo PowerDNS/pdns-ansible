@@ -2,38 +2,33 @@
 
 - name: Install the MySQL dependencies on RedHat
   package:
-    name: "{{ item }}"
+    name: "{{ package_item }}"
     state: present
-  with_items:
-    - mysql
-    - MySQL-python
-  when: ansible_os_family == 'RedHat'
-
-- name: Install the MySQL dependencies on Debian
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - mysql-client
-    - python-mysqldb
-  when: ansible_os_family == 'Debian'
+  with_items: "{{ pdns_mysql_dependencies }}"
+  loop_control:
+    loop_var: package_item
+  when: ( ansible_os_family == 'RedHat' or ansible_os_family == 'Debian' )
 
 - name: Install the MySQL dependencies on FreeBSD
   pkgng:
-    name: "mysql56-client"
+    name: "{{ pdns_mysql_dependencies | join(', ') }}"
     state: present
   when: ansible_os_family == 'FreeBSD'
 
+- debug:
+    msg: "{{ pdns_mysql_databases_credentials }}"
 - name: Create the PowerDNS Authoritative Server MySQL databases
   mysql_db:
-    login_user: "{{ item['value']['priv_user'] }}"
-    login_password: "{{ item['value']['priv_password'] }}"
-    login_host: "{{ item['value']['host'] }}"
-    login_port: "{{ item['value']['port'] | default('3306') }}"
-    name: "{{ item['value']['dbname'] }}"
+    login_user: "{{ loop_item['value']['priv_user'] }}"
+    login_password: "{{ loop_item['value']['priv_password'] }}"
+    login_host: "{{ loop_item['value']['host'] }}"
+    login_port: "{{ loop_item['value']['port'] | default('3306') }}"
+    name: "{{ loop_item['value']['dbname'] }}"
     state: present
-  when: "item.key.split(':')[0] == 'gmysql'"
+  when: "loop_item.key.split(':')[0] == 'gmysql'"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
+  loop_control: 
+    loop_var: loop_item
 
 - name: Grant the PowerDNS Authoritative Server access to the MySQL databases
   mysql_user:
