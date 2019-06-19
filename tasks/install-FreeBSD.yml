@@ -13,4 +13,4 @@
 - name: Install the PowerDNS Authoritative Server backends
   fail:
     msg: Feature not supported on FreeBSD
-  when: not ( "{{ pdns_backends_packages | lower }}"  == "false" )
+  when: not ( pdns_backends_packages | lower  == "false" )
