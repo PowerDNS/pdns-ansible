@@ -6,11 +6,11 @@
     state: present
 
 - name: Install the PowerDNS Authoritative Server debug symbols
-  debug: 
+  fail: 
     msg: Feature not supported on FreeBSD
-  when: not pdns_install_debug_symbols_package
+  when: pdns_install_debug_symbols_package
 
 - name: Install the PowerDNS Authoritative Server backends
-  debug:
+  fail:
     msg: Feature not supported on FreeBSD
-  when: not pdns_backends_packages 
+  when: not ( "{{ pdns_backends_packages | lower }}"  == "false" )
