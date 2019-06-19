@@ -1,6 +1,9 @@
 ---
 
-- name: Install the MySQL dependencies on RedHat
+
+# For FreeBSD this is already as installed as part of the installation of the base package
+# there is no need to install anything more
+- name: Install the MySQL dependencies on RedHat or Debian
   package:
     name: "{{ package_item }}"
     state: present
@@ -8,12 +11,6 @@
   loop_control:
     loop_var: package_item
   when: ( ansible_os_family == 'RedHat' or ansible_os_family == 'Debian' )
-
-- name: Install the MySQL dependencies on FreeBSD
-  pkgng:
-    name: "{{ pdns_mysql_dependencies | join(', ') }}"
-    state: present
-  when: ansible_os_family == 'FreeBSD'
 
 - debug:
     msg: "{{ pdns_mysql_databases_credentials }}"

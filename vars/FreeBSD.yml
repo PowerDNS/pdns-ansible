@@ -14,6 +14,3 @@ pdns_fileowner:
 default_pdns_backends_packages: False
 default_pdns_debug_symbols_package_name: False
 
-pdns_mysql_dependencies:
-  - mysql56-client
-  - py27-MySQLdb56
