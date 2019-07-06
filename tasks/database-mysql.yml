@@ -24,7 +24,7 @@
     state: present
   when: "loop_item.key.split(':')[0] == 'gmysql'"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
-  loop_control: 
+  loop_control:
     loop_var: loop_item
 
 - name: Grant the PowerDNS Authoritative Server access to the MySQL databases

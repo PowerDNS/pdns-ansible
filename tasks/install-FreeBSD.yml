@@ -6,7 +6,7 @@
     state: present
 
 - name: Install the PowerDNS Authoritative Server debug symbols
-  fail: 
+  fail:
     msg: Feature not supported on FreeBSD
   when: pdns_install_debug_symbols_package
 

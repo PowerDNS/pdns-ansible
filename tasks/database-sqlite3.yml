@@ -27,7 +27,7 @@
   with_items: "{{ pdns_sqlite_databases_locations }}"
   loop_control:
     loop_var: db_location
-  when: ansible_os_family == "RedHat" and ansible_distribution == "Fedora" 
+  when: ansible_os_family == "RedHat" and ansible_distribution == "Fedora"
 
 - name: Create the PowerDNS Authoritative Server SQLite databases on RedHat >= 7
   shell: "sqlite3 {{ db_location }} < /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version | regex_replace('-rc[\\d]*$', '') }}/schema.sqlite3.sql"

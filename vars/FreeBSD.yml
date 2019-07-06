@@ -13,4 +13,3 @@ pdns_fileowner:
 
 default_pdns_backends_packages: False
 default_pdns_debug_symbols_package_name: False
-

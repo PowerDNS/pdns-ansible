@@ -24,7 +24,7 @@ galaxy_info:
         - xenial
         - bionic
     - name: FreeBSD
-      versions: 
+      versions:
         - 11
   galaxy_tags:
     - system
