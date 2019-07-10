@@ -27,12 +27,6 @@ platforms:
     groups:
       - pdns
 
-  - name: ubuntu-1710
-    image: ubuntu:17.10
-    dockerfile_tpl: debian-systemd
-    groups:
-      - pdns
-
   - name: ubuntu-1804
     image: ubuntu:18.04
     dockerfile_tpl: debian-systemd
