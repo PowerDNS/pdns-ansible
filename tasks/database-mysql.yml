@@ -47,7 +47,7 @@
     loop_var: loop_item
 
 - name: Check if the PowerDNS Authoritative Server MySQL databases are empty
-  command: 
+  command:
     mysql --user="{{ loop_item['value']['user'] }}" --password="{{ loop_item['value']['password'] }}"
     --host="{{ loop_item['value']['host'] }}" --port "{{ loop_item['value']['port'] | default('3306') }}" --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ loop_item['value']['dbname'] }}'"
