@@ -22,7 +22,7 @@
     login_port: "{{ loop_item['value']['port'] | default('3306') }}"
     name: "{{ loop_item['value']['dbname'] }}"
     state: present
-  when: "loop_item['key'].split(':')[0] == 'gmysql'"
+  when: "item['key'].split(':')[0] == 'gmysql'"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
   loop_control:
     loop_var: loop_item
@@ -51,7 +51,7 @@
     mysql --user="{{ loop_item['value']['user'] }}" --password="{{ loop_item['value']['password'] }}"
     --host="{{ loop_item['value']['host'] }}" --port "{{ loop_item['value']['port'] | default('3306') }}" --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ loop_item['value']['dbname'] }}'"
-  when: loop_item.key.split(':')[0] == 'gmysql'
+  when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_mysql_db
   changed_when: False
@@ -93,7 +93,7 @@
     name: "{{ loop_item.item['value']['dbname'] }}"
     state: import
     target: "{{ _pdns_mysql_schema_file }}"
-  when: "loop_item['item']['key'].split(':')[0] == 'gmysql' and loop_item['stdout'] == '0'"
+  when: "item['loop_item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
   loop_control:
     loop_var: loop_item
