@@ -1,3 +1,4 @@
+q
 ---
 
 
@@ -16,11 +17,11 @@
     msg: "{{ pdns_mysql_databases_credentials }}"
 - name: Create the PowerDNS Authoritative Server MySQL databases
   mysql_db:
-    login_user: "{{ loop_item['value']['priv_user'] }}"
-    login_password: "{{ loop_item['value']['priv_password'] }}"
-    login_host: "{{ loop_item['value']['host'] }}"
-    login_port: "{{ loop_item['value']['port'] | default('3306') }}"
-    name: "{{ loop_item['value']['dbname'] }}"
+    login_user: "{{ loop_item['gmysql']['priv_user'] }}"
+    login_password: "{{ loop_item['gmysql']['priv_password'] }}"
+    login_host: "{{ loop_item['gmysql']['host'] }}"
+    login_port: "{{ loop_item['gmysql']['port'] | default('3306') }}"
+    name: "{{ loop_item['gmysql']['dbname'] }}"
     state: present
   when: "item['key'].split(':')[0] == 'gmysql'"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
