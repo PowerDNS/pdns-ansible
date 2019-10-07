@@ -5,13 +5,24 @@
   tags:
     - always
 
+- name: Include distribution-specific variables
+  include_vars: "{{ ansible_distribution }}.yml"
+  tags:
+    - always
+
 - include: "repo-{{ ansible_os_family }}.yml"
   when: pdns_install_repo != ""
   tags:
     - install
     - repository
 
-- include: install.yml
+- include: install-Linux.yml
+  when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+  tags:
+    - install
+
+- include: install-FreeBSD.yml
+  when: ansible_os_family == "FreeBSD"
   tags:
     - install
 
@@ -22,14 +33,18 @@
     - sqlite
     - config
 
-- include: database-mysql.yml
-  when: "pdns_mysql_databases_credentials | length > 0"
+- name: Include MySQL installation
+  include: database-mysql.yml
+  when: item.key.split(':')[0] == "gmysql"
+  with_dict: "{{ pdns_backends }}"
   tags:
     - db
     - mysql
 
-- include: database-sqlite3.yml
-  when: "pdns_sqlite_databases_locations | length > 0"
+- name: Include SQLite3 installation
+  include: database-sqlite3.yml
+  when: item.key.split(':')[0] == "gsqlite3"
+  with_dict: "{{ pdns_backends }}"
   tags:
     - db
     - sqlite

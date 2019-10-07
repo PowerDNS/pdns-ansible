@@ -6,15 +6,15 @@
     file:
       name: "/etc/systemd/system/{{ pdns_service_name }}.service.d"
       state: directory
-      owner: root
-      group: root
+      owner: "{{ pdns_fileowner.user }}"
+      group: "{{ pdns_fileowner.group }}"
 
   - name: Override the PowerDNS Authoritative Server unit (systemd)
     template:
       src: "override-service.systemd.conf.j2"
       dest: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"
-      owner: root
-      group: root
+      owner: "{{ pdns_fileowner.user }}"
+      group: "{{ pdns_fileowner.group }}"
     notify: reload systemd and restart PowerDNS
 
   when: pdns_service_overrides != {}
@@ -24,16 +24,16 @@
   file:
     name: "{{ pdns_config_dir }}"
     state: directory
-    owner: "root"
-    group: "root"
+    owner: "{{ pdns_fileowner.user }}"
+    group: "{{ pdns_fileowner.group }}"
     mode: 0750
 
 - name: Generate the PowerDNS Authoritative Server configuration
   template:
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
-    owner: "root"
-    group: "root"
+    owner: "{{ pdns_fileowner.user }}"
+    group: "{{ pdns_fileowner.group }}"
     mode: 0640
   notify: restart PowerDNS
 
@@ -41,7 +41,7 @@
   file:
     name: "{{ pdns_config['include-dir'] }}"
     state: directory
-    owner: "root"
-    group: "root"
+    owner: "{{ pdns_fileowner.user }}"
+    group: "{{ pdns_fileowner.group }}"
     mode: 0750
   when: "pdns_config['include-dir'] is defined"

@@ -1,0 +1,15 @@
+---
+
+default_pdns_package_name: "powerdns"
+
+default_pdns_config_dir: "/usr/local/etc/pdns"
+
+pdns_user: root
+pdns_group: wheel
+
+pdns_fileowner:
+  user: root
+  group: wheel
+
+default_pdns_backends_packages: False
+default_pdns_debug_symbols_package_name: False

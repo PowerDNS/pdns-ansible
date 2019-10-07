@@ -1,0 +1,16 @@
+---
+
+- name: Install the PowerDNS Authoritative Server
+  pkgng:
+    name: "{{ pdns_package_name }}"
+    state: present
+
+- name: Install the PowerDNS Authoritative Server debug symbols
+  fail:
+    msg: Feature not supported on FreeBSD
+  when: pdns_install_debug_symbols_package
+
+- name: Install the PowerDNS Authoritative Server backends
+  fail:
+    msg: Feature not supported on FreeBSD
+  when: not ( pdns_backends_packages | lower  == "false" )

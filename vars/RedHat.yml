@@ -23,3 +23,7 @@ default_pdns_backends_packages:
 
 # The directory where the PowerDNS Authoritative Server configuration is located
 default_pdns_config_dir: "/etc/pdns"
+
+pdns_mysql_dependencies:
+  - mysql
+  - MySQL-python

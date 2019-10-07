@@ -1,0 +1,6 @@
+---
+
+pdns_mysql_dependencies:
+  - mysql
+  - MySQL-python
+  - python3-PyMySQL
