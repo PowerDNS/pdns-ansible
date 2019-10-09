@@ -26,14 +26,14 @@
     state: directory
     owner: "root"
     group: "root"
-    mode: 0750
+    mode: 0755
 
 - name: Generate the PowerDNS Authoritative Server configuration
   template:
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
     owner: "root"
-    group: "root"
+    group: "{{ pdns_group }}"
     mode: 0640
   notify: restart PowerDNS
 
