@@ -22,9 +22,12 @@ galaxy_info:
         - vivid
         - wily
         - xenial
+        - bionic
   galaxy_tags:
     - system
     - dns
     - pdns
     - powerdns
     - pdns-auth
+
+dependencies: []
