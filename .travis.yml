@@ -17,6 +17,9 @@ env:
     - ANSIBLE=2.3
     - ANSIBLE=2.4
     - ANSIBLE=2.5
+    - ANSIBLE=2.6
+    - ANSIBLE=2.7
+    - ANSIBLE=2.8
 
 # Install tox
 install:
