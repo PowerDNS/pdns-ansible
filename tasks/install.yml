@@ -12,7 +12,7 @@
       _pdns_package_version: "={{ pdns_package_version }}"
     when: ansible_os_family == 'Debian'
 
-  when: pdns_package_version != ''
+  when: "pdns_package_version | length > 0"
 
 - name: Install the PowerDNS Authoritative Server
   package:
