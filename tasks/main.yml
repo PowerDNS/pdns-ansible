@@ -6,7 +6,7 @@
     - always
 
 - include: "repo-{{ ansible_os_family }}.yml"
-  when: pdns_install_repo != ""
+  when: "pdns_install_repo | length > 0"
   tags:
     - install
     - repository
