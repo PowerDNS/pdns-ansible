@@ -30,7 +30,7 @@
     baseurl: "{{ pdns_install_repo['yum_repo_baseurl'] }}"
     gpgkey: "{{ pdns_install_repo['gpg_key'] }}"
     gpgcheck: yes
-    priority: 90
+    priority: "90"
     state: present
 
 - name: Add the PowerDNS Authoritative Server debug symbols YUM Repository
@@ -41,6 +41,6 @@
     baseurl: "{{ pdns_install_repo['yum_debug_symbols_repo_baseurl'] }}"
     gpgkey: "{{ pdns_install_repo['gpg_key'] }}"
     gpgcheck: yes
-    priority: 90
+    priority: "90"
     state: present
   when: pdns_install_debug_symbols_package
