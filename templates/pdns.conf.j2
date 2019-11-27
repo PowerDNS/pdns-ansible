@@ -3,10 +3,12 @@ setuid={{ pdns_user }}
 setgid={{ pdns_group }}
 {% for config_item, value in pdns_config.items() | sort() %}
 {% if config_item not in ["config-dir", "launch", "setuid", "setgid"] %}
-{% if value == True %}
+{% if value is sameas True %}
 {{ config_item }}=yes
-{% elif value == False %}
+{% elif value is sameas False %}
 {{ config_item }}=no
+{% elif value == None %}
+{{ config_item }}=
 {% elif value is string %}
 {{ config_item }}={{ value | string }}
 {% elif value is sequence %}
@@ -23,9 +25,9 @@ launch=
 launch+={{ backend }}
 {% set backend_string = backend | replace(':', '-') %}
 {% for backend_item, value in pdns_backends[backend].items() | sort() -%}
-{% if value == True %}
+{% if value is sameas True %}
 {{ backend_string }}-{{ backend_item }}=yes
-{% elif value == False %}
+{% elif value is sameas False %}
 {{ backend_string }}-{{ backend_item }}=no
 {% elif value == None %}
 {{ backend_string }}-{{ backend_item }}=
