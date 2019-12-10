@@ -29,4 +29,4 @@ def test_pdns_repo(host):
 def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
-    assert 'PowerDNS Authoritative Server 0.0.' in cmd.stderr
+    assert cmd.stderr.contains('PowerDNS Authoritative Server 0.0.')

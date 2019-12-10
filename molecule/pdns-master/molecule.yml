@@ -11,38 +11,35 @@ dependency:
 
 platforms:
   - name: centos-6
+    groups: ["pdns"]
     image: centos:6
-    groups:
-      - pdns
 
   - name: centos-7
+    groups: ["pdns"]
     image: centos:7
     dockerfile_tpl: centos-systemd
-    groups:
-      - pdns
 
-  - name: ubuntu-1604
-    image: ubuntu:16.04
-    dockerfile_tpl: debian-systemd
-    groups:
-      - pdns
+  # Temporarely disable CentOS 8 due to:
+  # https://github.com/ansible/ansible/issues/64963
+  # - name: centos-8
+  #   groups: ["pdns"]
+  #   image: centos:8
+  #   dockerfile_tpl: centos-systemd
 
   - name: ubuntu-1804
+    groups: ["pdns"]
     image: ubuntu:18.04
     dockerfile_tpl: debian-systemd
-    groups:
-      - pdns
-
-  - name: debian-8
-    image: debian:8
-    groups:
-      - pdns
 
   - name: debian-9
+    groups: ["pdns"]
     image: debian:9
     dockerfile_tpl: debian-systemd
-    groups:
-      - pdns
+
+  - name: debian-10
+    groups: ["pdns"]
+    image: debian:10
+    dockerfile_tpl: debian-systemd
 
   # In order to run the tests we need
   # a MySQL container to be up & running
@@ -60,6 +57,17 @@ provisioner:
   options:
     diff: True
     v: True
+  config_options:
+    defaults:
+      gathering: smart
+      fact_caching: jsonfile
+      fact_caching_connection: .ansible_cache
+      fact_caching_timeout: 7200
+    ssh_connection:
+      pipelining: true
+  inventory:
+    links:
+      host_vars: ../resources/host_vars/
   playbooks:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
@@ -67,8 +75,11 @@ provisioner:
   lint:
     name: ansible-lint
     options:
-      # excludes "systemctl used in place of systemd module"
-      x: ["ANSIBLE0006"]
+      x:
+        # "systemctl used in place of systemd module"
+        - "ANSIBLE0006"
+        # "Tasks that run when changed should likely be handlers"
+        - "ANSIBLE0016"
 
 lint:
   name: yamllint

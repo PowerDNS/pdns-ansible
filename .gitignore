@@ -1,5 +1,6 @@
 ### Ansible ###
 *.retry
+.ansible_cache
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

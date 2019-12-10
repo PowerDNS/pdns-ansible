@@ -20,24 +20,20 @@ def test_config(host):
         dbname = host.check_output('hostname -s').replace('.', '_')
 
         assert f.exists
-        assert 'launch+=gmysql' in f.content
-        assert 'gmysql-host=mysql' in f.content
-        assert 'gmysql-password=pdns' in f.content
-        assert 'gmysql-dbname=' + dbname in f.content
-        assert 'gmysql-user=pdns' in f.content
+        assert f.contains('launch+=gmysql')
+        assert f.contains('gmysql-host=mysql')
+        assert f.contains('gmysql-password=pdns')
+        assert f.contains('gmysql-dbname=' + dbname)
+        assert f.contains('gmysql-user=pdns')
 
 
 def test_database_tables(host):
     dbname = host.check_output('hostname -s').replace('.', '_')
 
-    cmd = host.run("mysql --user=\"pdns\" --password=\"pdns\" --host=\"mysql\" " + 
+    cmd = host.run("mysql --user=\"pdns\" --password=\"pdns\" --host=\"mysql\" " +
                           "--batch --skip-column-names " +
                           "--execute=\"SELECT DISTINCT table_name FROM information_schema.columns WHERE table_schema = '%s'\"" % dbname)
 
-    assert 'domains' in cmd.stdout
-    assert 'records' in cmd.stdout
-    assert 'supermasters' in cmd.stdout
-    assert 'comments' in cmd.stdout
-    assert 'domainmetadata' in cmd.stdout
-    assert 'cryptokeys' in cmd.stdout
-    assert 'tsigkeys' in cmd.stdout
+    for table in [ 'domains', 'records', 'supermasters', 'comments'
+            'domainmetadata', 'cryptokeys', 'tsigkeys' ]:
+        assert cmd.stdout.contains(table)

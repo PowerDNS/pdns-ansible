@@ -1,6 +1,8 @@
 ---
 language: python
-python: 2.7
+python:
+  - "2.7"
+  - "3.6"
 
 sudo: required
 
@@ -8,16 +10,20 @@ sudo: required
 services:
   - docker
 
+# Replace aufs with the vfs docker storage driver
+# to prevent systemd to fail starting docker in docker.
+before_install:
+  - sudo sed -i 's|DOCKER_OPTS=.*|DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock --storage-driver vfs"|g' /etc/default/docker
+  - sudo service docker restart
+  - docker info
+
 # Parallel testing of the supported
 # Ansible versions
 env:
   matrix:
-    - ANSIBLE=2.2
-    - ANSIBLE=2.3
-    - ANSIBLE=2.4
-    - ANSIBLE=2.5
-    - ANSIBLE=2.6
     - ANSIBLE=2.7
+    - ANSIBLE=2.8
+    - ANSIBLE=2.9
 
 # Install tox
 install:
@@ -25,7 +31,7 @@ install:
 
 # Test the current PowerDNS Authoritative Server stable release
 script:
-  - tox -- molecule test -s pdns-41
+  - tox -- molecule test -s pdns-42
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

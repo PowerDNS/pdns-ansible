@@ -1,7 +1,9 @@
 ---
 
 - name: Obtain the version of the running PowerDNS Authoritative Server
-  shell: "pdns_server --version 2>&1 | awk '/PowerDNS Authoritative/{print $7}'"
+  shell: |
+    set -o pipefail
+    pdns_server --version 2>&1 | awk '/PowerDNS Authoritative/{print $7}'
   register: _pdns_version
   check_mode: no
   changed_when: False

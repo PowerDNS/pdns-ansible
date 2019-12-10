@@ -2,20 +2,18 @@
 
 - name: Install the MySQL dependencies on RedHat
   package:
-    name: "{{ item }}"
+    name:
+      - mysql
+      - MySQL-python
     state: present
-  with_items:
-    - mysql
-    - MySQL-python
   when: ansible_os_family == 'RedHat'
 
 - name: Install the MySQL dependencies on Debian
   package:
-    name: "{{ item }}"
+    name:
+      - default-mysql-client
+      - python-mysqldb
     state: present
-  with_items:
-    - mysql-client
-    - python-mysqldb
   when: ansible_os_family == 'Debian'
 
 - name: Create the PowerDNS Authoritative Server MySQL databases
@@ -56,25 +54,35 @@
   register: _pdns_check_mysql_db
   changed_when: False
 
-- name: Define the PowerDNS Authoritative Server database MySQL schema file path on RedHat < 7
-  set_fact:
-    _pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.mysql.sql"
-  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version | int < 7
+- block:
 
-- name: Define the PowerDNS Authoritative Server database MySQL schema file path on RedHat >= 7
-  set_fact:
-    _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version | regex_replace('-rc[\\d]*$', '') }}/schema.mysql.sql"
-  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version | int >= 7
+    - name: Define the PowerDNS Authoritative Server database MySQL schema file path on RedHat < 7 and PowerDNS < 4.2.0
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.mysql.sql"
+      when: ansible_distribution_major_version | int < 7
+        and (_pdns_running_version | regex_replace('-rc[\\d]*$', '')) is version_compare('4.2.0', '<')
 
-- name: Define the PowerDNS Authoritative Server database MySQL schema file path on Debian
-  set_fact:
-    _pdns_mysql_schema_file: "/usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql"
-  when: "ansible_os_family == 'Debian' and pdns_install_repo | length == 0"
+    - name: Define the PowerDNS Authoritative Server database MySQL schema file path on RedHat >= 7 or PowerDNS >= 4.2.0
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version | regex_replace('-rc[\\d]*$', '') }}/schema.mysql.sql"
+      when: ansible_distribution_major_version | int >= 7
+        or (_pdns_running_version | regex_replace('-rc[\\d]*$', '')) is version_compare('4.2.0', '>=')
 
-- name: Define the PowerDNS Authoritative Server database MySQL schema file path on Debian
-  set_fact:
-    _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
-  when: "ansible_os_family == 'Debian' and pdns_install_repo | length > 0"
+  when: ansible_os_family == 'RedHat'
+
+- block:
+
+    - name: Define the PowerDNS Authoritative Server database MySQL schema file path on Debian
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql"
+      when: pdns_install_repo | length == 0
+
+    - name: Define the PowerDNS Authoritative Server database MySQL schema file path on Debian
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
+      when: pdns_install_repo | length > 0
+
+  when: ansible_os_family == 'Debian'
 
 - name: Import the PowerDNS Authoritative Server MySQL schema
   mysql_db:

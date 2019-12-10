@@ -28,6 +28,6 @@ galaxy_info:
     - dns
     - pdns
     - powerdns
-    - pdns-auth
+    - auth
 
 dependencies: []

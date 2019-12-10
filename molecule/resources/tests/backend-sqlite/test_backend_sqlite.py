@@ -19,5 +19,5 @@ def test_database_exists(host):
     assert f.exists
     assert f.user == 'pdns'
     assert f.group == 'pdns'
-    assert f.mode == 416
+    assert f.mode == 0o416
     assert f.size > 10000

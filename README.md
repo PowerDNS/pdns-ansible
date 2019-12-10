@@ -330,7 +330,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e py27-ansible22 -- molecule test -s pdns-41
+    $ tox -e py27-ansible22 -- molecule test -s pdns-42
 
 ## License
 
