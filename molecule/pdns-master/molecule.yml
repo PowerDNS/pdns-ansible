@@ -80,6 +80,8 @@ provisioner:
         - "ANSIBLE0006"
         # "Tasks that run when changed should likely be handlers"
         - "ANSIBLE0016"
+        # "Shells that use pipes should set the pipefail option"
+        - "306"
 
 lint:
   name: yamllint
