@@ -33,7 +33,7 @@
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
     owner: "root"
-    group: "root"
+    group: "{{ pdns_group }}"
     mode: 0640
   notify: restart PowerDNS
 
@@ -43,5 +43,5 @@
     state: directory
     owner: "root"
     group: "root"
-    mode: 0750
+    mode: 0755
   when: "pdns_config['include-dir'] is defined"

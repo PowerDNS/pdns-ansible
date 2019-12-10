@@ -34,6 +34,6 @@ def test_database_tables(host):
                           "--batch --skip-column-names " +
                           "--execute=\"SELECT DISTINCT table_name FROM information_schema.columns WHERE table_schema = '%s'\"" % dbname)
 
-    for table in [ 'domains', 'records', 'supermasters', 'comments'
+    for table in [ 'domains', 'records', 'supermasters', 'comments',
             'domainmetadata', 'cryptokeys', 'tsigkeys' ]:
-        assert cmd.stdout.contains(table)
+        assert table in cmd.stdout

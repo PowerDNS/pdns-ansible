@@ -9,4 +9,4 @@
 
 - name: Export the running PowerDNS Authoritative Server version to a variable
   set_fact:
-    _pdns_running_version: "{{ _pdns_version['stdout'] }}"
+    _pdns_running_version: "{{ _pdns_version['stdout'] | regex_replace('-[.\\d\\w]+$', '') }}"
