@@ -1,17 +1,17 @@
 ## v1.5.0 (2019-12-11)
 
 BUG FIXES:
-- - Fix the restart of the PowerDNS service in case of instances with different `pdns_service_name` being configured in the same play ([\#70](https://github.com/PowerDNS/pdns_recursor-ansible/pull/70))
+- - Fix the restart of the PowerDNS service in case of instances with different `pdns_service_name` being configured in the same play ([\#70](https://github.com/PowerDNS/pdns-ansible/pull/70))
 
 IMPROVEMENTS:
-- Add support to the PowerDNS 4.3.x release ([\#69](https://github.com/PowerDNS/pdns_recursor-ansible/pull/69))
-- Add support to the PowerDNS 4.2.x release ([\#61](https://github.com/PowerDNS/pdns_recursor-ansible/pull/61))
-- Install missing SQLite packages ([\#69](https://github.com/PowerDNS/pdns_recursor-ansible/pull/69))
-- Improved PowerDNS configuration files and directories permissions handling ([\#69](https://github.com/PowerDNS/pdns_recursor-ansible/pull/69))
-- Stop interpreting 0 & 1 as no & yes in the PowerDNS configuration template ([\#68](https://github.com/PowerDNS/pdns_recursor-ansible/pull/68))
-- Fix some strings comparisons and variable types issues reported by ansible-lint ([\#66](https://github.com/PowerDNS/pdns_recursor-ansible/pull/66))
-- Update the CI infrastructure to test the role against the Ansible 2.7, 2.8 and 2.9 releases ([\#67](https://github.com/PowerDNS/pdns_recursor-ansible/pull/67))
-- Update the CI infrastructure to stop testing against an EOL Ubuntu release ([\#62](https://github.com/PowerDNS/pdns_recursor-ansible/pull/62))
+- Add support to the PowerDNS 4.3.x release ([\#69](https://github.com/PowerDNS/pdns-ansible/pull/69))
+- Add support to the PowerDNS 4.2.x release ([\#61](https://github.com/PowerDNS/pdns-ansible/pull/61))
+- Install missing SQLite packages ([\#69](https://github.com/PowerDNS/pdns-ansible/pull/69))
+- Improved PowerDNS configuration files and directories permissions handling ([\#69](https://github.com/PowerDNS/pdns-ansible/pull/69))
+- Stop interpreting 0 & 1 as no & yes in the PowerDNS configuration template ([\#68](https://github.com/PowerDNS/pdns-ansible/pull/68))
+- Fix some strings comparisons and variable types issues reported by ansible-lint ([\#66](https://github.com/PowerDNS/pdns-ansible/pull/66))
+- Update the CI infrastructure to test the role against the Ansible 2.7, 2.8 and 2.9 releases ([\#67](https://github.com/PowerDNS/pdns-ansible/pull/67))
+- Update the CI infrastructure to stop testing against an EOL Ubuntu release ([\#62](https://github.com/PowerDNS/pdns-ansible/pull/62))
 
 ## v1.4.0 (2018-12-02)
 
