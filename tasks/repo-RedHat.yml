@@ -22,7 +22,7 @@
     state: present
   when: ansible_distribution in [ 'CentOS' ]
 
-- name: Add the PowerDNS Authoritative Server YUM Repository
+- name: Add the PowerDNS YUM Repository
   yum_repository:
     name: "{{ pdns_install_repo['name'] }}"
     file: "{{ pdns_install_repo['name'] }}"
@@ -33,7 +33,7 @@
     priority: "90"
     state: present
 
-- name: Add the PowerDNS Authoritative Server debug symbols YUM Repository
+- name: Add the PowerDNS debug symbols YUM Repository
   yum_repository:
     name: "{{ pdns_install_repo['name'] }}-debuginfo"
     file: "{{ pdns_install_repo['name'] }}"

@@ -38,7 +38,7 @@
   tags:
     - config
 
-- name: Start and enable the PowerDNS Authoritative Server service
+- name: Start and enable the PowerDNS service
   service:
     name: "{{ pdns_service_name }}"
     state: "{{ pdns_service_state }}"

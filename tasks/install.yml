@@ -2,30 +2,30 @@
 
 - block:
 
-  - name: Prefix the version with the correct separator on RedHat
+  - name: Prefix the PowerDNS version with the correct separator on RedHat
     set_fact:
       _pdns_package_version: "-{{ pdns_package_version }}"
     when: ansible_os_family == 'RedHat'
 
-  - name: Prefix the version with the correct separator on Debian
+  - name: Prefix the PowerDNS version with the correct separator on Debian
     set_fact:
       _pdns_package_version: "={{ pdns_package_version }}"
     when: ansible_os_family == 'Debian'
 
   when: "pdns_package_version | length > 0"
 
-- name: Install the PowerDNS Authoritative Server
+- name: Install PowerDNS
   package:
     name: "{{ pdns_package_name }}{{ _pdns_package_version | default('') }}"
     state: present
 
-- name: Install the PowerDNS Authoritative Server debug symbols
+- name: Install PowerDNS debug symbols
   package:
     name: "{{ pdns_debug_symbols_package_name }}{{ _pdns_package_version | default('') }}"
     state: present
   when: pdns_install_debug_symbols_package
 
-- name: Install the PowerDNS Authoritative Server backends
+- name: Install PowerDNS backends
   package:
     name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}{{ _pdns_package_version | default('') }}"
     state: present

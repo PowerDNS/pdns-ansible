@@ -25,7 +25,7 @@
   when: pdns_service_overrides != {}
     and ansible_service_mgr == "systemd"
 
-- name: Ensure that the PowerDNS Authoritative Server configuration directory exists
+- name: Ensure that the PowerDNS configuration directory exists
   file:
     name: "{{ pdns_config_dir }}"
     state: directory
@@ -33,7 +33,7 @@
     group: "root"
     mode: 0755
 
-- name: Generate the PowerDNS Authoritative Server configuration
+- name: Generate the PowerDNS configuration
   template:
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
@@ -42,7 +42,7 @@
     mode: 0640
   register: _pdns_configuration
 
-- name: Ensure that the PowerDNS Authoritative Server 'include-dir' directory exists
+- name: Ensure that the PowerDNS 'include-dir' directory exists
   file:
     name: "{{ pdns_config['include-dir'] }}"
     state: directory
@@ -51,7 +51,7 @@
     mode: 0755
   when: "pdns_config['include-dir'] is defined"
 
-- name: Restart the PowerDNS Authoritative server
+- name: Restart PowerDNS
   service:
     name: "{{ pdns_service_name }}"
     state: restarted
