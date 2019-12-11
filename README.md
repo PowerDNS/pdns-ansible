@@ -113,12 +113,11 @@ pdns_service_name: "pdns"
 Name of the PowerDNS service.
 
 ```yaml
-pdns_flush_handlers: False
+pdns_service_state: "started"
+pdns_service_enabled: "yes"
 ```
 
-Force the execution of the handlers at the end of the role. <br />
-**NOTE:** This is required if using this role to configure multiple PowerDNS instances in the same play.
-See PowerDNS Authoritative Server virtual hosting https://doc.powerdns.com/md/authoritative/running/#starting-virtual-instances-with-system.
+Allow to specify the desired state of the PowerDNS Authoritative Server service.
 
 ```yaml
 pdns_disable_handlers: False
