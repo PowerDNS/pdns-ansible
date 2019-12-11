@@ -41,14 +41,7 @@
 - name: Start and enable the PowerDNS Authoritative Server service
   service:
     name: "{{ pdns_service_name }}"
-    state: started
-    enabled: true
+    state: "{{ pdns_service_state }}"
+    enabled: "{{ pdns_service_enabled }}"
   tags:
-    - service
-
-- name: Force handlers flush
-  meta: flush_handlers
-  when: pdns_flush_handlers
-  tags:
-    - config
     - service
