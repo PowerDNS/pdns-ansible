@@ -1,20 +1,9 @@
 ---
 
-- name: Install the MySQL dependencies on RedHat
+- name: Install the MySQL dependencies
   package:
-    name:
-      - mysql
-      - MySQL-python
+    name: "{{ pdns_mysql_packages }}"
     state: present
-  when: ansible_os_family == 'RedHat'
-
-- name: Install the MySQL dependencies on Debian
-  package:
-    name:
-      - default-mysql-client
-      - python-mysqldb
-    state: present
-  when: ansible_os_family == 'Debian'
 
 - name: Create the PowerDNS MySQL databases
   mysql_db:
@@ -65,8 +54,15 @@
     - name: Define the PowerDNS database MySQL schema file path on RedHat >= 7 or PowerDNS >= 4.2.0
       set_fact:
         _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql"
-      when: ansible_distribution_major_version | int >= 7
-        or _pdns_running_version is version_compare('4.2.0', '>=')
+      when:
+        - ansible_distribution_major_version | int = 7 or _pdns_running_version is version_compare('4.2.0', '>=')
+
+    - name: Define the PowerDNS database MySQL schema file path on RedHat 8 and PowerDNS >= 4.2.0
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
+      when:
+        - ansible_distribution_major_version | int = 8
+        - _pdns_running_version is version_compare('4.2.0', '>=')
 
   when: ansible_os_family == 'RedHat'
 
