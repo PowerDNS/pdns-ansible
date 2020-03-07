@@ -36,9 +36,8 @@
       args:
         creates: "{{ item }}"
       with_items: "{{ pdns_sqlite_databases_locations }}"
-      when:
-        - ansible_distribution_major_version | int == 7
-        - _pdns_running_version is version_compare('4.2.0', '>=')
+      when: ansible_distribution_major_version | int == 7
+        or _pdns_running_version is version_compare('4.2.0', '>=')
 
     - name: Create the PowerDNS SQLite databases on RedHat 8 or PowerDNS >= 4.2.0
       shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql"
