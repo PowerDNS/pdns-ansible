@@ -22,31 +22,30 @@
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - block:
-
-    - name: Create the PowerDNS SQLite databases on RedHat < 7 and PowerDNS < 4.2.0
-      shell: "sqlite3 {{ item }} < /usr/share/doc/pdns/schema.sqlite3.sql"
-      args:
-        creates: "{{ item }}"
-      with_items: "{{ pdns_sqlite_databases_locations }}"
+    - name: Define the PowerDNS SQLite schema file path on RedHat < 7 and PowerDNS < 4.2.0
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.sqlite3.sql"
       when: ansible_distribution_major_version | int < 7
         and _pdns_running_version is version_compare('4.2.0', '<')
 
-    - name: Create the PowerDNS SQLite databases on RedHat >= 7 or PowerDNS >= 4.2.0
-      shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql"
-      args:
-        creates: "{{ item }}"
-      with_items: "{{ pdns_sqlite_databases_locations }}"
+    - name: Define the PowerDNS SQLite schema file path on RedHat >= 7 or PowerDNS >= 4.2.0
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql"
       when: ansible_distribution_major_version | int == 7
         or _pdns_running_version is version_compare('4.2.0', '>=')
 
-    - name: Create the PowerDNS SQLite databases on RedHat 8 or PowerDNS >= 4.2.0
-      shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql"
-      args:
-        creates: "{{ item }}"
-      with_items: "{{ pdns_sqlite_databases_locations }}"
+    - name: Define the PowerDNS SQLite schema file path on RedHat 8 and PowerDNS >= 4.2.0
+      set_fact:
+        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql"
       when:
         - ansible_distribution_major_version | int == 8
         - _pdns_running_version is version_compare('4.2.0', '>=')
+
+    - name: Create the PowerDNS SQLite databases on RedHat
+      shell: "sqlite3 {{ item }} < {{ _pdns_mysql_schema_file }}"
+      args:
+        creates: "{{ item }}"
+      with_items: "{{ pdns_sqlite_databases_locations }}"
 
   when: ansible_os_family == "RedHat"
 
