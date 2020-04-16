@@ -1,0 +1,14 @@
+---
+
+# The name of the PowerDNS package
+default_pdns_package_name: "powerdns"
+
+# List of PowerDNS Backends packages. Arch ships all backends in the main package
+default_pdns_backends_packages: {}
+
+# The directory where the PowerDNS configuration is located
+default_pdns_config_dir: '/etc/powerdns'
+
+# Other defaults
+pdns_user: powerdns
+pdns_group: powerdns

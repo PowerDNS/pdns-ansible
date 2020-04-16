@@ -90,6 +90,13 @@
 
   when: ansible_os_family == 'Debian'
 
+- block:
+  - name: Define the PowerDNS DB schema file path on Arch Linux
+    set_fact:
+      _pdns_mysql_schema_file: "/usr/share/doc/powerdns/schema.mysql.sql"
+
+  when: ansible_os_family == 'Archlinux'
+
 - name: Import the PowerDNS MySQL schema
   mysql_db:
     login_user: "{{ item['item']['value']['user'] }}"

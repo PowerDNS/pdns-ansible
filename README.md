@@ -64,6 +64,7 @@ The examples above, show how to install the PowerDNS Authoritative Server from t
 ```
 
 It is also possible to install the PowerDNS Authoritative Server from custom repositories as demonstrated in the example above.
+**Note:** These repositories are ignored on Arch Linux
 
 ```yaml
  pdns_install_epel: True
