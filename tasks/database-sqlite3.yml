@@ -21,7 +21,7 @@
     mode: 0755
   with_items: "{{ pdns_sqlite_databases_locations }}"
   when: _pdns_running_version is version_compare('4.2.0', '<')
-  
+
 - name: Ensure that the directories containing the PowerDNS SQLite databases exist
   file:
     name: "{{ item | dirname }}"
