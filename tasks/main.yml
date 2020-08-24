@@ -34,6 +34,14 @@
     - db
     - sqlite
 
+- include: database-named.yml
+  when:
+    - pdns_backends.get('bind', False)
+    - pdns_named_config
+  tags:
+    - db
+    - named
+
 - include: configure.yml
   tags:
     - config
