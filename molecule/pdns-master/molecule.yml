@@ -72,19 +72,9 @@ provisioner:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
     prepare: ../resources/prepare.yml
-  lint:
-    name: ansible-lint
-    options:
-      x:
-        # "systemctl used in place of systemd module"
-        - "ANSIBLE0006"
-        # "Tasks that run when changed should likely be handlers"
-        - "ANSIBLE0016"
-        # "Shells that use pipes should set the pipefail option"
-        - "306"
+  lint: ansible-lint -x ANSIBLE0006 ANSIBLE0016 306
 
-lint:
-  name: yamllint
+lint: yamllint defaults tasks meta vars
 
 verifier:
   name: testinfra
@@ -97,5 +87,4 @@ verifier:
     - ../repo-master/
     - ../backend-sqlite/
     - ../backend-mysql/
-  lint:
-    name: flake8
+  lint: flake8

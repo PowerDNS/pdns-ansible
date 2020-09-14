@@ -13,6 +13,7 @@
     name:
       - default-mysql-client
       - python-mysqldb
+      - python3-mysqldb
     state: present
   when: ansible_os_family == 'Debian'
 
