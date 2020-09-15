@@ -20,7 +20,9 @@
   package:
     name: yum-plugin-priorities
     state: present
-  when: ansible_distribution in [ 'CentOS' ]
+  when:
+    - ansible_distribution in [ 'CentOS' ]
+    - ansible_distribution_major_version | int < 8
 
 - name: Add the PowerDNS YUM Repository
   yum_repository:

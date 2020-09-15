@@ -1,7 +1,11 @@
 ---
 
 - name: Include OS-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
   tags:
     - always
 
@@ -36,6 +40,12 @@
 
 - include: configure.yml
   tags:
+    - config
+
+- include: selinux.yml
+  when: ansible_selinux is defined and ansible_selinux.status == 'enabled'
+  tags:
+    - selinux
     - config
 
 - name: Start and enable the PowerDNS service
