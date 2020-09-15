@@ -15,14 +15,12 @@ galaxy_info:
       versions:
         - jessie
         - stretch
+        - buster
     - name: Ubuntu
       versions:
-        - trusty
-        - utopic
-        - vivid
-        - wily
         - xenial
         - bionic
+        - focal
   galaxy_tags:
     - system
     - dns
