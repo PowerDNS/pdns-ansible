@@ -1,0 +1,7 @@
+---
+
+##
+# PowerDNS 4.3.x Repository
+##
+
+pdns_install_repo: "{{ pdns_auth_powerdns_repo_43 }}"
