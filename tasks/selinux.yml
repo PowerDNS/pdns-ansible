@@ -1,0 +1,14 @@
+---
+- name: allow mysql connect from pdns in selinux
+  seboolean:
+    name: pdns_can_network_connect_db
+    state: yes
+    persistent: yes
+  when: "pdns_mysql_databases_credentials | length > 0"
+
+- name: allow pdns to bind to udp high ports
+  seport:
+    ports: 10000-20000
+    proto: udp
+    setype: dns_port_t
+    state: present
