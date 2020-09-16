@@ -15,10 +15,10 @@
 - name: Ensure that the directories containing the PowerDNS SQLite databases exist
   file:
     name: "{{ item | dirname }}"
-    owner: "root"
-    group: "root"
+    owner: "{{ pdns_user }}"
+    group: "{{ pdns_group }}"
     state: directory
-    mode: 0755
+    mode: 0750
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - block:
