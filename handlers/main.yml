@@ -1,0 +1,6 @@
+- name: Restart PowerDNS
+  service:
+    name: "{{ pdns_service_name }}"
+    state: restarted
+    sleep: 1
+  when: not pdns_disable_handlers

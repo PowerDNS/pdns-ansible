@@ -16,6 +16,8 @@
       owner: root
       group: root
     register: _pdns_override_unit
+    notify:
+      - Restart PowerDNS
 
   - name: Reload systemd
     command: systemctl daemon-reload
@@ -41,6 +43,8 @@
     group: "{{ pdns_group }}"
     mode: 0640
   register: _pdns_configuration
+  notify:
+    - Restart PowerDNS
 
 - name: Ensure that the PowerDNS 'include-dir' directory exists
   file:
@@ -50,13 +54,3 @@
     group: "root"
     mode: 0755
   when: "pdns_config['include-dir'] is defined"
-
-- name: Restart PowerDNS
-  service:
-    name: "{{ pdns_service_name }}"
-    state: restarted
-    sleep: 1
-  when: not pdns_disable_handlers
-    and pdns_service_state != 'stopped'
-    and (_pdns_override_unit.changed
-      or _pdns_configuration.changed)

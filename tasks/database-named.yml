@@ -1,0 +1,34 @@
+---
+
+- name: Ensure that the directories containing the PowerDNS named configuration exists
+  file:
+    name: "{{ pdns_backends.bind.config | dirname }}"
+    owner: "root"
+    group: "root"
+    state: directory
+    mode: 0755
+  
+- name: Generate the PowerDNS named.conf configuration
+  template:
+    src: named.conf.j2
+    dest: "{{ pdns_backends.bind.config }}"
+    owner: "root"
+    group: "{{ pdns_group }}"
+    mode: 0640
+  notify:
+    - Restart PowerDNS
+
+- name: Generate the PowerDNS named.conf zones configuration
+  template:
+    src: named.zone.j2
+    dest: "{{ pdns_backends.bind.config | dirname }}/{{ zone.file }}"
+    owner: "root"
+    group: "{{ pdns_group }}"
+    mode: 0640
+  loop: "{{ pdns_named_config }}"
+  loop_control:
+    loop_var: zone
+  register: _named_zones
+  notify:
+    - Restart PowerDNS
+
