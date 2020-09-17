@@ -1,0 +1,68 @@
+---
+
+scenario:
+  name: pdns-os-repos
+
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+
+platforms:
+  - name: debian-10
+    groups: ["pdns"]
+    image: debian:10
+    dockerfile_tpl: debian-systemd
+
+  - name: archlinux
+    groups: ["pdns"]
+    image: archlinux/base
+    dockerfile_tpl: archlinux-systemd
+
+  # In order to run the tests we need
+  # a MySQL container to be up & running
+  - name: mysql
+    image: mysql:5.7
+    env:
+      MYSQL_ROOT_PASSWORD: pdns
+    # Declaring the container as service,
+    # will link it to the others Platforms containers
+    # on creation.
+    is_service: yes
+
+provisioner:
+  name: ansible
+  options:
+    diff: True
+    v: True
+  config_options:
+    defaults:
+      gathering: smart
+      fact_caching: jsonfile
+      fact_caching_connection: .ansible_cache
+      fact_caching_timeout: 7200
+    ssh_connection:
+      pipelining: true
+  inventory:
+    links:
+      host_vars: ../resources/host_vars/
+  playbooks:
+    create: ../resources/create.yml
+    destroy: ../resources/destroy.yml
+    prepare: ../resources/prepare.yml
+  lint: ansible-lint -x ANSIBLE0006 ANSIBLE0016 306
+
+lint: yamllint defaults tasks meta vars
+
+verifier:
+  name: testinfra
+  options:
+    hosts: "pdns"
+    vvv: True
+  directory: ../resources/tests/all
+  additional_files_or_dirs:
+    # path relative to 'directory'
+    - ../backend-sqlite/
+    - ../backend-mysql/
+  lint: flake8
