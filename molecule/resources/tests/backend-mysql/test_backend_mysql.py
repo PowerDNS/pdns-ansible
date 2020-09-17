@@ -1,18 +1,19 @@
 
 debian_os = ['debian', 'ubuntu']
 rhel_os = ['redhat', 'centos']
+archlinux_os = ['arch']
 
 
 def test_package(host):
-    p = host.package('pdns-backend-mysql')
-
-    assert p.is_installed
+    if host.system_info.distribution.lower() in debian_os + rhel_os:
+        p = host.package('pdns-backend-mysql')
+        assert p.is_installed
 
 
 def test_config(host):
     with host.sudo():
         f = None
-        if host.system_info.distribution.lower() in debian_os:
+        if host.system_info.distribution.lower() in debian_os + archlinux_os:
             f = host.file('/etc/powerdns/pdns.conf')
         if host.system_info.distribution.lower() in rhel_os:
             f = host.file('/etc/pdns/pdns.conf')

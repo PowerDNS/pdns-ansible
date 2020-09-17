@@ -1,0 +1,7 @@
+---
+- hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-backends.yml
+  roles:
+    - { role: pdns-ansible }

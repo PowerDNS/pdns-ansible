@@ -1,21 +1,12 @@
 
 debian_os = ['debian', 'ubuntu']
 rhel_os = ['redhat', 'centos']
+archlinux_os = ['arch']
 
 
 def test_distribution(host):
-    assert host.system_info.distribution.lower() in debian_os + rhel_os
-
-
-def test_repo_pinning_file(host):
-    if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/preferences.d/pdns')
-        assert f.exists
-        assert f.user == 'root'
-        assert f.group == 'root'
-        f.contains('Package: pdns-*')
-        f.contains('Pin: origin repo.powerdns.com')
-        f.contains('Pin-Priority: 600')
+    assert host.system_info.distribution.lower() in debian_os + rhel_os + \
+        archlinux_os
 
 
 def test_package(host):
@@ -24,6 +15,8 @@ def test_package(host):
         p = host.package('pdns-server')
     if host.system_info.distribution.lower() in rhel_os:
         p = host.package('pdns')
+    if host.system_info.distribution.lower() in archlinux_os:
+        p = host.package('powerdns')
 
     assert p.is_installed
 

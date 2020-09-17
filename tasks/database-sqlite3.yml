@@ -59,6 +59,15 @@
 
   when: ansible_os_family == "Debian"
 
+- block:
+    - name: Initiate the SQLite database on Arch Linux
+      shell: "sqlite3 {{ item }} < /usr/share/doc/powerdns/schema.sqlite3.sql"
+      args:
+        creates: "{{ item }}"
+      with_items: "{{ pdns_sqlite_databases_locations }}"
+
+  when: ansible_os_family == "Archlinux"
+
 - name: Check the PowerDNS SQLite databases permissions
   file:
     name: "{{ item }}"
