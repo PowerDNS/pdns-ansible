@@ -22,23 +22,22 @@
     when: not pdns_disable_handlers
       and _pdns_override_unit.changed
 
-  when: pdns_service_overrides != {}
-    and ansible_service_mgr == "systemd"
+  when: ansible_service_mgr == "systemd"
 
 - name: Ensure that the PowerDNS configuration directory exists
   file:
     name: "{{ pdns_config_dir }}"
     state: directory
-    owner: "root"
-    group: "root"
-    mode: 0755
+    owner: "{{ pdns_file_owner }}"
+    group: "{{ pdns_file_group }}"
+    mode: 0750
 
 - name: Generate the PowerDNS configuration
   template:
     src: pdns.conf.j2
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
-    owner: "root"
-    group: "{{ pdns_group }}"
+    owner: "{{ pdns_file_owner }}"
+    group: "{{ pdns_file_group }}"
     mode: 0640
   register: _pdns_configuration
 
@@ -46,9 +45,9 @@
   file:
     name: "{{ pdns_config['include-dir'] }}"
     state: directory
-    owner: "root"
-    group: "root"
-    mode: 0755
+    owner: "{{ pdns_file_owner }}"
+    group: "{{ pdns_file_group }}"
+    mode: 0750
   when: "pdns_config['include-dir'] is defined"
 
 - name: Restart PowerDNS

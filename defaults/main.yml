@@ -61,8 +61,10 @@ pdns_debug_symbols_package_name: "{{ default_pdns_debug_symbols_package_name }}"
 # NOTE: at the moment, we don't create a user as we assume the package creates
 # a "pdns" user and group. If you change these variables, make sure to create
 # the user and groups before applying this role
-pdns_user: pdns
-pdns_group: pdns
+pdns_user: "pdns"
+pdns_group: "pdns"
+pdns_file_owner: "root"
+pdns_file_group: "{{ pdns_group }}"
 
 # Name of the PowerDNS Authoritative Server Service
 pdns_service_name: "pdns"
@@ -89,7 +91,7 @@ pdns_config: {}
 #  local-port: '5300'
 
 # Dict with overrides for the service (systemd only)
-pdns_service_overrides: {}
+pdns_service_overrides: "{{ default_pdns_service_overrides }}"
 # pdns_service_overrides:
 #   LimitNOFILE: 10000
 
