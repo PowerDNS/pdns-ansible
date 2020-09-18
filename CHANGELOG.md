@@ -1,3 +1,15 @@
+## v1.6.0 (2020-09-18)
+
+BUG FIXES:
+- Fix path to MySQL schema for Debian 10 ([\#73](https://github.com/PowerDNS/pdns-ansible/pull/73))
+
+IMPROVEMENTS:
+- Allow loading apt key from the ansible server ([\#75](https://github.com/PowerDNS/pdns-ansible/pull/75))
+- CentOS 8 support ([\#74](https://github.com/PowerDNS/pdns-ansible/pull/74), [\#81](https://github.com/PowerDNS/pdns-ansible/pull/81))
+- Archlinux support ([\#76](https://github.com/PowerDNS/pdns-ansible/pull/76))
+- Set the ownership and permissions for config files and databases ([\#82](https://github.com/PowerDNS/pdns-ansible/pull/82))
+- Ensure PowerDNS is started as an unprivileged user by default (in line with PowerDNS 4.3+ behaviour)
+
 ## v1.5.0 (2019-12-11)
 
 BUG FIXES:
