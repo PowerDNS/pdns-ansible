@@ -20,6 +20,11 @@ platforms:
     image: archlinux/base
     dockerfile_tpl: archlinux-systemd
 
+  - name: ubuntu-2004
+    groups: ["pdns"]
+    image: ubuntu:20.04
+    dockerfile_tpl: debian-systemd
+
   # In order to run the tests we need
   # a MySQL container to be up & running
   - name: mysql

@@ -5,14 +5,6 @@
     name: "{{ pdns_mysql_packages }}"
     state: present
 
-- name: Install the MySQL dependencies on Archlinux
-  package:
-    name:
-      - python-pymysql
-      - mariadb-clients
-    state: present
-  when: ansible_os_family == 'Archlinux'
-
 - name: Create the PowerDNS MySQL databases
   mysql_db:
     login_user: "{{ item['value']['priv_user'] }}"
