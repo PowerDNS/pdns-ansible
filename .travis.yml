@@ -20,17 +20,20 @@ before_install:
 # Ansible versions
 env:
   jobs:
-    - ANSIBLE=2.7 AUTH_VERSION=42
-    - ANSIBLE=2.7 AUTH_VERSION=43
-    - ANSIBLE=2.7 AUTH_VERSION=master
+    - ANSIBLE=2.7 TEST_SCENARIO=pdns-42
+    - ANSIBLE=2.7 TEST_SCENARIO=pdns-43
+    - ANSIBLE=2.7 TEST_SCENARIO=pdns-master
 
-    - ANSIBLE=2.8 AUTH_VERSION=42
-    - ANSIBLE=2.8 AUTH_VERSION=43
-    - ANSIBLE=2.8 AUTH_VERSION=master
+    - ANSIBLE=2.8 TEST_SCENARIO=pdns-42
+    - ANSIBLE=2.8 TEST_SCENARIO=pdns-43
+    - ANSIBLE=2.8 TEST_SCENARIO=pdns-master
 
-    - ANSIBLE=2.9 AUTH_VERSION=42
-    - ANSIBLE=2.9 AUTH_VERSION=43
-    - ANSIBLE=2.9 AUTH_VERSION=master
+    - ANSIBLE=2.9 TEST_SCENARIO=pdns-42
+    - ANSIBLE=2.9 TEST_SCENARIO=pdns-43
+    - ANSIBLE=2.9 TEST_SCENARIO=pdns-master
+
+    - ANSIBLE=2.9 TEST_SCENARIO=pdns-os-repos
+    - ANSIBLE=2.9 TEST_SCENARIO=systemd-no-overrides
 
 jobs:
   allow_failures:
@@ -42,7 +45,7 @@ install:
 
 # Test the current PowerDNS Authoritative Server stable release
 script:
-  - tox -- molecule test -s pdns-${AUTH_VERSION}
+  - tox -- molecule test -s ${TEST_SCENARIO}
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
