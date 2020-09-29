@@ -9,6 +9,11 @@ default_pdns_backends_packages: {}
 # The directory where the PowerDNS configuration is located
 default_pdns_config_dir: '/etc/powerdns'
 
+# Packages to install for MySQL support
+pdns_mysql_packages:
+  - python-pymysql
+  - mariadb-clients
+
 # Other defaults
 pdns_user: powerdns
 pdns_group: powerdns

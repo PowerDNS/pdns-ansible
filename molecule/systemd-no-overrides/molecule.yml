@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-os-repos
+ name: systemd-no-overrides
 
 driver:
   name: docker
@@ -15,26 +15,10 @@ platforms:
     image: debian:10
     dockerfile_tpl: debian-systemd
 
-  - name: archlinux
-    groups: ["pdns"]
-    image: archlinux/base
-    dockerfile_tpl: archlinux-systemd
-
   - name: ubuntu-2004
     groups: ["pdns"]
     image: ubuntu:20.04
     dockerfile_tpl: debian-systemd
-
-  # In order to run the tests we need
-  # a MySQL container to be up & running
-  - name: mysql
-    image: mysql:5.7
-    env:
-      MYSQL_ROOT_PASSWORD: pdns
-    # Declaring the container as service,
-    # will link it to the others Platforms containers
-    # on creation.
-    is_service: yes
 
 provisioner:
   name: ansible
@@ -68,7 +52,5 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../systemd-override/
-    - ../backend-sqlite/
-    - ../backend-mysql/
+    - ../no-systemd-overrides
   lint: flake8

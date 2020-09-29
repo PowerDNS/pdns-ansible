@@ -16,6 +16,7 @@
       owner: root
       group: root
     register: _pdns_override_unit
+    when: pdns_service_overrides | length > 0
 
   - name: Reload systemd
     command: systemctl daemon-reload

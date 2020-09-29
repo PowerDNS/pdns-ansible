@@ -48,6 +48,6 @@ pdns_auth_powerdns_repo_43:
 default_pdns_service_overrides: >-
   {{  { 'User'  : pdns_user
       , 'Group' : pdns_group
-      } if _pdns_package_version is version('4.3', operator='ge')
+      } if _pdns_running_version is version('4.3', operator='ge')
         else {}
   }}

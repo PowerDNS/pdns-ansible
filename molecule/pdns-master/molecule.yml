@@ -85,4 +85,5 @@ verifier:
     - ../repo-master/
     - ../backend-sqlite/
     - ../backend-mysql/
+    - ../systemd-override/
   lint: flake8
