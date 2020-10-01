@@ -37,7 +37,9 @@ env:
 
 jobs:
   allow_failures:
-    - env: REC_VERSION=master
+    - env: ANSIBLE=2.7 TEST_SCENARIO=pdns-master
+    - env: ANSIBLE=2.8 TEST_SCENARIO=pdns-master
+    - env: ANSIBLE=2.9 TEST_SCENARIO=pdns-master
 
 # Install tox
 install:
