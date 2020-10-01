@@ -1,3 +1,9 @@
+## v1.6.1 (2020-10-01)
+
+BUG FIXES:
+- Ensure install does not fail when no overrides are defined ([\#85](https://github.com/PowerDNS/pdns-ansible/pull/85))
+- Ensure that `ExecStart` is overridden, not appended to ([\#86](https://github.com/PowerDNS/pdns-ansible/pull/86))
+
 ## v1.6.0 (2020-09-18)
 
 BUG FIXES:
