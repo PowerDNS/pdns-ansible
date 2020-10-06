@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.2 or higher installation.
+An Ansible 2.7 or higher installation.
 
 ## Dependencies
 
