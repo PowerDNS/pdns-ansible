@@ -19,7 +19,8 @@
     when: pdns_service_overrides | length > 0
 
   - name: Reload systemd
-    command: systemctl daemon-reload
+    systemd:
+      daemon_reload: yes
     when: not pdns_disable_handlers
       and _pdns_override_unit.changed
 
