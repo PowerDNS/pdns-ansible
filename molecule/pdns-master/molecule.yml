@@ -10,10 +10,6 @@ dependency:
   name: galaxy
 
 platforms:
-  - name: centos-6
-    groups: ["pdns"]
-    image: centos:6
-
   - name: centos-7
     groups: ["pdns"]
     image: centos:7
