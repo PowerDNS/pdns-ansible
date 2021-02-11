@@ -1,0 +1,10 @@
+---
+
+- name: Ensure that the directories containing the PowerDNS LMDB databases exist
+  file:
+    name: "{{ item | dirname }}"
+    owner: "{{ pdns_user }}"
+    group: "{{ pdns_group }}"
+    state: directory
+    mode: 0750
+  with_items: "{{ pdns_lmdb_databases_locations }}"

@@ -211,7 +211,7 @@ pdns_mysql_databases_credentials:
       - "localhost"
 ```
 
-Notice that this must only containes the credentials
+Notice that this must only contain the credentials
 for the `gmysql` backends provided in `pdns_backends`.
 
 ```yaml
@@ -220,6 +220,13 @@ pdns_sqlite_databases_locations: []
 
 Locations of the SQLite3 databases that have to be created if using the
 `gsqlite3` backend.
+
+```yaml
+pdns_lmdb_databases_locations: []
+```
+
+Locations of the LMDB databases that have to be created if using the
+`lmdb` backend.
 
 ## Example Playbooks
 

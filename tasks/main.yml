@@ -39,6 +39,12 @@
     - db
     - sqlite
 
+- include: database-lmdb.yml
+  when: "pdns_lmdb_databases_locations | length > 0"
+  tags:
+    - db
+    - lmdb
+
 - include: configure.yml
   tags:
     - config
