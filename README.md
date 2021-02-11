@@ -211,7 +211,7 @@ pdns_mysql_databases_credentials:
       - "localhost"
 ```
 
-Notice that this must only contains the credentials
+Notice that this must only contain the credentials
 for the `gmysql` backends provided in `pdns_backends`.
 
 ```yaml
