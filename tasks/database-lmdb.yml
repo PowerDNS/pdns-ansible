@@ -8,23 +8,3 @@
     state: directory
     mode: 0750
   with_items: "{{ pdns_lmdb_databases_locations }}"
-
-- name: Lookup files PowerDNS LMDB databases directories
-  find:
-    paths: "{{ item | dirname }}"
-    file_type: file
-  register: _lmdb_databases_filelist
-  with_items: "{{ pdns_lmdb_databases_locations }}"
-
-- name: Make a list of files to check the PowerDNS LMDB databases permissions
-  set_fact:
-    _lmdb_databases_filelist_list: "{{ _lmdb_databases_filelist.results | map(attribute='files') | flatten }}"
-
-- name: Check the PowerDNS LMDB databases permissions
-  file:
-    name: "{{ item.path }}"
-    state: file
-    owner: "{{ pdns_user }}"
-    group: "{{ pdns_group }}"
-    mode: 0600
-  with_items: "{{ _lmdb_databases_filelist_list }}"
