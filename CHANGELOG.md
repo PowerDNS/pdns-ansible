@@ -1,3 +1,8 @@
+## v1.6.2 (UNRELEASED)
+
+NEW FEATURES:
+- Create directory, set the ownership and permissions for LMDB databases
+
 ## v1.6.1 (2020-10-01)
 
 BUG FIXES:

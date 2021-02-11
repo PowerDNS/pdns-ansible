@@ -141,3 +141,8 @@ pdns_mysql_databases_credentials: {}
 # NOTE: Requries the SQLite CLI tools to be available in the machine and the gsqlite3
 # backend to be installed on the machine.
 pdns_sqlite_databases_locations: []
+
+# This will create the PowerDNS Authoritative Server backend LMDB database
+# in the given locations.
+# NOTE: Requries lmdb backend to be installed on the machine.
+pdns_lmdb_databases_locations: []
