@@ -14,6 +14,10 @@ pdns_mysql_packages:
   - python-pymysql
   - mariadb-clients
 
+  # Default DB schema file
+pdns_arch_mysql_schema_file: "/usr/share/doc/powerdns/schema.mysql.sql"
+pdns_arch_sqlite3_schema_file: "/usr/share/doc/powerdns/schema.sqlite3.sql"
+
 # Other defaults
 pdns_user: powerdns
 pdns_group: powerdns
