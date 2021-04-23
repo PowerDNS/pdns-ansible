@@ -228,6 +228,28 @@ pdns_lmdb_databases_locations: []
 Locations of the LMDB databases that have to be created if using the
 `lmdb` backend.
 
+Locations of the mysql and sqlite3 base schema for RedHat platform
+```yaml
+pdns_rh_mysql_schema_file: {{}}
+
+pdns_rh_sqlite3_schema_file: {{}}
+```
+
+Locations of the mysql and sqlite3 base schema for Debian based platform
+```yaml
+pdns_deb_mysql_schema_file: {{}}
+
+pdns_deb_sqlite3_schema_file: {{}}
+```
+
+Locations of the mysql and sqlite3 base schema for ArchLinux platform
+```yaml
+pdns_arch_mysql_schema_file: {{}}
+
+pdns_arch_sqlite3_schema_file: {{}}
+```
+
+
 ## Example Playbooks
 
 Run as a master using the bind backend (when you already have a `named.conf` file):
