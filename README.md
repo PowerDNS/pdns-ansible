@@ -32,17 +32,17 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
     - { role: PowerDNS.pdns,
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 
-# Install the PowerDNS Authoritative Server from the '4.1.x' official repository
+# Install the PowerDNS Authoritative Server from the '4.3.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_43 }}"
 
-# Install the PowerDNS Authoritative Server from the '4.2.x' official repository
+# Install the PowerDNS Authoritative Server from the '4.4.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_42 }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_44 }}"
 ```
 
 The examples above, show how to install the PowerDNS Authoritative Server from the official PowerDNS repositories
@@ -337,7 +337,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e py27-ansible27 -- molecule test -s pdns-42
+    $ tox -e py27-ansible27 -- molecule test -s pdns-44
 
 ## License
 
