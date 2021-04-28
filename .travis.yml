@@ -20,16 +20,16 @@ before_install:
 # Ansible versions
 env:
   jobs:
-    - ANSIBLE=2.7 TEST_SCENARIO=pdns-42
     - ANSIBLE=2.7 TEST_SCENARIO=pdns-43
+    - ANSIBLE=2.7 TEST_SCENARIO=pdns-44
     - ANSIBLE=2.7 TEST_SCENARIO=pdns-master
 
-    - ANSIBLE=2.8 TEST_SCENARIO=pdns-42
     - ANSIBLE=2.8 TEST_SCENARIO=pdns-43
+    - ANSIBLE=2.8 TEST_SCENARIO=pdns-44
     - ANSIBLE=2.8 TEST_SCENARIO=pdns-master
 
-    - ANSIBLE=2.9 TEST_SCENARIO=pdns-42
     - ANSIBLE=2.9 TEST_SCENARIO=pdns-43
+    - ANSIBLE=2.9 TEST_SCENARIO=pdns-44
     - ANSIBLE=2.9 TEST_SCENARIO=pdns-master
 
     - ANSIBLE=2.9 TEST_SCENARIO=pdns-os-repos
