@@ -31,7 +31,3 @@ default_pdns_backends_packages:
 
 # The directory where the PowerDNS Authoritative Server configuration is located
 default_pdns_config_dir: "/etc/pdns"
-
-# Default DB schema file
-pdns_rh_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
-pdns_rh_sqlite3_schema_file: "/usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"

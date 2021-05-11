@@ -54,6 +54,11 @@ pdns_auth_powerdns_repo_44:
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-44/debug"
   name: "powerdns-auth-44"
 
+pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
+
+pdns_sqlite3_schema_file: "/usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
+
+
 default_pdns_service_overrides: >-
   {{  { 'User'  : pdns_user
       , 'Group' : pdns_group

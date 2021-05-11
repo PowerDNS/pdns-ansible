@@ -43,27 +43,6 @@
   register: _pdns_check_mysql_db
   changed_when: False
 
-- block:
-    - name: Define the PowerDNS database MySQL schema file path on Debian
-      set_fact:
-        _pdns_mysql_schema_file: "{{ pdns_deb_mysql_schema_file }}"
-  
-  when: ansible_os_family == 'Debian'
-
-- block:
-    - name: Define the PowerDNS database MySQL schema file path on RedHat
-      set_fact:
-        _pdns_mysql_schema_file: "{{ pdns_rh_mysql_schema_file }}"
-  
-  when: ansible_os_family == 'RedHat'
-
-- block:
-    - name: Define the PowerDNS DB schema file path on Arch Linux
-      set_fact:
-        _pdns_mysql_schema_file: "{{ pdns_arch_mysql_schema_file }}"
-
-  when: ansible_os_family == 'Archlinux'
-
 - name: Import the PowerDNS MySQL schema
   mysql_db:
     login_user: "{{ item['item']['value']['user'] }}"
@@ -72,6 +51,6 @@
     login_port: "{{ item['item']['port'] | default('3306') }}"
     name: "{{ item.item['value']['dbname'] }}"
     state: import
-    target: "{{ _pdns_mysql_schema_file }}"
+    target: "{{ pdns_mysql_schema_file }}"
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
