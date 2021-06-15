@@ -1,0 +1,14 @@
+---
+on:
+  - push
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          path: "${{ github.repository }}"
+      - name: molecule
+        uses: robertdebock/molecule-action@2.6.17
