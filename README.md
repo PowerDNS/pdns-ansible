@@ -228,6 +228,14 @@ pdns_lmdb_databases_locations: []
 Locations of the LMDB databases that have to be created if using the
 `lmdb` backend.
 
+Locations of the mysql and sqlite3 base schema.
+When set, this value is used and they are not automatically detected.
+```yaml
+pdns_mysql_schema_file: ''
+
+pdns_sqlite3_schema_file: ''
+```
+
 ## Example Playbooks
 
 Run as a master using the bind backend (when you already have a `named.conf` file):

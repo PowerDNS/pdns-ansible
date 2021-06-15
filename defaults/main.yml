@@ -146,3 +146,11 @@ pdns_sqlite_databases_locations: []
 # in the given locations.
 # NOTE: Requries lmdb backend to be installed on the machine.
 pdns_lmdb_databases_locations: []
+
+# Override the schema used to initialize the MySQL database
+# By default, this role tries to detect the correct file
+pdns_mysql_schema_file: ""
+
+# Override the schema used to initialize the SQLite database
+# By default, this role tries to detect the correct file
+pdns_sqlite_schema_file: ""

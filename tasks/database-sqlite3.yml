@@ -21,52 +21,30 @@
     mode: 0750
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
-- block:
-    - name: Define the PowerDNS SQLite schema file path on RedHat < 7 and PowerDNS < 4.2.0
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.sqlite3.sql"
-      when: ansible_distribution_major_version | int < 7
-        and _pdns_running_version is version_compare('4.2.0', '<')
+- name: Determine location of the SQL file
+  shell:
+    cmd: |
+      for p in /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sql /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql /usr/share/doc/pdns/schema.sqlite3.sql /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql /usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql /usr/share/doc/powerdns/schema.sqlite3.sql; do
+        if [ -f $p ]; then
+          echo $p
+          exit 0
+        fi
+      done
+      echo "Can't determine path to SQLite schema">&2
+      exit 1
+  changed_when: false
+  register: pdns_sqlite_schema_file_detected
+  when: pdns_sqlite_schema_file | length == 0
 
-    - name: Define the PowerDNS SQLite schema file path on RedHat >= 7 or PowerDNS >= 4.2.0
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql"
-      when: ansible_distribution_major_version | int == 7
-        or _pdns_running_version is version_compare('4.2.0', '>=')
+- name: Set the schema file variable
+  set_fact:
+    pdns_sqlite_schema_file_to_use: "{% if pdns_sqlite_schema_file | length == 0 %}{{ pdns_sqlite_schema_file_detected.stdout }}{% else %}{{ pdns_sqlite_schema_file }}{% endif %}"
 
-    - name: Define the PowerDNS SQLite schema file path on RedHat 8 and PowerDNS >= 4.2.0
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.sqlite3.sql"
-      when:
-        - ansible_distribution_major_version | int == 8
-        - _pdns_running_version is version_compare('4.2.0', '>=')
-
-    - name: Create the PowerDNS SQLite databases on RedHat
-      shell: "sqlite3 {{ item }} < {{ _pdns_mysql_schema_file }}"
-      args:
-        creates: "{{ item }}"
-      with_items: "{{ pdns_sqlite_databases_locations }}"
-
-  when: ansible_os_family == "RedHat"
-
-- block:
-
-    - name: Create the PowerDNS SQLite databases on Debian
-      shell: "sqlite3 {{ item }} < /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql"
-      args:
-        creates: "{{ item }}"
-      with_items: "{{ pdns_sqlite_databases_locations }}"
-
-  when: ansible_os_family == "Debian"
-
-- block:
-    - name: Initiate the SQLite database on Arch Linux
-      shell: "sqlite3 {{ item }} < /usr/share/doc/powerdns/schema.sqlite3.sql"
-      args:
-        creates: "{{ item }}"
-      with_items: "{{ pdns_sqlite_databases_locations }}"
-
-  when: ansible_os_family == "Archlinux"
+- name: Create the PowerDNS SQLite databases
+  shell: "sqlite3 {{ item }} < {{ pdns_sqlite_schema_file_to_use }}"
+  args:
+    creates: "{{ item }}"
+  with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - name: Check the PowerDNS SQLite databases permissions
   file:

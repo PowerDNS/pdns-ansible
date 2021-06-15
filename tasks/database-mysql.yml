@@ -43,54 +43,24 @@
   register: _pdns_check_mysql_db
   changed_when: False
 
-- block:
+- name: Determine location of the SQL file
+  shell:
+    cmd: |
+      for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql /usr/share/doc/pdns-backend-mysql/schema.mysql.sql /usr/share/pdns-backend-mysql/schema/schema.mysql.sql /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql /usr/share/doc/powerdns/schema.mysql.sql; do
+        if [ -f $p ]; then
+          echo $p
+          exit 0
+        fi
+      done
+      echo "Can't determine path to MySQL schema">&2
+      exit 1
+  changed_when: false
+  register: pdns_mysql_schema_file_detected
+  when: pdns_mysql_schema_file | length == 0
 
-    - name: Define the PowerDNS database MySQL schema file path on RedHat < 7 and PowerDNS < 4.2.0
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns/schema.mysql.sql"
-      when: ansible_distribution_major_version | int < 7
-        and _pdns_running_version is version_compare('4.2.0', '<')
-
-    - name: Define the PowerDNS database MySQL schema file path on RedHat >= 7 or PowerDNS >= 4.2.0
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql"
-      when: ansible_distribution_major_version | int == 7
-        or _pdns_running_version is version_compare('4.2.0', '>=')
-
-    - name: Define the PowerDNS database MySQL schema file path on RedHat 8 and PowerDNS >= 4.2.0
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
-      when:
-        - ansible_distribution_major_version | int == 8
-        - _pdns_running_version is version_compare('4.2.0', '>=')
-
-  when: ansible_os_family == 'RedHat'
-
-- block:
-
-    - name: Define the PowerDNS database MySQL schema file path on Debian
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql"
-      when: pdns_install_repo | length == 0 and  ansible_distribution_major_version | int < 10
-
-    - name: Define the PowerDNS database MySQL schema file path on Debian
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/pdns-backend-mysql/schema/schema.mysql.sql"
-      when: pdns_install_repo | length == 0 and  ansible_distribution_major_version | int >= 10
-
-    - name: Define the PowerDNS database MySQL schema file path on Debian
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/pdns-backend-mysql/schema.mysql.sql"
-      when: pdns_install_repo | length > 0
-
-  when: ansible_os_family == 'Debian'
-
-- block:
-    - name: Define the PowerDNS DB schema file path on Arch Linux
-      set_fact:
-        _pdns_mysql_schema_file: "/usr/share/doc/powerdns/schema.mysql.sql"
-
-  when: ansible_os_family == 'Archlinux'
+- name: Set the schema file variable
+  set_fact:
+    pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
 
 - name: Import the PowerDNS MySQL schema
   mysql_db:
@@ -100,6 +70,6 @@
     login_port: "{{ item['item']['port'] | default('3306') }}"
     name: "{{ item.item['value']['dbname'] }}"
     state: import
-    target: "{{ _pdns_mysql_schema_file }}"
+    target: "{{ pdns_mysql_schema_file_to_use }}"
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
