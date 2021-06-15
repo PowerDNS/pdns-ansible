@@ -1,3 +1,7 @@
-molecule<3.1
-docker-py==1.10.6
-testinfra<5.4
+jinja2==2.11.3
+ansible-lint==5.0.7
+yamllint==1.26.1
+molecule[docker]==3.3.0
+molecule[lint]==3.3.0
+testinfra
+docker==5.0.0

@@ -1,6 +1,8 @@
 ---
 
 galaxy_info:
+  namespace: powerdns
+  role_name: pdns
   author: PowerDNS Engineering Team
   description: Install and configure the PowerDNS Authoritative DNS Server
   company: PowerDNS.COM BV
@@ -29,5 +31,3 @@ galaxy_info:
     - pdns
     - powerdns
     - auth
-
-dependencies: []
