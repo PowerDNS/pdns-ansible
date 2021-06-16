@@ -17,7 +17,7 @@ platforms:
 
   - name: archlinux
     groups: ["pdns"]
-    image: archlinux/base
+    image: archlinux:base
     dockerfile_tpl: archlinux-systemd
 
   - name: ubuntu-2004

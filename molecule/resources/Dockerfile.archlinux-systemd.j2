@@ -23,4 +23,5 @@ VOLUME [ "/sys/fs/cgroup" ]
 CMD ["/sbin/init"]
 
 RUN if [ $(command -v pacman) ]; then pacman -Suy && pacman -S --noconfirm python sudo bash net-tools ca-certificates awk inetutils grep && rm -rf /var/cache/pacman/pkg/*; fi
-
+# This ensures docs are installed, which contains the schema files :)
+RUN sed  -i '/usr\/share\/doc/d' /etc/pacman.conf
