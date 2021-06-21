@@ -14,7 +14,6 @@ jobs:
           - '2.10'
           - '2.11'
         scenario:
-          - pdns-42
           - pdns-43
           - pdns-44
           - pdns-master
