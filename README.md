@@ -1,6 +1,6 @@
 # Ansible Role: PowerDNS Authoritative Server
 
-[![Build Status](https://travis-ci.org/PowerDNS/pdns-ansible.svg?branch=master)](https://travis-ci.org/PowerDNS/pdns-ansible)
+[![Build Status](https://github.com/PowerDNS/pdns-ansible/actions/workflows/main.yml/badge.svg)](https://github.com/PowerDNS/pdns-ansible)
 [![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
 [![Ansible Role](https://img.shields.io/badge/ansible%20role-PowerDNS.pdns-blue.svg)](https://galaxy.ansible.com/PowerDNS/pdns)
 [![GitHub tag](https://img.shields.io/github/tag/PowerDNS/pdns-ansible.svg)](https://github.com/PowerDNS/pdns-ansible/tags)
@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.7 or higher installation.
+An Ansible 2.9 or higher installation.
 
 ## Dependencies
 
@@ -153,7 +153,9 @@ pdns_config:
 configures PowerDNS Authoritative Server to listen incoming DNS requests on port 5300.
 
 ```yaml
-pdns_service_overrides: {}
+pdns_service_overrides:
+  User: {{ pdns_user }}
+  Group: {{ pdns_group }}
 ```
 
 Dict with overrides for the service (systemd only).
