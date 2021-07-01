@@ -52,5 +52,5 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../no-systemd-overrides
+    - ../systemd-no-override
   lint: flake8
