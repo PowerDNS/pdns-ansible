@@ -11,6 +11,10 @@ pdns_mysql_packages:
   - default-mysql-client
   - python3-mysqldb
 
+pdns_pgsql_packages:
+  - postgresql 
+  - postgresql-contrib
+
 # List of PowerDNS Authoritative Server Backends packages on Debian
 default_pdns_backends_packages:
   geo: pdns-backend-geo
