@@ -154,3 +154,6 @@ pdns_mysql_schema_file: ""
 # Override the schema used to initialize the SQLite database
 # By default, this role tries to detect the correct file
 pdns_sqlite_schema_file: ""
+
+# same
+pdns_pgsql_schema_file: ""

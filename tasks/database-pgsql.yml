@@ -1,0 +1,79 @@
+---
+
+- name: Install the PostgreSQL dependencies
+  package:
+    name: "{{ pdns_pgsql_packages }}"
+    state: present
+
+- name: Create the PowerDNS PostgreSQL databases
+  postgresql_db:
+    login_user: "{{ item['value']['priv_user'] }}"
+    login_password: "{{ item['value']['priv_password'] }}"
+    login_host: "{{ item['value']['host'] }}"
+    port: "{{ item['value']['port'] | default('5432') }}"
+    name: "{{ item['value']['dbname'] }}"
+    state: present
+  when: "item.key.split(':')[0] == 'gpgsql'"
+  with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
+
+- name: Grant PowerDNS access to the PostgreSQL databases
+  postgresql_user:
+    login_user: "{{ item['value']['priv_user'] }}"
+    login_password: "{{ item['value']['priv_password'] }}"
+    login_host: "{{ item['value']['host'] }}"
+    port: "{{ item['value']['port'] | default('5432') }}"
+    name: "{{ item['value']['user'] }}"
+    password: "{{ item['value']['password'] }}"
+    db: "{{ item['value']['dbname'] }}"
+    priv: "CONNECT/CREATE"
+    role_attr_flags: NOSUPERUSER,NOCREATEROLE,NOCREATEDB,NOINHERIT,LOGIN,NOREPLICATION,NOBYPASSRLS
+    state: present
+  when: "item.key.split(':')[0] == 'gpgsql'"
+  with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
+
+
+- name: Check if the PostgreSQL databases are empty
+  community.postgresql.postgresql_query:
+    db: "{{ item['value']['dbname'] }}"
+    login_user: "{{ item['value']['user'] }}" 
+    login_password: "{{ item['value']['password'] }}"
+    login_host: "{{ item['value']['host'] }}"
+    query: SELECT COUNT(DISTINCT tablename) FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema' and schemaname= %s;
+    positional_args:
+    - "{{ item['value']['dbname'] }}"
+  when: item.key.split(':')[0] == 'gpgsql'
+  with_dict: "{{ pdns_backends }}"
+  register: _pdns_check_pgsql_db
+  changed_when: False
+
+- name: Determine location of the SQL file
+  shell:
+    cmd: |
+      for p in /usr/share/doc/pdns-backend-pgsql-{{ _pdns_running_version }}/schema.pgsql.sql /usr/share/doc/pdns-backend-pgsql/schema.pgsql.sql /usr/share/pdns-backend-pgsql/schema/schema.pgsql.sql /usr/share/dbconfig-common/data/pdns-backend-pgsql/install/pgsql /usr/share/doc/powerdns/schema.pgsql.sql; do
+        if [ -f $p ]; then
+          echo $p
+          exit 0
+        fi
+      done
+      echo "Can't determine path to PostgreSQL schema">&2
+      exit 1
+  changed_when: false
+  register: pdns_pgsql_schema_file_detected
+  when: pdns_pgsql_schema_file | length == 0
+
+- name: Set the schema file variable
+  set_fact:
+    pdns_pgsql_schema_file_to_use: "{% if pdns_pgsql_schema_file | length == 0 %}{{ pdns_pgsql_schema_file_detected.stdout }}{% else %}{{ pdns_pgsql_schema_file }}{% endif %}"
+
+- name: Import the PowerDNS PostgreSQL schema
+  postgresql_db:
+    login_user: "{{ item['item']['value']['user'] }}"
+    login_password: "{{ item['item']['value']['password'] }}"
+    login_host: "{{ item['item']['value']['host'] }}"
+    port: "{{ item['item']['port'] | default('5432') }}"
+    name: "{{ item.item['value']['dbname'] }}"
+    state: restore
+    target: "{{ pdns_pgsql_schema_file_to_use }}"
+  when: "item['item']['key'].split(':')[0] == 'gpgsql' and item['query_result'][0]['count'] == 0"
+  with_items: "{{ _pdns_check_pgsql_db['results'] }}"
+
