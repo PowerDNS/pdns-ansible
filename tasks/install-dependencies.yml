@@ -1,0 +1,34 @@
+---
+- name: Install the PostgreSQL dependencies
+  package:
+    name: "{{ pdns_pgsql_packages }}"
+    state: present
+  when:
+    - item.key.split(':')[0] == 'gpgsql'
+    - pdns_pgsql_databases_credentials | length > 0
+  with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
+
+- name: Install the MySQL dependencies
+  package:
+    name: "{{ pdns_mysql_packages }}"
+    state: present
+  when:
+    - item.key.split(':')[0] == 'gmysql'
+    - pdns_mysql_databases_credentials | length > 0
+  with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
+
+- name: Install the SQLite dependencies on RedHat
+  package:
+    name: sqlite
+    state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - pdns_sqlite_databases_locations | length > 0
+
+- name: Install the SQLite dependencies on Debian
+  package:
+    name: sqlite3
+    state: present
+  when:
+    - ansible_os_family == 'Debian'
+    - pdns_sqlite_databases_locations | length > 0
