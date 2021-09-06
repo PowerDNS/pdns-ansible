@@ -33,11 +33,6 @@ platforms:
       - /tmp
     dockerfile_tpl: debian-systemd
 
-  - name: debian-9
-    groups: ["pdns"]
-    image: debian:9
-    dockerfile_tpl: debian-systemd
-
   - name: debian-10
     groups: ["pdns"]
     image: debian:10
