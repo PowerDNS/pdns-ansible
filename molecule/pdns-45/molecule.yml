@@ -20,11 +20,6 @@ platforms:
     image: centos:8
     dockerfile_tpl: centos-systemd
 
-  - name: ubuntu-1804
-    groups: ["pdns"]
-    image: ubuntu:18.04
-    dockerfile_tpl: debian-systemd
-
   - name: ubuntu-2004
     groups: ["pdns"]
     image: ubuntu:20.04
