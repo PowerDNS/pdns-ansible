@@ -14,6 +14,7 @@
     name: "{{ item['value']['dbname'] }}"
     state: present
   when: "item.key.split(':')[0] == 'gmysql'"
+  no_log: True
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
 - name: Grant PowerDNS access to the MySQL databases
@@ -41,6 +42,7 @@
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_mysql_db
+  no_log: True
   changed_when: False
 
 - name: Determine location of the SQL file
@@ -71,5 +73,6 @@
     name: "{{ item.item['value']['dbname'] }}"
     state: import
     target: "{{ pdns_mysql_schema_file_to_use }}"
+  no_log: True
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
