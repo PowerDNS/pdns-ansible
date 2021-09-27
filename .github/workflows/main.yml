@@ -16,6 +16,7 @@ jobs:
         scenario:
           - pdns-43
           - pdns-44
+          - pdns-45
           - pdns-master
           - pdns-os-repos
           - systemd-no-overrides
