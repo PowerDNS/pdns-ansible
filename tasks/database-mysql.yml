@@ -48,7 +48,7 @@
 - name: Determine location of the SQL file
   shell:
     cmd: |
-      for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql /usr/share/doc/pdns-backend-mysql/schema.mysql.sql /usr/share/pdns-backend-mysql/schema/schema.mysql.sql /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql /usr/share/doc/powerdns/schema.mysql.sql; do
+      for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql /usr/share/doc/pdns-backend-mysql/schema.mysql.sql /usr/share/pdns-backend-mysql/schema/schema.mysql.sql /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql /usr/share/doc/powerdns/schema.mysql.sql /usr/share/doc/pdns/schema.mysql.sql; do
         if [ -f $p ]; then
           echo $p
           exit 0
