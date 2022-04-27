@@ -151,6 +151,10 @@ pdns_lmdb_databases_locations: []
 # By default, this role tries to detect the correct file
 pdns_mysql_schema_file: ""
 
+# Import the mysql schema only on first node?
+# This should be used if you install pdns on a cluster
+import_mysql_schema_on_first_node_only: false
+
 # Override the schema used to initialize the SQLite database
 # By default, this role tries to detect the correct file
 pdns_sqlite_schema_file: ""
