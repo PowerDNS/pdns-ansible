@@ -45,14 +45,14 @@
     - db
     - lmdb
 
-- include: configure.yml
-  tags:
-    - config
-
 - include: selinux.yml
   when: ansible_selinux is defined and ansible_selinux.status == 'enabled'
   tags:
     - selinux
+    - config
+
+- include: configure.yml
+  tags:
     - config
 
 - name: Start and enable the PowerDNS service
