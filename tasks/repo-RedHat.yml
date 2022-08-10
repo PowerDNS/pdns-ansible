@@ -6,7 +6,7 @@
     yum:
       name: epel-release
       state: present
-    when: ansible_distribution in [ 'CentOS' ]
+    when: ansible_distribution in [ 'CentOS', 'Rocky' ]
 
   - name: Install epel-release on RHEL/OracleLinux
     yum:
