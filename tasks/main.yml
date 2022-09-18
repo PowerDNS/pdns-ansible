@@ -24,6 +24,7 @@
   tags:
     - db
     - mysql
+    - pgsql
     - sqlite
     - config
 
@@ -32,6 +33,12 @@
   tags:
     - db
     - mysql
+
+- include: database-pgsql.yml
+  when: "pdns_pgsql_databases_credentials | length > 0"
+  tags:
+    - db
+    - pgsql
 
 - include: database-sqlite3.yml
   when: "pdns_sqlite_databases_locations | length > 0"
