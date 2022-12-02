@@ -1,6 +1,6 @@
 
 debian_os = ['debian', 'ubuntu']
-rhel_os = ['redhat', 'centos']
+rhel_os = ['redhat', 'centos', 'ol']
 archlinux_os = ['arch']
 
 

@@ -8,11 +8,20 @@
       state: present
     when: ansible_distribution in [ 'CentOS' ]
 
-  - name: Install epel-release on RHEL/OracleLinux
-    yum:
+  - name: Install epel-release on RHEL
+    package:
       name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
       state: present
-    when: ansible_distribution in [ 'RedHat', 'OracleLinux' ]
+    when: ansible_distribution in [ 'RedHat' ]
+
+  # FIXME: this only works for 8
+  - name: Install epel-release and hostname on OracleLinux
+    package:
+      name: 
+      - oracle-epel-release-el8
+      - hostname
+      state: present
+    when: ansible_distribution in [ 'OracleLinux' ]
 
   when: pdns_install_epel
 
