@@ -2,6 +2,8 @@
 on:
   push:
   pull_request:
+  schedule:
+    - cron: '33 5 * * 0'
 
 jobs:
   Tests:
