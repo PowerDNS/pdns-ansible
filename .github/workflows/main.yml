@@ -17,6 +17,8 @@ jobs:
           - pdns-43
           - pdns-44
           - pdns-45
+          - pdns-46
+          - pdns-47
           - pdns-master
           - pdns-os-repos
           - systemd-no-overrides

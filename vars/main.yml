@@ -35,6 +35,7 @@ pdns_auth_powerdns_repo_45:
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-45"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-45/debug"
   name: "powerdns-auth-45"
+  
 pdns_auth_powerdns_repo_46:
   apt_repo_origin: "repo.powerdns.com"
   apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-46 main"
@@ -43,6 +44,16 @@ pdns_auth_powerdns_repo_46:
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-46"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-46/debug"
   name: "powerdns-auth-46"
+
+pdns_auth_powerdns_repo_47:
+  apt_repo_origin: "repo.powerdns.com"
+  apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-47 main"
+  gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
+  gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
+  yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-47"
+  yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-47/debug"
+  name: "powerdns-auth-47"
+
 
 default_pdns_service_overrides: >-
   {{  { 'User'  : pdns_user
