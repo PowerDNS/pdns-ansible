@@ -14,6 +14,7 @@
     name: "{{ item['value']['dbname'] }}"
     state: present
   when: "item.key.split(':')[0] == 'gmysql'"
+  no_log: True
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
 - name: Grant PowerDNS access to the MySQL databases
@@ -41,7 +42,27 @@
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_mysql_db
+  no_log: True
   changed_when: False
+
+- name: Determine location of the SQL file
+  shell:
+    cmd: |
+      for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql /usr/share/doc/pdns-backend-mysql/schema.mysql.sql /usr/share/pdns-backend-mysql/schema/schema.mysql.sql /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql /usr/share/doc/powerdns/schema.mysql.sql /usr/share/doc/pdns/schema.mysql.sql; do
+        if [ -f $p ]; then
+          echo $p
+          exit 0
+        fi
+      done
+      echo "Can't determine path to MySQL schema">&2
+      exit 1
+  changed_when: false
+  register: pdns_mysql_schema_file_detected
+  when: pdns_mysql_schema_file | length == 0
+
+- name: Set the schema file variable
+  set_fact:
+    pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
 
 - name: Import the PowerDNS MySQL schema
   mysql_db:
@@ -51,6 +72,7 @@
     login_port: "{{ item['item']['port'] | default('3306') }}"
     name: "{{ item.item['value']['dbname'] }}"
     state: import
-    target: "{{ pdns_mysql_schema_file }}"
+    target: "{{ pdns_mysql_schema_file_to_use }}"
+  no_log: True
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"

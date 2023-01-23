@@ -1,25 +1,24 @@
 ---
 
 galaxy_info:
+  namespace: powerdns
+  role_name: pdns
   author: PowerDNS Engineering Team
   description: Install and configure the PowerDNS Authoritative DNS Server
   company: PowerDNS.COM BV
   license: MIT
-  min_ansible_version: 2.2
+  min_ansible_version: 2.9
   platforms:
     - name: EL
       versions:
-        - 6
         - 7
         - 8
     - name: Debian
       versions:
-        - jessie
         - stretch
         - buster
     - name: Ubuntu
       versions:
-        - xenial
         - bionic
         - focal
     - name: ArchLinux
@@ -29,5 +28,3 @@ galaxy_info:
     - pdns
     - powerdns
     - auth
-
-dependencies: []

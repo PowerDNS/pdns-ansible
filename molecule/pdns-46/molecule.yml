@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-44
+  name: pdns-46
 
 driver:
   name: docker
@@ -20,22 +20,12 @@ platforms:
     image: oraclelinux:8
     dockerfile_tpl: centos-systemd
 
-  - name: ubuntu-1804
-    groups: ["pdns"]
-    image: ubuntu:18.04
-    dockerfile_tpl: debian-systemd
-
   - name: ubuntu-2004
     groups: ["pdns"]
     image: ubuntu:20.04
     tmpfs:
       - /run
       - /tmp
-    dockerfile_tpl: debian-systemd
-
-  - name: debian-9
-    groups: ["pdns"]
-    image: debian:9
     dockerfile_tpl: debian-systemd
 
   - name: debian-10
@@ -97,7 +87,7 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../repo-44/
+    - ../repo-46/
     - ../backend-sqlite/
     - ../backend-mysql/
     - ../systemd-override/

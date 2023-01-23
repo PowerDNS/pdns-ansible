@@ -1,6 +1,6 @@
 # Ansible Role: PowerDNS Authoritative Server
 
-[![Build Status](https://travis-ci.org/PowerDNS/pdns-ansible.svg?branch=master)](https://travis-ci.org/PowerDNS/pdns-ansible)
+[![Build Status](https://github.com/PowerDNS/pdns-ansible/actions/workflows/main.yml/badge.svg)](https://github.com/PowerDNS/pdns-ansible)
 [![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
 [![Ansible Role](https://img.shields.io/badge/ansible%20role-PowerDNS.pdns-blue.svg)](https://galaxy.ansible.com/PowerDNS/pdns)
 [![GitHub tag](https://img.shields.io/github/tag/PowerDNS/pdns-ansible.svg)](https://github.com/PowerDNS/pdns-ansible/tags)
@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.7 or higher installation.
+An Ansible 2.9 or higher installation.
 
 ## Dependencies
 
@@ -32,17 +32,17 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
     - { role: PowerDNS.pdns,
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 
-# Install the PowerDNS Authoritative Server from the '4.1.x' official repository
+# Install the PowerDNS Authoritative Server from the '4.3.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_43 }}"
 
-# Install the PowerDNS Authoritative Server from the '4.2.x' official repository
+# Install the PowerDNS Authoritative Server from the '4.4.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_42 }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_44 }}"
 ```
 
 The examples above, show how to install the PowerDNS Authoritative Server from the official PowerDNS repositories
@@ -153,7 +153,9 @@ pdns_config:
 configures PowerDNS Authoritative Server to listen incoming DNS requests on port 5300.
 
 ```yaml
-pdns_service_overrides: {}
+pdns_service_overrides:
+  User: {{ pdns_user }}
+  Group: {{ pdns_group }}
 ```
 
 Dict with overrides for the service (systemd only).
@@ -228,11 +230,12 @@ pdns_lmdb_databases_locations: []
 Locations of the LMDB databases that have to be created if using the
 `lmdb` backend.
 
-Locations of the mysql and sqlite3 base schema
+Locations of the mysql and sqlite3 base schema.
+When set, this value is used and they are not automatically detected.
 ```yaml
-pdns_mysql_schema_file: {{}}
+pdns_mysql_schema_file: ''
 
-pdns_sqlite3_schema_file: {{}}
+pdns_sqlite3_schema_file: ''
 ```
 
 ## Example Playbooks
@@ -344,7 +347,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e py27-ansible27 -- molecule test -s pdns-42
+    $ tox -e ansible210 -- molecule test -s pdns-44
 
 ## License
 

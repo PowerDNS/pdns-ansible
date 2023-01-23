@@ -1,0 +1,39 @@
+---
+on:
+  push:
+  pull_request:
+
+jobs:
+  Tests:
+    name: Test role on different ansible versions
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        ansible:
+          - '2.9'
+          - '2.10'
+          - '2.11'
+        scenario:
+          - pdns-43
+          - pdns-44
+          - pdns-45
+          - pdns-46
+          - pdns-47
+          - pdns-master
+          - pdns-os-repos
+          - systemd-no-overrides
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox tox-gh-actions
+      - name: Run the tests
+        run: tox -- molecule test -s ${{ matrix.scenario }}
+        env:
+          ANSIBLE: ${{ matrix.ansible }}

@@ -10,52 +10,53 @@
   tags:
     - always
 
-- include: "repo-{{ ansible_os_family }}.yml"
+- include_tasks: "repo-{{ ansible_os_family }}.yml"
   when: "pdns_install_repo | length > 0"
   tags:
     - install
     - repository
 
-- include: install.yml
+- include_tasks: install.yml
   tags:
     - install
 
-- include: inspect.yml
+- include_tasks: inspect.yml
   tags:
     - db
     - mysql
     - sqlite
     - config
 
-- include: database-mysql.yml
+- include_tasks: database-mysql.yml
   when: "pdns_mysql_databases_credentials | length > 0"
   tags:
     - db
     - mysql
 
-- include: database-sqlite3.yml
+- include_tasks: database-sqlite3.yml
   when: "pdns_sqlite_databases_locations | length > 0"
   tags:
     - db
     - sqlite
 
-- include: database-lmdb.yml
+- include_tasks: database-lmdb.yml
   when: "pdns_lmdb_databases_locations | length > 0"
   tags:
     - db
     - lmdb
 
-- include: configure.yml
+- include_tasks: configure.yml
   tags:
     - config
 
-- include: selinux.yml
+- include_tasks: selinux.yml
   when: ansible_selinux is defined and ansible_selinux.status == 'enabled'
   tags:
     - selinux
     - config
 
 - name: Start and enable the PowerDNS service
+  throttle: 1
   service:
     name: "{{ pdns_service_name }}"
     state: "{{ pdns_service_state }}"

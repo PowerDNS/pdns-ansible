@@ -1,7 +1,19 @@
-## v1.6.2 (UNRELEASED)
+## v1.7.0 (2021-07-01)
 
 NEW FEATURES:
-- Create directory, set the ownership and permissions for LMDB databases
+- Create directory, set the ownership and permissions for LMDB databases ([\#95](https://github.com/PowerDNS/pdns-ansible/pull/95))
+- Add database schema file detection on the target system with override possibility ([\#100](https://github.com/PowerDNS/pdns-ansible/pull/100))
+- Add 4.4 repositories ([\#91](https://github.com/PowerDNS/pdns-ansible/pull/91))
+
+IMPROVEMENTS:
+- Use systemd task option `daemon_reload` instead of command task ([\#90](https://github.com/PowerDNS/pdns-ansible/pull/90))
+
+REMOVED FEATURES:
+- Drop EL6 support ([\#91](https://github.com/PowerDNS/pdns-ansible/pull/91), [\#94](https://github.com/PowerDNS/pdns-ansible/pull/94))
+- Remove 4.1 and 4.2 repositories ([\#101](https://github.com/PowerDNS/pdns-ansible/pull/101))
+
+BUG FIXES:
+- Re-instate molecule tests ([\#100](https://github.com/PowerDNS/pdns-ansible/pull/100))
 
 ## v1.6.1 (2020-10-01)
 
