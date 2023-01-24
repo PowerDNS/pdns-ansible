@@ -41,4 +41,4 @@ def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
     assert 'PowerDNS Authoritative Server' in cmd.stderr
-    assert '4.3' in cmd.stderr
+    assert '4.6' in cmd.stderr
