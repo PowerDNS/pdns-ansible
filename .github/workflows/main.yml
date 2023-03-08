@@ -10,9 +10,9 @@ jobs:
     strategy:
       matrix:
         ansible:
-          - '2.9'
-          - '2.10'
-          - '2.11'
+          - "2.12"
+          - "2.13"
+          - "2.14"
         scenario:
           - pdns-45
           - pdns-46
@@ -26,7 +26,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.10"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
