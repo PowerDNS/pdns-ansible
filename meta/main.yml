@@ -1,13 +1,13 @@
 ---
 
 galaxy_info:
-  namespace: powerdns
-  role_name: pdns
+  role_name: "pdns"
+  namespace: "powerdns"
   author: PowerDNS Engineering Team
   description: Install and configure the PowerDNS Authoritative DNS Server
   company: PowerDNS.COM BV
   license: MIT
-  min_ansible_version: 2.9
+  min_ansible_version: "2.9"
   platforms:
     - name: EL
       versions:
