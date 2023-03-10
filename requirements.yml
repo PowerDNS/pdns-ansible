@@ -1,3 +1,4 @@
 ---
 collections:
   - name: community.mysql
+  - name: comunity.general
