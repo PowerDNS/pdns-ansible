@@ -4,4 +4,4 @@
   vars_files:
     - ../resources/vars/pdns-no-overrides.yml
   roles:
-    - { role: pdns-ansible }
+    - { role: powerdns.pdns }

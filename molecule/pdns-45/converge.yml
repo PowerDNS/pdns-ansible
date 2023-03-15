@@ -6,4 +6,4 @@
     - ../resources/vars/pdns-repo-45.yml
     - ../resources/vars/pdns-backends.yml
   roles:
-    - { role: pdns-ansible }
+    - { role: powerdns.pdns }
