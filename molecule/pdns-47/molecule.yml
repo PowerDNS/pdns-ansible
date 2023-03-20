@@ -15,6 +15,11 @@ platforms:
     image: centos:7
     dockerfile_tpl: centos-systemd
 
+  - name: oraclelinux-9
+    groups: ["pdns"]
+    image: oraclelinux:9
+    dockerfile_tpl: centos-systemd
+
   - name: oraclelinux-8
     groups: ["pdns"]
     image: oraclelinux:8
