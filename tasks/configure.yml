@@ -42,6 +42,7 @@
     group: "{{ pdns_file_group }}"
     mode: 0640
   register: _pdns_configuration
+  no_log: true
 
 - name: Ensure that the PowerDNS 'include-dir' directory exists
   file:
