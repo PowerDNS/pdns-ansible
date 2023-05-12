@@ -3,5 +3,5 @@ yamllint==1.29.0
 molecule[docker]==4.0.0
 molecule[lint]==4.0.0
 pytest-testinfra==6.7.0
-docker==5.0.3
+docker==6.1.2
 
