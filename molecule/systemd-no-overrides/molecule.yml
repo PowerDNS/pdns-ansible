@@ -53,4 +53,4 @@ verifier:
   additional_files_or_dirs:
     # path relative to 'directory'
     - ../systemd-no-override
-  lint: flake8
+
