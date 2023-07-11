@@ -30,11 +30,6 @@ platforms:
     image: ubuntu:18.04
     dockerfile_tpl: debian-systemd
 
-  - name: debian-9
-    groups: ["pdns"]
-    image: debian:9
-    dockerfile_tpl: debian-systemd
-
   - name: debian-10
     groups: ["pdns"]
     image: debian:10
@@ -87,4 +82,4 @@ verifier:
     - ../backend-sqlite/
     - ../backend-mysql/
     - ../systemd-override/
-  lint: flake8
+
