@@ -22,5 +22,5 @@ pdns_config:
   webserver-address: "0.0.0.0"
   webserver-port: "8001"
 
-pdns_install_repo: "{{ pdns_auth_powerdns_repo_47 }}"
+pdns_install_repo: "{{ pdns_auth_powerdns_repo_48 }}"
 pdns_service_overrides: ''
