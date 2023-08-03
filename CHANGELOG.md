@@ -2,24 +2,24 @@
 
 NEW FEATURES:
 - Added pdns48 repository and CI ([\#180](https://github.com/PowerDNS/pdns-ansible/pull/180))
-- Added support for OL9 ([\#145](https://github.com/PowerDNS/pdns-ansible/pull/145)
-- Added pdns47 repository and CI ([\#135](https://github.com/PowerDNS/pdns-ansible/pull/135)
-- Replaced Centos8 with OL8 ([\#133](https://github.com/PowerDNS/pdns-ansible/pull/133)
-- Added pdns46 repository and CI ([\#117](https://github.com/PowerDNS/pdns-ansible/pull/117)
+- Added support for OL9 ([\#145](https://github.com/PowerDNS/pdns-ansible/pull/145))
+- Added pdns47 repository and CI ([\#135](https://github.com/PowerDNS/pdns-ansible/pull/135))
+- Replaced Centos8 with OL8 ([\#133](https://github.com/PowerDNS/pdns-ansible/pull/133))
+- Added pdns46 repository and CI ([\#117](https://github.com/PowerDNS/pdns-ansible/pull/117))
 
 IMPROVEMENTS:
 - Bump versions and various fixes in CI and README.md ([\#179](https://github.com/PowerDNS/pdns-ansible/pull/179)
-- Bump versions in requirements.txt ([\#144](https://github.com/PowerDNS/pdns-ansible/pull/144)
-- Removal of deprecation warning ([\#121](https://github.com/PowerDNS/pdns-ansible/pull/121)
-- Do not restart all servers at once ([\#109](https://github.com/PowerDNS/pdns-ansible/pull/109)
-- Prevent logging of password information ([\#106](https://github.com/PowerDNS/pdns-ansible/pull/106)
+- Bump versions in requirements.txt ([\#144](https://github.com/PowerDNS/pdns-ansible/pull/144))
+- Removal of deprecation warning ([\#121](https://github.com/PowerDNS/pdns-ansible/pull/121))
+- Do not restart all servers at once ([\#109](https://github.com/PowerDNS/pdns-ansible/pull/109))
+- Prevent logging of password information ([\#106](https://github.com/PowerDNS/pdns-ansible/pull/106))
 
 REMOVED FEATURES:
-- Drop pdns45, support for Debian 9 ([\#179](https://github.com/PowerDNS/pdns-ansible/pull/179) EOL
-- Drop Ansible v2.9 - v2.10 - v2.11 from CI  and removed pdns43 and pdns44 ([\#144](https://github.com/PowerDNS/pdns-ansible/pull/144) for EOL
+- Drop pdns45, support for Debian 9 ([\#179](https://github.com/PowerDNS/pdns-ansible/pull/179)) EOL
+- Drop Ansible v2.9 - v2.10 - v2.11 from CI  and removed pdns43 and pdns44 ([\#144](https://github.com/PowerDNS/pdns-ansible/pull/144)) for EOL
 
 BUG FIXES:
-- Add MySQL schema path with PowerDNS 4.6 and Rocky Linux 8 with EPEL package installation ([\#114](https://github.com/PowerDNS/pdns-ansible/pull/114)
+- Add MySQL schema path with PowerDNS 4.6 and Rocky Linux 8 with EPEL package installation ([\#114](https://github.com/PowerDNS/pdns-ansible/pull/114))
 
 ## v1.7.0 (2021-07-01)
 
