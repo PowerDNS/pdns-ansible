@@ -5,7 +5,7 @@ NEW FEATURES:
 - Added support for OL9 ([\#145](https://github.com/PowerDNS/pdns-ansible/pull/145)
 - Added pdns47 repository and CI ([\#135](https://github.com/PowerDNS/pdns-ansible/pull/135)
 - Replaced Centos8 with OL8 ([\#133](https://github.com/PowerDNS/pdns-ansible/pull/133)
-- Added pdns46 repository and CI ([\#177](https://github.com/PowerDNS/pdns-ansible/pull/177)
+- Added pdns46 repository and CI ([\#117](https://github.com/PowerDNS/pdns-ansible/pull/117)
 
 IMPROVEMENTS:
 - Bump versions and various fixes in CI and README.md ([\#179](https://github.com/PowerDNS/pdns-ansible/pull/179)
