@@ -6,7 +6,7 @@
     yum:
       name: epel-release
       state: present
-    when: ansible_distribution in [ 'CentOS' ]
+    when: ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
 
   - name: Install epel-release on RHEL
     package:
@@ -29,7 +29,7 @@
     name: yum-plugin-priorities
     state: present
   when:
-    - ansible_distribution in [ 'CentOS' ]
+    - ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
     - ansible_distribution_major_version | int < 8
 
 - name: Add the PowerDNS YUM Repository
