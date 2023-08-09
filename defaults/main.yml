@@ -3,7 +3,7 @@
 # By default, no PowerDNS Authoritative Server repository will be configured by the role
 pdns_install_repo: ""
 
-# To install tje PowerDNS Authoritative Server from the 'master' official repository
+# To install the PowerDNS Authoritative Server from the 'master' official repository
 # use the following playbook snippet
 # - hosts: all
 #   roles:
@@ -146,6 +146,10 @@ pdns_sqlite_databases_locations: []
 # in the given locations.
 # NOTE: Requries lmdb backend to be installed on the machine.
 pdns_lmdb_databases_locations: []
+
+# By default, we'll load the MySQL default schema. Set this to Falso to disable loading the schema
+# (e.g. when importing your own dump later on)
+pdns_mysql_schema_load: true
 
 # Override the schema used to initialize the MySQL database
 # By default, this role tries to detect the correct file
