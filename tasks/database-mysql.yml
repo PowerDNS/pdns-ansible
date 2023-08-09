@@ -74,5 +74,5 @@
     state: import
     target: "{{ pdns_mysql_schema_file_to_use }}"
   no_log: True
-  when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
+  when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0' and pdns_mysql_schema_load"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
