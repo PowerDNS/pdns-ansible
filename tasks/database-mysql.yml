@@ -13,7 +13,7 @@
     login_port: "{{ item['value']['port'] | default('3306') }}"
     name: "{{ item['value']['dbname'] }}"
     state: present
-  when: "item.key.split(':')[0] == 'gmysql'"
+  when: "item.key.split(':')[0] == 'gmysql' and pdns_mysql_databases_credentials"
   no_log: True
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
@@ -29,15 +29,17 @@
     priv: "{{ item[0]['dbname'] }}.*:ALL"
     append_privs: yes
     state: present
+  when: pdns_mysql_databases_credentials
   with_subelements:
     - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host
     - skip_missing: yes
 
+# TODO: add support for file socket connections instead of host/port combos
 - name: Check if the MySQL databases are empty
   command: >
     mysql --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
-    --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names
+    --host="{{ item['value']['host'] | default('localhost') }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
@@ -64,11 +66,12 @@
   set_fact:
     pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
 
+# TODO: add support for file socket connections instead of host/port combos
 - name: Import the PowerDNS MySQL schema
   mysql_db:
     login_user: "{{ item['item']['value']['user'] }}"
     login_password: "{{ item['item']['value']['password'] }}"
-    login_host: "{{ item['item']['value']['host'] }}"
+    login_host: "{{ item['item']['value']['host'] | default('localhost') }}"
     login_port: "{{ item['item']['port'] | default('3306') }}"
     name: "{{ item.item['value']['dbname'] }}"
     state: import
