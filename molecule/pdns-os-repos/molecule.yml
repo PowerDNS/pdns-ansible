@@ -71,4 +71,4 @@ verifier:
     - ../systemd-override/
     - ../backend-sqlite/
     - ../backend-mysql/
-  lint: flake8
+

@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-45
+  name: pdns-48
 
 driver:
   name: docker
@@ -13,6 +13,11 @@ platforms:
   - name: centos-7
     groups: ["pdns"]
     image: centos:7
+    dockerfile_tpl: centos-systemd
+
+  - name: oraclelinux-9
+    groups: ["pdns"]
+    image: oraclelinux:9
     dockerfile_tpl: centos-systemd
 
   - name: oraclelinux-8
@@ -87,8 +92,8 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../repo-45/
+    - ../repo-48/
     - ../backend-sqlite/
     - ../backend-mysql/
     - ../systemd-override/
-  lint: flake8
+

@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.9 or higher installation.
+An Ansible 2.12 or higher installation.
 
 ## Dependencies
 
@@ -32,12 +32,6 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
     - { role: PowerDNS.pdns,
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
 
-# Install the PowerDNS Authoritative Server from the '4.5.x' official repository
-- hosts: all
-  roles:
-    - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_45 }}"
-
 # Install the PowerDNS Authoritative Server from the '4.6.x' official repository
 - hosts: all
   roles:
@@ -48,7 +42,13 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_47 }}"      
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_47 }}"  
+        
+# Install the PowerDNS Authoritative Server from the '4.8.x' official repository
+- hosts: all
+  roles:
+    - { role: PowerDNS.pdns,
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_48 }}"      
 ```
 
 The examples above, show how to install the PowerDNS Authoritative Server from the official PowerDNS repositories
@@ -353,7 +353,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e ansible210 -- molecule test -s pdns-44
+    $ tox -e ansible214 -- molecule test -s pdns-48
 
 ## License
 
