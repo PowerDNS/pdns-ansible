@@ -29,3 +29,6 @@ default_pdns_backends_packages:
 
 # The directory where the PowerDNS Authoritative Server configuration is located
 default_pdns_config_dir: "/etc/powerdns"
+
+# Do not use --host --port for mysql connections
+pdns_mysql_query_use_socket: true
