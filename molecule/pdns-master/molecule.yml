@@ -55,6 +55,7 @@ platforms:
       - /run
       - /tmp
     dockerfile_tpl: debian-systemd
+    environment: { container: docker }
 
   - name: debian-11
     groups: ["pdns"]
