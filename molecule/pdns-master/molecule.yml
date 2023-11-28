@@ -15,6 +15,26 @@ platforms:
     image: centos:7
     dockerfile_tpl: centos-systemd
 
+  - name: rockylinux-8
+    groups: ["pdns"]
+    image: rockylinux:8
+    dockerfile_tpl: centos-systemd
+
+  - name: almalinux-8
+    groups: ["pdns"]
+    image: almalinux:8
+    dockerfile_tpl: centos-systemd
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9.0
+    dockerfile_tpl: centos-systemd
+
+  - name: almalinux-9
+    groups: ["pdns"]
+    image: almalinux:9
+    dockerfile_tpl: centos-systemd
+
   - name: oraclelinux-9
     groups: ["pdns"]
     image: oraclelinux:9
