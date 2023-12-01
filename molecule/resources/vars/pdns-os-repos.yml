@@ -1,5 +1,26 @@
 ---
 
 ##
-# No special things
+# PowerDNS Configuration
 ##
+
+pdns_config:
+
+  # Turns on master operations
+  master: true
+
+  # Listen Address
+  local-address: "127.0.0.1"
+  local-port: "53"
+
+  # API Configuration
+  api: yes
+  api-key: "powerdns"
+
+  # Embedded webserver
+  webserver: yes
+  webserver-address: "0.0.0.0"
+  webserver-port: "8001"
+
+pdns_service_overrides:
+  LimitCORE: infinity
