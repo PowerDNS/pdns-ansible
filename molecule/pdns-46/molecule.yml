@@ -20,6 +20,16 @@ platforms:
     image: oraclelinux:8
     dockerfile_tpl: centos-systemd
 
+  - name: rockylinux-8
+    groups: ["pdns"]
+    image: rockylinux:8
+    dockerfile_tpl: centos-systemd
+
+  - name: almalinux-8
+    groups: ["pdns"]
+    image: almalinux:8
+    dockerfile_tpl: centos-systemd
+
   - name: ubuntu-2004
     groups: ["pdns"]
     image: ubuntu:20.04
