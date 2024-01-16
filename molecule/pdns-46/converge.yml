@@ -1,9 +1,0 @@
----
-
-- hosts: pdns
-  vars_files:
-    - ../resources/vars/pdns-common.yml
-    - ../resources/vars/pdns-repo-46.yml
-    - ../resources/vars/pdns-backends.yml
-  roles:
-    - { role: powerdns.pdns }
