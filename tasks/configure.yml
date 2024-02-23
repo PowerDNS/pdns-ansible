@@ -43,6 +43,15 @@
     mode: 0640
   register: _pdns_configuration
 
+- name: Install configured backend scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ pdns_config_dir }}/{{ item }}"
+    owner: "{{ pdns_file_owner }}"
+    group: "{{ pdns_file_group }}"
+    mode: "0750"
+  with_items: "{{ pdns_backends_scripts }}"
+
 - name: Ensure that the PowerDNS 'include-dir' directory exists
   file:
     name: "{{ pdns_config['include-dir'] }}"

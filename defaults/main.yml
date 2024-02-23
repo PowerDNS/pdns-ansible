@@ -121,6 +121,9 @@ pdns_backends:
 #     'hybrid':  yes
 #     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
 
+# list of pdns backend scripts to install
+pdns_backends_scripts: []
+
 # Administrative credentials to create the PowerDNS Authoritative Server MySQL backend database and user.
 pdns_mysql_databases_credentials: {}
 # pdns_mysql_databases_credentials:
