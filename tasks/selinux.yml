@@ -4,7 +4,7 @@
     name: pdns_can_network_connect_db
     state: yes
     persistent: yes
-  when: "pdns_mysql_databases_credentials | length > 0"
+  when: "'gmysql' in pdns_backends"
 
 - name: allow pdns to bind to udp high ports
   seport:
