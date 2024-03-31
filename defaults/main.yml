@@ -136,6 +136,27 @@ pdns_mysql_databases_credentials: {}
 #     'priv_host':
 #       - "localhost"
 
+# Administrative credentials to create the PowerDNS Authoritative Server PostgreSQL backend database and user.
+pdns_pgsql_databases_credentials: {}
+# pdns_pgsql_databases_credentials:
+#   'gpgsql:one':
+#     'priv_user': root
+#     'priv_password': my_first_password
+#     'priv_host':
+#       - "localhost"
+#       - "%"
+#   'gpgsql:two':
+#     'priv_user': someprivuser
+#     'priv_password': my_second_password
+#     'priv_host':
+#       - "localhost"
+
+# Path to postgres unix socket. 
+# This is used for creating PowerDNS Authoritative Server database and user when the PostgreSQL server
+# is running on the same host as PowerDNS
+pdns_pgsql_unix_socket: "/var/run/postgresql"
+
+
 # This will create the PowerDNS Authoritative Server backend SQLite database
 # in the given locations.
 # NOTE: Requries the SQLite CLI tools to be available in the machine and the gsqlite3
@@ -155,5 +176,6 @@ pdns_mysql_schema_file: ""
 # By default, this role tries to detect the correct file
 pdns_sqlite_schema_file: ""
 
-# same
+# Override the schema used to initialize the PostgreSQL database
+# By default, this role tries to detect the correct file
 pdns_pgsql_schema_file: ""

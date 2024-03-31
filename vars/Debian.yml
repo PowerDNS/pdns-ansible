@@ -12,8 +12,9 @@ pdns_mysql_packages:
   - python3-mysqldb
 
 pdns_pgsql_packages:
-  - postgresql 
-  - postgresql-contrib
+  - python3-psycopg2
+  - postgresql-client
+
 
 # List of PowerDNS Authoritative Server Backends packages on Debian
 default_pdns_backends_packages:

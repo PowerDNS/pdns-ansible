@@ -77,6 +77,19 @@ platforms:
     # on creation.
     is_service: yes
 
+  # In order to run the tests we need
+  # a PostgreSQL container to be up & running
+  - name: pgsql
+    image: postgres:16.2
+    env:
+      POSTGRES_PASSWORD: pdns
+      POSTGRES_HOST_AUTH_METHOD: "md5"
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    # Declaring the container as service,
+    # will link it to the others Platforms containers
+    # on creation.
+    is_service: yes
+
 provisioner:
   name: ansible
   options:
@@ -112,5 +125,6 @@ verifier:
     - ../repo-master/
     - ../backend-sqlite/
     - ../backend-mysql/
+    - ../backend-pgsql/
     - ../systemd-override/
 
