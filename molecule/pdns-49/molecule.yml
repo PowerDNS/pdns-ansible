@@ -10,6 +10,14 @@ dependency:
   name: galaxy
 
 platforms:
+<<<<<<< HEAD
+=======
+  - name: centos-7
+    groups: ["pdns"]
+    image: centos:7
+    dockerfile_tpl: centos-systemd
+
+>>>>>>> b9b0a5b (auth49 added)
   - name: rockylinux-8
     groups: ["pdns"]
     image: rockylinux:8
@@ -40,14 +48,21 @@ platforms:
     image: oraclelinux:8
     dockerfile_tpl: centos-systemd
 
+<<<<<<< HEAD
   - name: ubuntu-2204
     groups: ["pdns"]
     image: ubuntu:22.04
+=======
+  - name: ubuntu-2004
+    groups: ["pdns"]
+    image: ubuntu:20.04
+>>>>>>> b9b0a5b (auth49 added)
     tmpfs:
       - /run
       - /tmp
     dockerfile_tpl: debian-systemd
 
+<<<<<<< HEAD
   - name: ubuntu-2404
     groups: ["pdns"]
     image: ubuntu:24.04
@@ -72,6 +87,11 @@ platforms:
   - name: debian-12
     groups: ["pdns"]
     image: debian:12
+=======
+  - name: debian-10
+    groups: ["pdns"]
+    image: debian:10
+>>>>>>> b9b0a5b (auth49 added)
     privileged: True
     volume_mounts:
       - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
@@ -98,7 +118,10 @@ provisioner:
   options:
     diff: True
     v: True
+<<<<<<< HEAD
     forks: '1'
+=======
+>>>>>>> b9b0a5b (auth49 added)
   config_options:
     defaults:
       gathering: smart
@@ -133,3 +156,7 @@ verifier:
     - ../backend-sqlite/
     - ../backend-mysql/
     - ../systemd-override/
+<<<<<<< HEAD
+=======
+
+>>>>>>> b9b0a5b (auth49 added)
