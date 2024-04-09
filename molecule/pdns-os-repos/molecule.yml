@@ -13,7 +13,15 @@ platforms:
   - name: debian-11
     groups: ["pdns"]
     image: debian:11
+    privileged: True
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
     dockerfile_tpl: debian-systemd
+    environment: { container: docker }
 
   - name: archlinux
     groups: ["pdns"]
@@ -23,6 +31,9 @@ platforms:
   - name: ubuntu-2004
     groups: ["pdns"]
     image: ubuntu:20.04
+    tmpfs:
+      - /run
+      - /tmp
     dockerfile_tpl: debian-systemd
 
   # In order to run the tests we need
