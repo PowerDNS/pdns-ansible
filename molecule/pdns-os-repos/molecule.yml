@@ -10,9 +10,9 @@ dependency:
   name: galaxy
 
 platforms:
-  - name: debian-10
+  - name: debian-11
     groups: ["pdns"]
-    image: debian:10
+    image: debian:11
     dockerfile_tpl: debian-systemd
 
   - name: archlinux
