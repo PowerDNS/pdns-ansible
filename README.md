@@ -353,7 +353,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e ansible214 -- molecule test -s pdns-48
+    $ tox -e ansible214 -- molecule test -s pdns-49
 
 ## License
 
