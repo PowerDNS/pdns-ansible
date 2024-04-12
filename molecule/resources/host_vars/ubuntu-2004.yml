@@ -1,3 +1,7 @@
 ---
 
 ansible_python_interpreter: "/usr/bin/python3"
+
+# pdns-os-repos: ubuntu-20.04 installs auth 4.4.1
+_pdns_config_legacy:
+  master: true
