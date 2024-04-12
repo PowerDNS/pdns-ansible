@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-os-repos
+  name: pdns-49
 
 driver:
   name: docker
@@ -10,9 +10,52 @@ dependency:
   name: galaxy
 
 platforms:
-  - name: debian-11
+  - name: centos-7
     groups: ["pdns"]
-    image: debian:11
+    image: centos:7
+    dockerfile_tpl: centos-systemd
+
+  - name: rockylinux-8
+    groups: ["pdns"]
+    image: rockylinux:8
+    dockerfile_tpl: centos-systemd
+
+  - name: almalinux-8
+    groups: ["pdns"]
+    image: almalinux:8
+    dockerfile_tpl: centos-systemd
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9.0
+    dockerfile_tpl: centos-systemd
+
+  - name: almalinux-9
+    groups: ["pdns"]
+    image: almalinux:9
+    dockerfile_tpl: centos-systemd
+
+  - name: oraclelinux-9
+    groups: ["pdns"]
+    image: oraclelinux:9
+    dockerfile_tpl: centos-systemd
+
+  - name: oraclelinux-8
+    groups: ["pdns"]
+    image: oraclelinux:8
+    dockerfile_tpl: centos-systemd
+
+  - name: ubuntu-2004
+    groups: ["pdns"]
+    image: ubuntu:20.04
+    tmpfs:
+      - /run
+      - /tmp
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-10
+    groups: ["pdns"]
+    image: debian:10
     privileged: True
     volume_mounts:
       - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
@@ -22,19 +65,6 @@ platforms:
       - /tmp
     dockerfile_tpl: debian-systemd
     environment: { container: docker }
-
-  - name: archlinux
-    groups: ["pdns"]
-    image: archlinux:base
-    dockerfile_tpl: archlinux-systemd
-
-  - name: ubuntu-2004
-    groups: ["pdns"]
-    image: ubuntu:20.04
-    tmpfs:
-      - /run
-      - /tmp
-    dockerfile_tpl: debian-systemd
 
   # In order to run the tests we need
   # a MySQL container to be up & running
@@ -67,6 +97,9 @@ provisioner:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
     prepare: ../resources/prepare.yml
+    # "systemctl used in place of systemd module" "ANSIBLE0006"
+    # "Tasks that run when changed should likely be handlers" "ANSIBLE0016"
+    # "Shells that use pipes should set the pipefail option" "306"
   lint: ansible-lint -x ANSIBLE0006 ANSIBLE0016 306
 
 lint: yamllint defaults tasks meta vars
@@ -79,7 +112,8 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../systemd-override/
+    - ../repo-49/
     - ../backend-sqlite/
     - ../backend-mysql/
+    - ../systemd-override/
 
