@@ -16,7 +16,6 @@ jobs:
           - "2.13"
           - "2.14"
         scenario:
-          - pdns-46
           - pdns-47
           - pdns-48
           - pdns-49
