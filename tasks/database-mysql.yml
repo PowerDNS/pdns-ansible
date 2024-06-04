@@ -15,7 +15,7 @@
     state: present
   when: "item.key.split(':')[0] == 'gmysql'"
   no_log: true
-  with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
+  loop: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True | dict2items) }}"
 
 - name: Grant PowerDNS access to the MySQL databases
   community.mysql.mysql_user:
@@ -29,10 +29,7 @@
     priv: "{{ item[0]['dbname'] }}.*:ALL"
     append_privs: true
     state: present
-  with_subelements:
-    - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
-    - priv_host
-    - skip_missing: true
+  loop: "{{ (pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True)) | dict2items | subelements('priv_host', skip_missing=true) }}"
 
 - name: Check if the MySQL databases are empty
   ansible.builtin.command: >
@@ -40,7 +37,7 @@
     --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
   when: item.key.split(':')[0] == 'gmysql'
-  with_dict: "{{ pdns_backends }}"
+  loop: "{{ pdns_backends | dict2items }}"
   register: _pdns_check_mysql_db
   no_log: true
   changed_when: false
@@ -75,4 +72,4 @@
     target: "{{ pdns_mysql_schema_file_to_use }}"
   no_log: true
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
-  with_items: "{{ _pdns_check_mysql_db['results'] }}"
+  loop: "{{ _pdns_check_mysql_db['results'] }}"

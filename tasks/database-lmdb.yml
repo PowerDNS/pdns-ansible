@@ -7,4 +7,4 @@
     group: "{{ pdns_group }}"
     state: directory
     mode: 0750
-  with_items: "{{ pdns_lmdb_databases_locations }}"
+  loop: "{{ pdns_lmdb_databases_locations }}"
