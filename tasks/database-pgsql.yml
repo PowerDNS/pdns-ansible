@@ -1,0 +1,92 @@
+---
+- name: Create user for PowerDNS to connect to PostgreSQL server
+  community.general.postgresql_user:
+    login_user: "{{ item['value']['priv_user'] }}"
+    login_password: "{{ item['value']['priv_password'] | default(omit) }}"
+    login_host: "{{ item['value']['priv_host'] | default(omit) }}"
+    port: "{{ item['value']['port'] | default(omit) }}"
+    name: "{{ item['value']['user'] }}"
+    login_unix_socket: "{{ pdns_pgsql_unix_socket }}"
+    password: "{{ item['value']['password'] }}"
+    state: present
+  throttle: 1
+  become: "{{ 'no' if item['value']['priv_host'] is defined else 'yes' }}"
+  become_user: "{{ item['value']['priv_user'] }}"
+  when:
+    - item.key.split(':')[0] == 'gpgsql'
+    - pdns_pgsql_databases_credentials | length > 0
+  with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
+  no_log: True
+
+- name: Create the PowerDNS PostgreSQL databases
+  community.general.postgresql_db:
+    login_user: "{{ item['value']['priv_user'] }}"
+    login_password: "{{ item['value']['priv_password'] | default(omit) }}"
+    login_unix_socket: "{{ pdns_pgsql_unix_socket }}"
+    login_host: "{{ item['value']['priv_host'] | default(omit) }}"
+    port: "{{ item['value']['priv_port'] | default(omit) }}"
+    name: "{{ item['value']['dbname'] }}"
+    state: present
+    owner: "{{ item['value']['user'] }}"
+  when:
+    - item.key.split(':')[0] == 'gpgsql'
+    - pdns_pgsql_databases_credentials | length > 0
+  with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
+  become: "{{ 'no' if item['value']['priv_host'] is defined else 'yes' }}"
+  become_user: "{{ item['value']['priv_user'] }}"
+  no_log: True
+
+- name: Check if the PostgreSQL databases are empty
+  community.general.postgresql_query:
+    db: "{{ item['value']['dbname'] }}"
+    login_user: "{{ item['value']['user'] }}"
+    login_password: "{{ item['value']['password'] }}"
+    login_host: "{{ item['value']['host'] }}"
+    port: "{{ item['item']['value']['port'] | default('5432') }}"
+    query: SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = 'public';
+  when: item.key.split(':')[0] == 'gpgsql'
+  with_dict: "{{ pdns_backends }}"
+  register: _pdns_check_pgsql_db
+  changed_when: False
+  no_log: True
+
+- name: Determine location of the SQL file
+  shell:
+    cmd: |
+      files_to_check="
+         /usr/share/doc/pdns-backend-postgresql-{{ _pdns_running_version }}/schema.pgsql.sql
+         /usr/share/doc/pdns-backend-pgsql/schema.pgsql.sql 
+         /usr/share/pdns-backend-pgsql/schema/schema.pgsql.sql
+         /usr/share/dbconfig-common/data/pdns-backend-pgsql/install/pgsql
+         /usr/share/doc/powerdns/schema.pgsql.sql
+         /usr/share/doc/pdns-backend-postgresql/schema.pgsql.sql
+      "
+      for p in $files_to_check; do
+        if [ -f $p ]; then
+          echo $p
+          exit 0
+        fi
+      done
+      echo "Can't determine path to PostgreSQL schema">&2
+      exit 1
+  changed_when: false
+  register: pdns_pgsql_schema_file_detected
+  when: pdns_pgsql_schema_file | length == 0
+
+- name: Set the schema file variable
+  set_fact:
+    pdns_pgsql_schema_file_to_use: "{% if pdns_pgsql_schema_file | length == 0 %}{{ pdns_pgsql_schema_file_detected.stdout }}{% else %}{{ pdns_pgsql_schema_file }}{% endif %}"
+
+- name: Import the PowerDNS PostgreSQL schema
+  community.postgresql.postgresql_script:
+    login: "{{ item['item']['value']['user'] }}"
+    login_password: "{{ item['item']['value']['password'] }}"
+    host: "{{ item['item']['value']['host'] }}"
+    port: "{{ item['item']['port'] | default('5432') }}"
+    db: "{{ item['item']['value']['dbname'] }}"
+    path: "{{ pdns_pgsql_schema_file_to_use }}"
+  when:
+    - item['item']['key'].split(':')[0] == 'gpgsql'
+    - item['query_result'][0]['count'] == 0
+  with_items: "{{ _pdns_check_pgsql_db['results'] }}"
+  no_log: True

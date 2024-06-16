@@ -222,6 +222,36 @@ pdns_mysql_databases_credentials:
 Notice that this must only contain the credentials
 for the `gmysql` backends provided in `pdns_backends`.
 
+Administrative credentials for the PostgreSQL backend used to create the PowerDNS Authoritative Server databases and users.
+For example:
+
+```yaml
+pdns_pgsql_databases_credentials:
+  'gpgsql:one':
+    'priv_user': root
+    'priv_password': my_first_password
+    'priv_host': "1.2.3.4"
+```
+
+In case PowerDNS Authoritative Server and PostgreSQL server is running on the same host, Host Based Authentication(HBA) can be used 
+```yaml
+pdns_pgsql_databases_credentials:
+  'gpgsql:one':
+    'priv_user': postgres
+```
+Ansible will connect using the unix socket created by PostgreSQL.
+In that case, `priv_username` is the username which the PostgreSQL server is running as.
+
+
+```yaml
+pdns_pgsql_unix_socket: "/var/run/postgresql"
+````
+Path to PostgreSQL's unix socket.
+
+ 
+
+
+
 ```yaml
 pdns_sqlite_databases_locations: []
 ```
