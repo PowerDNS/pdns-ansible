@@ -37,7 +37,8 @@
 - name: Check if the MySQL databases are empty
   command: >
     mysql --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
-    --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names
+    {% if not (pdns_mysql_query_use_socket | default(false)) %} --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}"{% endif %}
+    --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
@@ -68,8 +69,9 @@
   mysql_db:
     login_user: "{{ item['item']['value']['user'] }}"
     login_password: "{{ item['item']['value']['password'] }}"
-    login_host: "{{ item['item']['value']['host'] }}"
-    login_port: "{{ item['item']['port'] | default('3306') }}"
+    login_host: "{{ item['item']['value']['host'] if not (pdns_mysql_query_use_socket | default(false)) else omit }}"
+    login_port: "{{ item['item']['port'] | default('3306') if not (pdns_mysql_query_use_socket | default(false)) else omit }}"
+    login_unix_socket: "{{ '/var/run/mysqld/mysqld.sock' if (pdns_mysql_query_use_socket | default(false)) else omit }}"
     name: "{{ item.item['value']['dbname'] }}"
     state: import
     target: "{{ pdns_mysql_schema_file_to_use }}"
