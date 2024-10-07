@@ -10,9 +10,9 @@ dependency:
   name: galaxy
 
 platforms:
-  - name: centos-7
+  - name: oraclelinux-7
     groups: ["pdns"]
-    image: centos:7
+    image: oraclelinux:7
     dockerfile_tpl: centos-systemd
 
   - name: rockylinux-8
