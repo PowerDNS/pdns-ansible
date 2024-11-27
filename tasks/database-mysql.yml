@@ -35,10 +35,10 @@
     - skip_missing: yes
 
 - name: Check if the MySQL databases are empty
-  command: >
-    mysql --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
-    --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names
-    --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
+  shell: |-
+    {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}" \
+      --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names \
+      --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
   when: item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_mysql_db
@@ -64,15 +64,11 @@
   set_fact:
     pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
 
+
 - name: Import the PowerDNS MySQL schema
-  mysql_db:
-    login_user: "{{ item['item']['value']['user'] }}"
-    login_password: "{{ item['item']['value']['password'] }}"
-    login_host: "{{ item['item']['value']['host'] }}"
-    login_port: "{{ item['item']['port'] | default('3306') }}"
-    name: "{{ item.item['value']['dbname'] }}"
-    state: import
-    target: "{{ pdns_mysql_schema_file_to_use }}"
+  shell: |-
+    {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['item']['value']['user'] }}" --password="{{ item['item']['value']['password'] }}" --host="{{ item['item']['value']['host'] }}" \
+      --port="{{ item['item']['port'] | default('3306') }}" "{{ item.item['value']['dbname'] }}" < "{{ pdns_mysql_schema_file_to_use }}"
   no_log: True
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
