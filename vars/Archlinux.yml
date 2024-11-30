@@ -17,6 +17,11 @@ pdns_mysql_packages:
   - python-pymysql
   - mariadb-clients
 
+# Packages to install for PostgreSQL support
+pdns_pgsql_packages:
+  - postgresql
+  - python-psycopg2
+
 # Other defaults
 pdns_user: powerdns
 pdns_group: powerdns
