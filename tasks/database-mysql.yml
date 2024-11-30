@@ -1,10 +1,4 @@
 ---
-
-- name: Install the MySQL dependencies
-  package:
-    name: "{{ pdns_mysql_packages }}"
-    state: present
-
 - name: Create the PowerDNS MySQL databases
   mysql_db:
     login_user: "{{ item['value']['priv_user'] }}"
@@ -29,6 +23,7 @@
     priv: "{{ item[0]['dbname'] }}.*:ALL"
     append_privs: yes
     state: present
+  throttle: 1
   with_subelements:
     - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host

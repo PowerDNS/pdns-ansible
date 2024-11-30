@@ -1,17 +1,4 @@
 ---
-
-- name: Install the SQLite dependencies on RedHat
-  package:
-    name: sqlite
-    state: present
-  when: ansible_os_family == 'RedHat'
-
-- name: Install the SQLite dependencies on Debian
-  package:
-    name: sqlite3
-    state: present
-  when: ansible_os_family == 'Debian'
-
 - name: Ensure that the directories containing the PowerDNS SQLite databases exist
   file:
     name: "{{ item | dirname }}"
