@@ -53,6 +53,22 @@ platforms:
       - /tmp
     dockerfile_tpl: debian-systemd
 
+  - name: ubuntu-2204
+    groups: ["pdns"]
+    image: ubuntu:22.04
+    tmpfs:
+      - /run
+      - /tmp
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2404
+    groups: ["pdns"]
+    image: ubuntu:24.04
+    tmpfs:
+      - /run
+      - /tmp
+    dockerfile_tpl: debian-systemd
+
 provisioner:
   name: ansible
   options:
