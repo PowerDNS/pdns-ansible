@@ -8,6 +8,11 @@ pdns_mysql_packages:
   - mysql
   - MySQL-python
 
+# Packages to install for PostgreSQL support
+pdns_pgsql_packages:
+  - python-psycopg2
+  - postgresql
+
 # The name of the PowerDNS Authoritative Server debug package
 default_pdns_debug_symbols_package_name: "pdns-debuginfo"
 
