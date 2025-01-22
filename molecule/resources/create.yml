@@ -61,4 +61,5 @@
         volumes:
           # Mount the cgroups fs to allow SystemD to run into the containers
           - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+        cgroupns_mode: host
       with_items: "{{ molecule_platform_instances }}"
