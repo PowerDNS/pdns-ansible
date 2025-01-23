@@ -57,3 +57,16 @@
     group: "{{ pdns_file_group }}"
     mode: 0750
   when: "pdns_config['include-dir'] is defined"
+<<<<<<< HEAD
+=======
+
+- name: Restart PowerDNS
+  ansible.builtin.service:
+    name: "{{ pdns_service_name }}"
+    state: restarted
+    sleep: 1
+  when: not pdns_disable_handlers
+    and pdns_service_state != 'stopped'
+    and (_pdns_override_unit.changed
+      or _pdns_configuration.changed)
+>>>>>>> 1864725 (fixed ansible lint issues)

@@ -1,11 +1,7 @@
 ---
 
-<<<<<<< HEAD
 - name: PDNS 4.9
   hosts: pdns
-=======
-- hosts: pdns
->>>>>>> b9b0a5b (auth49 added)
   vars_files:
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-49.yml
