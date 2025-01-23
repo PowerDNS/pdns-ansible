@@ -1,7 +1,7 @@
 ---
 
 - name: Include OS-specific variables
-  include_vars: "{{ item }}"
+  ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
     - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
     - "{{ ansible_distribution }}.yml"
@@ -10,46 +10,54 @@
   tags:
     - always
 
-- include_tasks: "repo-{{ ansible_os_family }}.yml"
+- name: Setup repository
+  ansible.builtin.include_tasks: "repo-{{ ansible_os_family }}.yml"
   when: "pdns_install_repo | length > 0"
   tags:
     - install
     - repository
 
-- include_tasks: install.yml
+- name: Install PowerDNS
+  ansible.builtin.include_tasks: install.yml
   tags:
     - install
 
-- include_tasks: inspect.yml
+- name: Get version of PowerDNS instance
+  ansible.builtin.include_tasks: inspect.yml
   tags:
     - db
     - mysql
     - sqlite
     - config
 
-- include_tasks: database-mysql.yml
+- name: Install and configure MySQL database
+  ansible.builtin.include_tasks: database-mysql.yml
   when: "pdns_mysql_databases_credentials | length > 0"
   tags:
     - db
     - mysql
 
-- include_tasks: database-sqlite3.yml
+- name: Install and configure SQlite database
+  ansible.builtin.include_tasks: database-sqlite3.yml
   when: "pdns_sqlite_databases_locations | length > 0"
   tags:
     - db
     - sqlite
 
-- include_tasks: database-lmdb.yml
+- name: Install and configure LMDB database
+  ansible.builtin.include_tasks: database-lmdb.yml
   when: "pdns_lmdb_databases_locations | length > 0"
   tags:
     - db
     - lmdb
 
-- include_tasks: configure.yml
+- name: Build config file
+  ansible.builtin.include_tasks: configure.yml
   tags:
     - config
 
-- include_tasks: selinux.yml
+- name: Configure SELinux
+  ansible.builtin.include_tasks: selinux.yml
   when: ansible_selinux is defined and ansible_selinux.status == 'enabled'
   tags:
     - selinux
@@ -57,7 +65,7 @@
 
 - name: Start and enable the PowerDNS service
   throttle: 1
-  service:
+  ansible.builtin.service:
     name: "{{ pdns_service_name }}"
     state: "{{ pdns_service_state }}"
     enabled: "{{ pdns_service_enabled }}"

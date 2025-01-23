@@ -140,4 +140,3 @@ verifier:
     - ../backend-sqlite/
     - ../backend-mysql/
     - ../systemd-override/
-
