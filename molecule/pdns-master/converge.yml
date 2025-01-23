@@ -1,6 +1,7 @@
 ---
 
-- hosts: pdns
+- name: PDNS master
+  hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-master.yml

@@ -2,6 +2,6 @@
 molecule_file: "{{ lookup('env', 'MOLECULE_FILE') }}"
 molecule_ephemeral_directory: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}"
 molecule_scenario_directory: "{{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}"
-role-file: requirements.yml
-requirements-file: requirements.yml
+role_file: requirements.yml
+requirements_file: requirements.yml
 molecule_yml: "{{ lookup('file', molecule_file) | from_yaml }}"
