@@ -1,6 +1,7 @@
 ---
 
-- hosts: pdns
+- name: PDNS 4.9
+  hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-49.yml

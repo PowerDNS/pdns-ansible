@@ -1,6 +1,7 @@
 ---
 
-- hosts: pdns
+- name: PDNS SystemD no-overrides
+  hosts: pdns
   vars_files:
     - ../resources/vars/pdns-no-overrides.yml
   roles:
