@@ -1,7 +1,17 @@
 ---
 - hosts: pdns
   vars_files:
-    - ../resources/vars/pdns-os-repos.yml
     - ../resources/vars/pdns-backends.yml
+  pre_tasks:
+    - name: "Include variables for Arch"
+      include_vars:
+        file: ../resources/vars/pdns-os-repos-arch.yml
+      when: ansible_os_family == 'Archlinux'
+
+    - name: "Include variables for Debian/Ubuntu"
+      include_vars:
+        file: ../resources/vars/pdns-os-repos-debian.yml
+      when: ansible_os_family == 'Debian'
+   
   roles:
     - { role: powerdns.pdns }

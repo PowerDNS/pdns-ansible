@@ -13,6 +13,11 @@ pdns_backends:
     dbname: "{{ ansible_hostname | replace('.', '_') }}"   # Each Platform will have its MySQL DB
     user: pdns
     password: pdns
+  gpgsql:
+    host: "pgsql"                                          # This is relying on Docker's service discovery
+    dbname: "{{ ansible_hostname | replace('.', '_') }}"   # Each Platform will have its MySQL DB
+    user: pdns
+    password: pdns
 
 pdns_sqlite_databases_locations:
   - '/var/lib/powerdns/pdns.db'
@@ -24,3 +29,9 @@ pdns_mysql_databases_credentials:
     priv_host:                                                        # is injected by Docker into the env
       - '%'
       - 'localhost'
+
+pdns_pgsql_databases_credentials:
+  gpgsql:
+    priv_user: postgres
+    priv_password: "{{ ansible_env.MYSQL_ENV_MYSQL_ROOT_PASSWORD }}"  # The PgSQL root password
+    priv_host: "pgsql"                                                # is injected by Docker into the env

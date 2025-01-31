@@ -24,23 +24,44 @@
   tags:
     - db
     - mysql
+    - pgsql
     - sqlite
     - config
+    - pgsql
+
+- include_tasks: install-dependencies.yml
+  tags:
+    - install
+
+- include_tasks: database-pgsql.yml
+  when:
+    - item.key.split(':')[0] == 'gpgsql'
+    - pdns_create_database | bool
+  with_dict: "{{ pdns_backends }}"
+  tags:
+    - db
+    - pgsql
 
 - include_tasks: database-mysql.yml
-  when: "pdns_mysql_databases_credentials | length > 0"
+  when:
+    - pdns_mysql_databases_credentials | length > 0
+    - pdns_create_database | bool
   tags:
     - db
     - mysql
 
 - include_tasks: database-sqlite3.yml
-  when: "pdns_sqlite_databases_locations | length > 0"
+  when:
+    - pdns_sqlite_databases_locations | length > 0
+    - pdns_create_database | bool
   tags:
     - db
     - sqlite
 
 - include_tasks: database-lmdb.yml
-  when: "pdns_lmdb_databases_locations | length > 0"
+  when:
+    - pdns_lmdb_databases_locations | length > 0
+    - pdns_create_database | bool
   tags:
     - db
     - lmdb

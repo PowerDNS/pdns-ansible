@@ -10,6 +10,11 @@ pdns_mysql_packages:
   - mariadb-connector-c
   - python3-PyMySQL
   - perl-DBD-MySQL
+  
+# Packages to install for PostgreSQL support
+pdns_pgsql_packages:
+  - python3-psycopg2
+  - postgresql
 
 # The name of the PowerDNS Authoritative Server debug package
 default_pdns_debug_symbols_package_name: "pdns-debuginfo"
