@@ -1,12 +1,12 @@
 ---
 
 - name: Install the MySQL dependencies
-  package:
+  ansible.builtin.package:
     name: "{{ pdns_mysql_packages }}"
     state: present
 
 - name: Create the PowerDNS MySQL databases
-  mysql_db:
+  community.mysql.mysql_db:
     login_user: "{{ item['value']['priv_user'] }}"
     login_password: "{{ item['value']['priv_password'] }}"
     login_host: "{{ item['value']['host'] }}"
@@ -18,7 +18,7 @@
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
 - name: Grant PowerDNS access to the MySQL databases
-  mysql_user:
+  community.mysql.mysql_user:
     login_user: "{{ item[0]['priv_user'] }}"
     login_password: "{{ item[0]['priv_password'] }}"
     login_host: "{{ item[0]['host'] }}"
@@ -35,8 +35,9 @@
     - skip_missing: yes
 
 - name: Check if the MySQL databases are empty
-  shell: |-
-    {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}" \
+  ansible.builtin.shell:
+    cmd: |-
+      {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}" \
       --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}" --batch --skip-column-names \
       --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
   when: item.key.split(':')[0] == 'gmysql'
@@ -46,7 +47,7 @@
   changed_when: False
 
 - name: Determine location of the SQL file
-  shell:
+  ansible.builtin.shell:
     cmd: |
       for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql /usr/share/doc/pdns-backend-mysql/schema.mysql.sql /usr/share/pdns-backend-mysql/schema/schema.mysql.sql /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql /usr/share/doc/powerdns/schema.mysql.sql /usr/share/doc/pdns/schema.mysql.sql; do
         if [ -f $p ]; then
@@ -61,14 +62,14 @@
   when: pdns_mysql_schema_file | length == 0
 
 - name: Set the schema file variable
-  set_fact:
+  ansible.builtin.set_fact:
     pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
 
-
 - name: Import the PowerDNS MySQL schema
-  shell: |-
+  ansible.builtin.shell: |-
     {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['item']['value']['user'] }}" --password="{{ item['item']['value']['password'] }}" --host="{{ item['item']['value']['host'] }}" \
       --port="{{ item['item']['port'] | default('3306') }}" "{{ item.item['value']['dbname'] }}" < "{{ pdns_mysql_schema_file_to_use }}"
+  changed_when: True
   no_log: True
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
