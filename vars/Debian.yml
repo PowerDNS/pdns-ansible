@@ -28,3 +28,6 @@ default_pdns_backends_packages:
 
 # The directory where the PowerDNS Authoritative Server configuration is located
 default_pdns_config_dir: "/etc/powerdns"
+
+default_pdns_auth_apt_repo_keyring_path: /etc/apt/keyrings/
+default_pdns_auth_apt_repo_gpg_key: "{{ default_pdns_auth_apt_repo_keyring_path }}powerdns-authoritative.asc"
