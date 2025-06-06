@@ -88,4 +88,3 @@
     update_cache: true
   when: _pdns_auth_repo_apt_file.changed or _pdns_auth_repo_key_installed.changed
   become: true
-
