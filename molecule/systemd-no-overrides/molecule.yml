@@ -36,14 +36,6 @@ platforms:
     dockerfile_tpl: debian-systemd
     environment: { container: docker }
 
-  - name: ubuntu-2004
-    groups: ["pdns"]
-    image: ubuntu:20.04
-    tmpfs:
-      - /run
-      - /tmp
-    dockerfile_tpl: debian-systemd
-
   - name: ubuntu-2204
     groups: ["pdns"]
     image: ubuntu:22.04
