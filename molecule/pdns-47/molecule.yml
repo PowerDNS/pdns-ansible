@@ -77,6 +77,7 @@ provisioner:
   options:
     diff: True
     v: True
+    forks: '1'
   config_options:
     defaults:
       gathering: smart
