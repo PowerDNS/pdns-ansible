@@ -40,14 +40,6 @@ platforms:
     image: oraclelinux:8
     dockerfile_tpl: centos-systemd
 
-  - name: ubuntu-2004
-    groups: ["pdns"]
-    image: ubuntu:20.04
-    tmpfs:
-      - /run
-      - /tmp
-    dockerfile_tpl: debian-systemd
-
   - name: ubuntu-2204
     groups: ["pdns"]
     image: ubuntu:22.04
@@ -106,6 +98,7 @@ provisioner:
   options:
     diff: True
     v: True
+    forks: '1'
   config_options:
     defaults:
       gathering: smart
