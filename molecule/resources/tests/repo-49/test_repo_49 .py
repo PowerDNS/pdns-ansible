@@ -6,7 +6,7 @@ rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
 def test_repo_file(host):
     f = None
     if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/sources.list.d/powerdns-auth-49.list')
+        f = host.file('/etc/apt/sources.list.d/powerdns-authoritative.sources')
     if host.system_info.distribution.lower() in rhel_os:
         f = host.file('/etc/yum.repos.d/powerdns-auth-49.repo')
 
@@ -18,7 +18,7 @@ def test_repo_file(host):
 def test_pdns_repo(host):
     f = None
     if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/sources.list.d/powerdns-auth-49.list')
+        f = host.file('/etc/apt/sources.list.d/powerdns-authoritative.sources')
     if host.system_info.distribution.lower() in rhel_os:
         f = host.file('/etc/yum.repos.d/powerdns-auth-49.repo')
 
