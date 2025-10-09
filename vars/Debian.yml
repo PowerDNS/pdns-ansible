@@ -1,7 +1,10 @@
 ---
-
 # The name of the PowerDNS Authoritative Server package
 default_pdns_package_name: "pdns-server"
+
+# APT keyring path and GPG key for the PowerDNS Authoritative Server repository
+default_pdns_auth_apt_repo_keyring_path: /etc/apt/keyrings/
+default_pdns_auth_apt_repo_gpg_key: "{{ default_pdns_auth_apt_repo_keyring_path }}powerdns-auth.asc"
 
 # The name of the PowerDNS Authoritative Server debug package
 default_pdns_debug_symbols_package_name: "pdns-server-dbg"

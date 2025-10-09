@@ -1,41 +1,77 @@
 ---
-- name: Install gnupg
-  ansible.builtin.package:
-    name: gnupg
-    state: present
+- name: "Remove oneline style apt repo file"
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ pdns_install_repo['name'] }}.list"
+    state: absent
 
-- name: Import the PowerDNS APT Repository key from URL
-  ansible.builtin.apt_key:
-    url: "{{ pdns_install_repo['gpg_key'] }}"
-    id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
-    state: present
-  when: pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
-  register: _pdns_apt_key
-
-- name: Import the PowerDNS APT Repository key from File
-  ansible.builtin.apt_key:
-    data: "{{ lookup('file', pdns_install_repo['gpg_key']) }}"
-    id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
-    state: present
-  when: not pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
-  register: _pdns_apt_key
-
-- name: Add the PowerDNS APT Repository
-  ansible.builtin.apt_repository:
-    filename: "{{ pdns_install_repo['name'] }}"
-    repo: "{{ pdns_install_repo['apt_repo'] }}"
-    state: present
-  register: _pdns_apt_repo
-
-- name: Update the APT cache
+- name: "Install gnupg"
   ansible.builtin.apt:
-    update_cache: yes
-  when: "_pdns_apt_key.changed or _pdns_apt_repo.changed"
+    pkg: gnupg
+    update_cache: true
+    cache_valid_time: 3600
+    state: present
+  register: _gnupg_installed
+  until: _gnupg_installed is succeeded
 
-- name: Pin the PowerDNS APT Repository
-  ansible.builtin.template:
-    src: pdns.pin.j2
-    dest: /etc/apt/preferences.d/pdns
+- name: "Create keyring path on older OS versions ({{ default_pdns_auth_apt_repo_keyring_path }})"
+  ansible.builtin.file:
+    path: "{{ default_pdns_auth_apt_repo_keyring_path }}"
+    state: directory
+    mode: "0755"
+  when:
+    - (ansible_facts['distribution'] == "Ubuntu" and ansible_facts['distribution_major_version'] < "22") or
+      (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] < "12")
+
+- name: "Download gpg key"
+  when: not ansible_check_mode
+  ansible.builtin.get_url:
+    url: "{{ pdns_install_repo['gpg_key'] }}"
+    dest: "{{ default_pdns_auth_apt_repo_gpg_key }}"
+    mode: "0644"
+  register: _pdns_repo_key_installed
+  until: _pdns_repo_key_installed is succeeded
+
+- name: "Installing repository {{ ansible_facts['distribution'] }}"
+  ansible.builtin.copy:
+    dest: "/etc/apt/sources.list.d/powerdns-auth.sources"
     owner: root
     group: root
     mode: 0644
+    content: |
+      Types: deb
+      Enabled: yes
+      URIs: {{ pdns_install_repo['apt_repo'] }}
+      Suites: {{ pdns_install_repo['apt_repo_suite'] }}
+      Components: {{ pdns_auth_apt_repo_deb_component }}
+      Architectures: {{ pdns_auth_apt_repo_arch }}
+      Signed-By: {{ default_pdns_auth_apt_repo_gpg_key }}
+  register: _pdns_auth_repo_apt_file
+
+- name: "Debian | Create /etc/apt/preferences.d/"
+  ansible.builtin.file:
+    path: /etc/apt/preferences.d/
+    state: directory
+    mode: "0755"
+  when:
+    - pdns_auth_apt_repo_priority is defined
+    - (pdns_auth_apt_repo_priority | int) | bool
+
+- name: "Configuring the weight for APT"
+  ansible.builtin.copy:
+    dest: "/etc/apt/preferences.d/{{ pdns_package_name }}"
+    content: |
+      Package: {{ pdns_package_name }}
+      Pin: origin {{ pdns_auth_apt_repo_origin }}
+      Pin-Priority: {{ pdns_auth_apt_repo_priority }}
+    owner: root
+    mode: "0644"
+  when:
+    - pdns_auth_apt_repo_priority is defined
+    - (pdns_auth_apt_repo_priority | int) | bool
+    - pdns_package_name is defined
+
+- name: "Update apt cache if repo was added"
+  ansible.builtin.apt:
+    update_cache: true
+  when: _pdns_auth_repo_apt_file.changed or _pdns_repo_key_installed.changed
+  
