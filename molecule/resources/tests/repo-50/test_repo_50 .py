@@ -40,10 +40,5 @@ def test_repo_pinning_file(host):
 def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
-<<<<<<< HEAD
     assert 'PowerDNS Authoritative Server' in cmd.stdout
     assert '5.0' in cmd.stdout
-=======
-    assert 'PowerDNS Authoritative Server' in cmd.stderr
-    assert '4.9' in cmd.stderr
->>>>>>> a9f4208 (adds pdns50 remove pdns47)
