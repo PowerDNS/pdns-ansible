@@ -19,9 +19,9 @@ jobs:
       fail-fast: false
       matrix:
         ansible:
-          - "2.14"
-          - "2.15"
-          - "2.16"
+          - "2.17"
+          - "2.18"
+          - "2.19"
         scenario:
           - pdns-48
           - pdns-49
@@ -31,9 +31,9 @@ jobs:
           - systemd-no-overrides
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install dependencies
