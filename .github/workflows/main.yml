@@ -23,9 +23,9 @@ jobs:
           - "2.15"
           - "2.16"
         scenario:
-          - pdns-47
           - pdns-48
           - pdns-49
+          - pdns-50
           - pdns-master
           - pdns-os-repos
           - systemd-no-overrides
