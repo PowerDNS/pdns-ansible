@@ -40,5 +40,5 @@ def test_repo_pinning_file(host):
 def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
-    assert 'PowerDNS Authoritative Server' in cmd.stderr
-    assert '4.9' in cmd.stderr
+    assert 'PowerDNS Authoritative Server' in cmd.stdout
+    assert '5.0' in cmd.stdout
