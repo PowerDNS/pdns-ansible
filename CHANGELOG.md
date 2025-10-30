@@ -1,3 +1,11 @@
+## v1.9.0 (UNRELEASED)
+
+NEW FEATURES:
+- Added pdns50
+
+REMOVED / EOL:
+- EOL pdns47
+
 ## v1.8.0 (2023-08-03)
 
 NEW FEATURES:
