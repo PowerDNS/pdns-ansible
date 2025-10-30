@@ -9,9 +9,9 @@ jobs:
   Lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@main
+        uses: ansible/ansible-lint@v25.1.3
   Tests:
     name: Test role on different ansible versions
     runs-on: ubuntu-22.04
