@@ -325,7 +325,7 @@ in the location specified by the `database_name` variable.
   roles:
     - { role: PowerDNS.pdns }
   vars:
-    database_name: '/var/lib/powerdns/db.sqlite'
+    database_name: '/var/lib/powerdns/pdns.sqlite3'
     pdns_config:
       master: true
       slave: false
