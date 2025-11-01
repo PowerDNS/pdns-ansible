@@ -1,5 +1,5 @@
 ansible-lint==24.12.2
-ansible-compat==24.10.0
+ansible-compat==25.1.4
 yamllint==1.35.1
 molecule-plugins[docker]==23.6.0
 molecule-plugins[lint]==23.6.0
