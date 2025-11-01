@@ -3,7 +3,7 @@
 # By default, no PowerDNS Authoritative Server repository will be configured by the role
 pdns_install_repo: ""
 
-# To install tje PowerDNS Authoritative Server from the 'master' official repository
+# To install the PowerDNS Authoritative Server from the 'master' official repository
 # use the following playbook snippet
 # - hosts: all
 #   roles:
@@ -84,8 +84,8 @@ pdns_config_file: "pdns.conf"
 # configuration and the "config-dir", "setuid" and "setgid" directives.
 pdns_config: {}
 # pdns_config:
-#  master: yes
-#  slave: no
+#  primary: yes
+#  secondary: no
 #  local-address: '192.0.2.53'
 #  local-ipv6: '2001:DB8:1::53'
 #  local-port: '5300'
