@@ -63,7 +63,10 @@
     - selinux
     - config
 
-- name: Start and enable the PowerDNS service
+- name: Ensure PowerDNS service name is up to date
+  ansible.builtin.meta: flush_handlers
+
+- name: Set PowerDNS service state
   throttle: 1
   ansible.builtin.service:
     name: "{{ pdns_service_name }}"
