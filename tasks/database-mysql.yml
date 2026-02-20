@@ -14,6 +14,7 @@
     name: "{{ item['value']['dbname'] }}"
     state: present
   when: "item.key.split(':')[0] == 'gmysql'"
+  run_once: "{{ import_mysql_schema_on_first_node_only }}"
   no_log: True
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
@@ -77,5 +78,6 @@
     state: import
     target: "{{ pdns_mysql_schema_file_to_use }}"
   no_log: True
+  run_once: "{{ import_mysql_schema_on_first_node_only }}"
   when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
   with_items: "{{ _pdns_check_mysql_db['results'] }}"
