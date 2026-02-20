@@ -16,6 +16,7 @@
   ansible.builtin.package:
     name: "{{ pdns_package_name }}{{ _pdns_package_version | default('') }}"
     state: present
+  notify: reload systemd
 
 - name: Install PowerDNS debug symbols
   ansible.builtin.package:
