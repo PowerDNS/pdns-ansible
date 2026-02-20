@@ -32,7 +32,6 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
     - { role: PowerDNS.pdns,
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}" }
 
-
 # Install the PowerDNS Authoritative Server from the '4.8.x' official repository
 - hosts: all
   roles:
