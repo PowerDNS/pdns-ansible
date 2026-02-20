@@ -1,6 +1,6 @@
 
 debian_os = ['debian', 'ubuntu']
-rhel_os = ['redhat', 'centos']
+rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
 archlinux_os = ['arch']
 
 
@@ -31,9 +31,11 @@ def test_config(host):
 def test_database_tables(host):
     dbname = host.check_output('hostname -s').replace('.', '_')
 
-    cmd = host.run("mysql --user=\"pdns\" --password=\"pdns\" --host=\"mysql\" " +
-                          "--batch --skip-column-names " +
-                          "--execute=\"SELECT DISTINCT table_name FROM information_schema.columns WHERE table_schema = '%s'\"" % dbname)
+    mysql_cmd = 'mariadb --skip-ssl-verify-server-cert' if host.system_info.distribution.lower() in archlinux_os else 'mysql'
+
+    cmd = host.run(
+        f'{mysql_cmd} --user="pdns" --password="pdns" --host="mysql" --batch --skip-column-names --execute="SELECT DISTINCT table_name FROM information_schema.columns WHERE table_schema = \'{dbname}\'"'
+    )
 
     for table in [ 'domains', 'records', 'supermasters', 'comments',
             'domainmetadata', 'cryptokeys', 'tsigkeys' ]:

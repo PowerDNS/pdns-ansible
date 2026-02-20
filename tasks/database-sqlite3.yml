@@ -1,19 +1,19 @@
 ---
 
 - name: Install the SQLite dependencies on RedHat
-  package:
+  ansible.builtin.package:
     name: sqlite
     state: present
   when: ansible_os_family == 'RedHat'
 
 - name: Install the SQLite dependencies on Debian
-  package:
+  ansible.builtin.package:
     name: sqlite3
     state: present
   when: ansible_os_family == 'Debian'
 
 - name: Ensure that the directories containing the PowerDNS SQLite databases exist
-  file:
+  ansible.builtin.file:
     name: "{{ item | dirname }}"
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
@@ -22,7 +22,7 @@
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - name: Determine location of the SQL file
-  shell:
+  ansible.builtin.shell:
     cmd: |
       for p in /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sql /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql /usr/share/doc/pdns/schema.sqlite3.sql /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql /usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql /usr/share/doc/powerdns/schema.sqlite3.sql; do
         if [ -f $p ]; then
@@ -37,17 +37,17 @@
   when: pdns_sqlite_schema_file | length == 0
 
 - name: Set the schema file variable
-  set_fact:
+  ansible.builtin.set_fact:
     pdns_sqlite_schema_file_to_use: "{% if pdns_sqlite_schema_file | length == 0 %}{{ pdns_sqlite_schema_file_detected.stdout }}{% else %}{{ pdns_sqlite_schema_file }}{% endif %}"
 
 - name: Create the PowerDNS SQLite databases
-  shell: "sqlite3 {{ item }} < {{ pdns_sqlite_schema_file_to_use }}"
+  ansible.builtin.shell: "sqlite3 {{ item }} < {{ pdns_sqlite_schema_file_to_use }}"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - name: Check the PowerDNS SQLite databases permissions
-  file:
+  ansible.builtin.file:
     name: "{{ item }}"
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"

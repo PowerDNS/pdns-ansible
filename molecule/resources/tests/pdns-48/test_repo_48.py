@@ -6,9 +6,9 @@ rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
 def test_repo_file(host):
     f = None
     if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/sources.list.d/powerdns-auth-master.list')
+        f = host.file('/etc/apt/sources.list.d/powerdns-auth-48.list')
     if host.system_info.distribution.lower() in rhel_os:
-        f = host.file('/etc/yum.repos.d/powerdns-auth-master.repo')
+        f = host.file('/etc/yum.repos.d/powerdns-auth-48.repo')
 
     assert f.exists
     assert f.user == 'root'
@@ -18,12 +18,12 @@ def test_repo_file(host):
 def test_pdns_repo(host):
     f = None
     if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/sources.list.d/powerdns-auth-master.list')
+        f = host.file('/etc/apt/sources.list.d/powerdns-auth-48.list')
     if host.system_info.distribution.lower() in rhel_os:
-        f = host.file('/etc/yum.repos.d/powerdns-auth-master.repo')
+        f = host.file('/etc/yum.repos.d/powerdns-auth-48.repo')
 
     assert f.exists
-    assert f.contains('auth-master')
+    assert f.contains('auth-48')
 
 
 def test_repo_pinning_file(host):
@@ -40,5 +40,5 @@ def test_repo_pinning_file(host):
 def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
-    assert 'PowerDNS Authoritative Server' in cmd.stderr or 'PowerDNS Authoritative Server' in cmd.stdout
-    assert 'master' in cmd.stderr or 'master' in cmd.stdout
+    assert 'PowerDNS Authoritative Server' in cmd.stderr
+    assert '4.8' in cmd.stderr
