@@ -18,14 +18,10 @@
       owner: root
       group: root
       mode: 0644
-    register: _pdns_override_unit
+    notify:
+      - reload systemd
+      - restart pdns
     when: pdns_service_overrides | length > 0
-
-  - name: Reload systemd
-    ansible.builtin.systemd:
-      daemon_reload: yes
-    when: not pdns_disable_handlers
-      and _pdns_override_unit.changed
 
 - name: Ensure that the PowerDNS configuration directory exists
   ansible.builtin.file:
@@ -42,7 +38,7 @@
     owner: "{{ pdns_file_owner }}"
     group: "{{ pdns_file_group }}"
     mode: 0640
-  register: _pdns_configuration
+  notify: restart pdns
 
 - name: Ensure that the PowerDNS 'include-dir' directory exists
   ansible.builtin.file:
@@ -52,13 +48,3 @@
     group: "{{ pdns_file_group }}"
     mode: 0750
   when: "pdns_config['include-dir'] is defined"
-
-- name: Restart PowerDNS
-  ansible.builtin.service:
-    name: "{{ pdns_service_name }}"
-    state: restarted
-    sleep: 1
-  when: not pdns_disable_handlers
-    and pdns_service_state != 'stopped'
-    and (_pdns_override_unit.changed
-      or _pdns_configuration.changed)
