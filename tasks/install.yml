@@ -28,6 +28,7 @@
   ansible.builtin.package:
     name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}{{ _pdns_package_version | default('') }}"
     state: present
-  no_log: True
   when: pdns_backends_packages[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
+  loop_control:
+    label: "{{ item.key }}"
