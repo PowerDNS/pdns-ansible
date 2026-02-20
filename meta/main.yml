@@ -11,16 +11,17 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-        - 7
-        - 8
+        - "8"
+        - "9"
     - name: Debian
       versions:
-        - stretch
-        - buster
+        - bullseye
+        - bookworm
     - name: Ubuntu
       versions:
-        - bionic
         - focal
+        - jammy
+        - noble
     - name: ArchLinux
   galaxy_tags:
     - system

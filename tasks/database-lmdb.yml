@@ -1,7 +1,7 @@
 ---
 
 - name: Ensure that the directories containing the PowerDNS LMDB databases exist
-  file:
+  ansible.builtin.file:
     name: "{{ item | dirname }}"
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"

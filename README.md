@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.9 or higher installation.
+An Ansible 2.12 or higher installation.
 
 ## Dependencies
 
@@ -32,7 +32,8 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
     - { role: PowerDNS.pdns,
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}" }
 
-# Install the PowerDNS Authoritative Server from the '4.5.x' official repository
+        
+# Install the PowerDNS Authoritative Server from the '4.8.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
@@ -44,7 +45,7 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
     - { role: PowerDNS.pdns,
         pdns_install_repo: "{{ pdns_auth_powerdns_repo_46 }}" }
 
-# Install the PowerDNS Authoritative Server from the '4.7.x' official repository
+# Install the PowerDNS Authoritative Server from the '5.0.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
@@ -149,8 +150,8 @@ For example:
 
 ```yaml
 pdns_config:
-  master: yes
-  slave: no
+  primary: yes
+  secondary: no
   local-address: '192.0.2.53'
   local-ipv6: '2001:DB8:1::53'
   local-port: '5300'
@@ -246,7 +247,7 @@ pdns_sqlite3_schema_file: ''
 
 ## Example Playbooks
 
-Run as a master using the bind backend (when you already have a `named.conf` file):
+Run as a primary using the bind backend (when you already have a `named.conf` file):
 
 ```yaml
 - hosts: ns1.example.net
@@ -254,7 +255,7 @@ Run as a master using the bind backend (when you already have a `named.conf` fil
     - { role: PowerDNS.pdns }
   vars:
     pdns_config:
-      master: true
+      primary: true
       local-address: '192.0.2.53'
     pdns_backends:
       bind:
@@ -270,8 +271,8 @@ Provides also the MySQL administrative credentials to automatically create and i
     - { role: PowerDNS.pdns }
   vars:
     pdns_config:
-      master: true
-      slave: false
+      primary: true
+      secondary: false
       local-address: '192.0.2.77'
     pdns_backends:
       gmysql:
@@ -291,7 +292,7 @@ Provides also the MySQL administrative credentials to automatically create and i
 
 **NOTE:** In this case the role will use the credentials provided in `pdns_mysql_databases_credentials` to automatically create and initialize the user (`user`, `password`) and database (`dbname`) connecting to the MySQL server (`host`, `port`).
 
-Configure PowerDNS Authoritative Server in 'master' mode reading zones from two different PostgreSQL databases:
+Configure PowerDNS Authoritative Server in 'primary' mode reading zones from two different PostgreSQL databases:
 
 ```yaml
 - hosts: ns2.example.net
@@ -299,7 +300,7 @@ Configure PowerDNS Authoritative Server in 'master' mode reading zones from two 
     - { role: PowerDNS.pdns }
   vars:
     pdns_config:
-      master: true
+      primary: true
       local-port: 5300
       local-address: '192.0.2.111'
     pdns_backends:
@@ -324,10 +325,10 @@ in the location specified by the `database_name` variable.
   roles:
     - { role: PowerDNS.pdns }
   vars:
-    database_name: '/var/lib/powerdns/db.sqlite'
+    database_name: '/var/lib/powerdns/pdns.sqlite3'
     pdns_config:
-      master: true
-      slave: false
+      primary: true
+      secondary: false
       local-address: '192.0.2.73'
     pdns_backends:
       gsqlite3:
@@ -353,7 +354,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e ansible210 -- molecule test -s pdns-44
+    $ tox -e ansible214 -- molecule test -s pdns-49
 
 ## License
 

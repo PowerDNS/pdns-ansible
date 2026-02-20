@@ -1,14 +1,14 @@
 
 debian_os = ['debian', 'ubuntu']
-rhel_os = ['redhat', 'centos', 'ol']
+rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
 
 
 def test_repo_file(host):
     f = None
     if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/sources.list.d/powerdns-auth-46.list')
+        f = host.file('/etc/apt/sources.list.d/powerdns-auth-48.list')
     if host.system_info.distribution.lower() in rhel_os:
-        f = host.file('/etc/yum.repos.d/powerdns-auth-46.repo')
+        f = host.file('/etc/yum.repos.d/powerdns-auth-48.repo')
 
     assert f.exists
     assert f.user == 'root'
@@ -18,12 +18,12 @@ def test_repo_file(host):
 def test_pdns_repo(host):
     f = None
     if host.system_info.distribution.lower() in debian_os:
-        f = host.file('/etc/apt/sources.list.d/powerdns-auth-46.list')
+        f = host.file('/etc/apt/sources.list.d/powerdns-auth-48.list')
     if host.system_info.distribution.lower() in rhel_os:
-        f = host.file('/etc/yum.repos.d/powerdns-auth-46.repo')
+        f = host.file('/etc/yum.repos.d/powerdns-auth-48.repo')
 
     assert f.exists
-    assert f.contains('auth-46')
+    assert f.contains('auth-48')
 
 
 def test_repo_pinning_file(host):
@@ -41,4 +41,4 @@ def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
     assert 'PowerDNS Authoritative Server' in cmd.stderr
-    assert '4.6' in cmd.stderr
+    assert '4.8' in cmd.stderr

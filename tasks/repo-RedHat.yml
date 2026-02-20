@@ -2,38 +2,45 @@
 
 - block:
 
-  - name: Install epel-release on CentOS
-    yum:
-      name: epel-release
-      state: present
-    when: ansible_distribution in [ 'CentOS' ]
+    - name: Install epel-release on CentOS
+      yum:
+        name: epel-release
+        state: present
+      when: ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
 
-  - name: Install epel-release on RHEL
-    package:
-      name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
-      state: present
-    when: ansible_distribution in [ 'RedHat' ]
+    - name: Install epel-release on RHEL
+      package:
+        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+        state: present
+      when: ansible_distribution in [ 'RedHat' ]
 
-  - name: Install epel-release and hostname on OracleLinux
-    package:
-      name: 
-      - "oracle-epel-release-el{{ ansible_distribution_major_version }}"
-      - hostname
-      state: present
-    when: ansible_distribution in [ 'OracleLinux' ]
-
-  when: pdns_install_epel
+    - name: Install epel-release and hostname on OracleLinux
+      package:
+        name:
+          - "oracle-epel-release-el{{ ansible_distribution_major_version }}"
+          - hostname
+        state: present
+      
+      when: ansible_distribution in [ 'OracleLinux' ]
 
 - name: Install yum-plugin-priorities
-  package:
+  ansible.builtin.package:
     name: yum-plugin-priorities
     state: present
   when:
-    - ansible_distribution in [ 'CentOS' ]
+    - ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
     - ansible_distribution_major_version | int < 8
 
+- name: Install policycoreutils-python-utils to manage an SELinux environment.
+  package:
+    name: policycoreutils-python-utils
+    state: present
+  when:
+    - ansible_distribution in [ 'RedHat' 'CentOS', 'Rocky', 'AlmaLinux' ]
+    - ansible_distribution_major_version | int > 9
+
 - name: Add the PowerDNS YUM Repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: "{{ pdns_install_repo['name'] }}"
     file: "{{ pdns_install_repo['name'] }}"
     description: PowerDNS Authoritative Server
@@ -44,7 +51,7 @@
     state: present
 
 - name: Add the PowerDNS debug symbols YUM Repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: "{{ pdns_install_repo['name'] }}-debuginfo"
     file: "{{ pdns_install_repo['name'] }}"
     description: PowerDNS Authoritative Server - debug symbols
