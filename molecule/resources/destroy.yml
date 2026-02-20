@@ -8,7 +8,7 @@
     - vars/molecule.yml
   tasks:
     - name: Destroy the target Platforms instance(s)
-      docker_container:
+      community.docker.docker_container:
         name: "{{ item.name }}"
         state: absent
         force_kill: "{{ item.force_kill | default(True) }}"

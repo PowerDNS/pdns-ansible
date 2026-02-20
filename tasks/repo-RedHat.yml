@@ -1,5 +1,7 @@
 ---
+
 - block:
+
     - name: Install epel-release on CentOS
       yum:
         name: epel-release
@@ -18,12 +20,11 @@
           - "oracle-epel-release-el{{ ansible_distribution_major_version }}"
           - hostname
         state: present
+      
       when: ansible_distribution in [ 'OracleLinux' ]
 
-  when: pdns_install_epel
-
 - name: Install yum-plugin-priorities
-  package:
+  ansible.builtin.package:
     name: yum-plugin-priorities
     state: present
   when:
@@ -39,7 +40,7 @@
     - ansible_distribution_major_version | int > 9
 
 - name: Add the PowerDNS YUM Repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: "{{ pdns_install_repo['name'] }}"
     file: "{{ pdns_install_repo['name'] }}"
     description: PowerDNS Authoritative Server
@@ -50,7 +51,7 @@
     state: present
 
 - name: Add the PowerDNS debug symbols YUM Repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: "{{ pdns_install_repo['name'] }}-debuginfo"
     file: "{{ pdns_install_repo['name'] }}"
     description: PowerDNS Authoritative Server - debug symbols

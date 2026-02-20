@@ -10,11 +10,6 @@ dependency:
   name: galaxy
 
 platforms:
-  - name: centos-7
-    groups: ["pdns"]
-    image: centos:7
-    dockerfile_tpl: centos-systemd
-
   - name: rockylinux-8
     groups: ["pdns"]
     image: rockylinux:8
@@ -45,17 +40,30 @@ platforms:
     image: oraclelinux:8
     dockerfile_tpl: centos-systemd
 
-  - name: ubuntu-2004
+  - name: ubuntu-2204
     groups: ["pdns"]
-    image: ubuntu:20.04
+    image: ubuntu:22.04
     tmpfs:
       - /run
       - /tmp
     dockerfile_tpl: debian-systemd
 
-  - name: debian-10
+  - name: debian-11
     groups: ["pdns"]
-    image: debian:10
+    image: debian:11
+    privileged: True
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    dockerfile_tpl: debian-systemd
+    environment: { container: docker }
+
+  - name: debian-12
+    groups: ["pdns"]
+    image: debian:12
     privileged: True
     volume_mounts:
       - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
@@ -82,6 +90,7 @@ provisioner:
   options:
     diff: True
     v: True
+    forks: '1'
   config_options:
     defaults:
       gathering: smart
@@ -116,4 +125,3 @@ verifier:
     - ../backend-sqlite/
     - ../backend-mysql/
     - ../systemd-override/
-
