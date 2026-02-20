@@ -84,8 +84,8 @@ pdns_config_file: "pdns.conf"
 # configuration and the "config-dir", "setuid" and "setgid" directives.
 pdns_config: {}
 # pdns_config:
-#  master: yes
-#  slave: no
+#  primary: yes
+#  secondary: no
 #  local-address: '192.0.2.53'
 #  local-ipv6: '2001:DB8:1::53'
 #  local-port: '5300'
