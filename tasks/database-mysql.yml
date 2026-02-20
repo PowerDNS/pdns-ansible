@@ -69,8 +69,7 @@
   ansible.builtin.set_fact:
     pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
 
-- name: Import the PowerDNS MySQL schema
-  changed_when: True
+- name: "Import the PowerDNS MySQL schema from {{ pdns_mysql_schema_file_to_use }}"
   mysql_db:
     login_user: "{{ item['item']['value']['user'] }}"
     login_password: "{{ item['item']['value']['password'] }}"
