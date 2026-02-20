@@ -20,7 +20,6 @@
           - "oracle-epel-release-el{{ ansible_distribution_major_version }}"
           - hostname
         state: present
-
       when: ansible_distribution in [ 'OracleLinux' ]
 
 - name: Install yum-plugin-priorities
