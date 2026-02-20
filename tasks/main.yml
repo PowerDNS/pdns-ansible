@@ -51,6 +51,14 @@
     - db
     - sqlite
 
+- ansible.builtin.include: database-named.yml
+  when:
+    - pdns_backends.get('bind', False)
+    - pdns_named_config
+  tags:
+    - db
+    - named
+
 - name: Install and configure LMDB database
   ansible.builtin.include_tasks: database-lmdb.yml
   when: "pdns_lmdb_databases_locations | length > 0"
