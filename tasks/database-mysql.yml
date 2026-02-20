@@ -30,15 +30,17 @@
     priv: "{{ item[0]['dbname'] }}.*:ALL"
     append_privs: yes
     state: present
+  when: pdns_mysql_databases_credentials
   no_log: True
   with_subelements:
     - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host
     - skip_missing: yes
 
+# TODO: add support for file socket connections instead of host/port combos
 - name: Check if the MySQL databases are empty
   command: >
-    mysql --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
+    {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
     {% if not (pdns_mysql_query_use_socket | default(false)) %} --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}"{% endif %}
     --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"

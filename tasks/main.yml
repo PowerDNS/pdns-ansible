@@ -36,10 +36,10 @@
   tags:
     - selinux
     - config
-    
+
 - name: Install and configure MySQL database
   ansible.builtin.include_tasks: database-mysql.yml
-  when: "pdns_mysql_databases_credentials | length > 0"
+  when: "'gmysql' in pdns_backends"
   tags:
     - db
     - mysql
@@ -70,7 +70,7 @@
   ansible.builtin.include_tasks: configure.yml
   tags:
     - config
-    
+
 - name: Ensure PowerDNS service name is up to date
   ansible.builtin.meta: flush_handlers
 
