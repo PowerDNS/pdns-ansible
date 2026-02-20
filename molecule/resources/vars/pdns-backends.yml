@@ -6,7 +6,7 @@
 
 pdns_backends:
   gsqlite3:
-    database: /var/lib/powerdns/pdns.db
+    database: /var/lib/powerdns/pdns.sqlite3
     dnssec: yes
   gmysql:
     host: "mysql"                                          # This is relying on Docker's service discovery
@@ -15,7 +15,7 @@ pdns_backends:
     password: pdns
 
 pdns_sqlite_databases_locations:
-  - '/var/lib/powerdns/pdns.db'
+  - '/var/lib/powerdns/pdns.sqlite3'
 
 pdns_mysql_databases_credentials:
   gmysql:
