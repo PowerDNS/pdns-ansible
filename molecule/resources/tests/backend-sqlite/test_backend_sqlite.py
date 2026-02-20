@@ -1,6 +1,6 @@
 
 debian_os = ['debian', 'ubuntu']
-rhel_os = ['redhat', 'centos']
+rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
 archlinux_os = ['arch']
 
 
@@ -15,7 +15,7 @@ def test_package(host):
 
 
 def test_database_exists(host):
-    f = host.file('/var/lib/powerdns/pdns.db')
+    f = host.file('/var/lib/powerdns/pdns.sqlite3')
     user = 'pdns'
     if host.system_info.distribution.lower() in archlinux_os:
         user = 'powerdns'

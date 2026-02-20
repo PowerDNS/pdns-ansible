@@ -6,8 +6,8 @@
 
 pdns_config:
 
-  # Turns on master operations
-  master: true
+  # Turns on primary operations
+  primary: true
 
   # Listen Address
   local-address: "127.0.0.1"

@@ -2,31 +2,40 @@
 on:
   push:
   pull_request:
+  schedule:
+    - cron: '33 5 * * 0'
 
 jobs:
+  Lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@main
   Tests:
     name: Test role on different ansible versions
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         ansible:
-          - '2.9'
-          - '2.10'
-          - '2.11'
+          - "2.14"
+          - "2.15"
+          - "2.16"
         scenario:
-          - pdns-43
-          - pdns-44
-          - pdns-45
+          - pdns-48
+          - pdns-49
+          - pdns-50
           - pdns-master
           - pdns-os-repos
           - systemd-no-overrides
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.6
+          python-version: "3.11"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
