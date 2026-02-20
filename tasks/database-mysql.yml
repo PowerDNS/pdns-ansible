@@ -30,6 +30,7 @@
     append_privs: yes
     state: present
   when: pdns_mysql_databases_credentials
+  no_log: True
   with_subelements:
     - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host
