@@ -1,0 +1,33 @@
+---
+
+# The name of the PowerDNS Authoritative Server package
+default_pdns_package_name: "pdns"
+
+# Packages needed to install MySQL
+pdns_mysql_packages:
+  - mariadb
+  - mariadb-server
+  - mariadb-connector-c
+  - python3-PyMySQL
+  - perl-DBD-MySQL
+
+# The name of the PowerDNS Authoritative Server debug package
+default_pdns_debug_symbols_package_name: "pdns-debuginfo"
+
+# List of PowerDNS Authoritative Server backends packages on RedHat
+default_pdns_backends_packages:
+  geo: pdns-backend-geo
+  geoip: pdns-backend-geoip
+  gmysql: pdns-backend-mysql
+  gpgsql: pdns-backend-postgresql
+  gsqlite3: pdns-backend-sqlite
+  ldap: pdns-backend-ldap
+  lmdb: pdns-backend-lmdb
+  lua: pdns-backend-lua
+  mydns: pdns-backend-mydns
+  pipe: pdns-backend-pipe
+  remote: pdns-backend-remote
+  tinydns: pdns-backend-tinydns
+
+# The directory where the PowerDNS Authoritative Server configuration is located
+default_pdns_config_dir: "/etc/pdns"

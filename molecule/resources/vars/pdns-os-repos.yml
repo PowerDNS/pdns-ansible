@@ -1,0 +1,29 @@
+---
+
+##
+# PowerDNS Configuration
+##
+
+_pdns_config_base:
+
+  # Listen Address
+  local-address: "127.0.0.1"
+  local-port: "53"
+
+  # API Configuration
+  api: yes
+  api-key: "powerdns"
+
+  # Embedded webserver
+  webserver: yes
+  webserver-address: "0.0.0.0"
+  webserver-port: "8001"
+
+# Turns on master operations
+_pdns_config_primary:
+  primary: true
+
+pdns_config: "{{ _pdns_config_base | combine(_pdns_config_legacy | default(_pdns_config_primary), recursive=True) }}"
+
+pdns_service_overrides:
+  LimitCORE: infinity

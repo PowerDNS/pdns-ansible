@@ -1,0 +1,26 @@
+---
+
+##
+# PowerDNS Configuration
+##
+
+pdns_config:
+
+  # Turns on primary operations
+  primary: true
+
+  # Listen Address
+  local-address: "127.0.0.1"
+  local-port: "53"
+
+  # API Configuration
+  api: yes
+  api-key: "powerdns"
+
+  # Embedded webserver
+  webserver: yes
+  webserver-address: "0.0.0.0"
+  webserver-port: "8001"
+
+pdns_install_repo: "{{ pdns_auth_powerdns_repo_49 }}"
+pdns_service_overrides: ''

@@ -1,0 +1,8 @@
+---
+- name: PDNS OS Repos
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-os-repos.yml
+    - ../resources/vars/pdns-backends.yml
+  roles:
+    - { role: powerdns.pdns }

@@ -1,6 +1,6 @@
 # Ansible Role: PowerDNS Authoritative Server
 
-[![Build Status](https://travis-ci.org/PowerDNS/pdns-ansible.svg?branch=master)](https://travis-ci.org/PowerDNS/pdns-ansible)
+[![Build Status](https://github.com/PowerDNS/pdns-ansible/actions/workflows/main.yml/badge.svg)](https://github.com/PowerDNS/pdns-ansible)
 [![License](https://img.shields.io/badge/license-MIT%20License-brightgreen.svg)](https://opensource.org/licenses/MIT)
 [![Ansible Role](https://img.shields.io/badge/ansible%20role-PowerDNS.pdns-blue.svg)](https://galaxy.ansible.com/PowerDNS/pdns)
 [![GitHub tag](https://img.shields.io/github/tag/PowerDNS/pdns-ansible.svg)](https://github.com/PowerDNS/pdns-ansible/tags)
@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.2 or higher installation.
+An Ansible 2.12 or higher installation.
 
 ## Dependencies
 
@@ -30,19 +30,26 @@ By default, the PowerDNS Authoritative Server is installed from the software rep
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_master }}" }
 
-# Install the PowerDNS Authoritative Server from the '4.1.x' official repository
+        
+# Install the PowerDNS Authoritative Server from the '4.8.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_41 }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_45 }}" }
 
-# Install the PowerDNS Authoritative Server from the '4.2.x' official repository
+# Install the PowerDNS Authoritative Server from the '4.6.x' official repository
 - hosts: all
   roles:
     - { role: PowerDNS.pdns,
-        pdns_install_repo: "{{ pdns_auth_powerdns_repo_42 }}"
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_46 }}" }
+
+# Install the PowerDNS Authoritative Server from the '5.0.x' official repository
+- hosts: all
+  roles:
+    - { role: PowerDNS.pdns,
+        pdns_install_repo: "{{ pdns_auth_powerdns_repo_47 }}" } 
 ```
 
 The examples above, show how to install the PowerDNS Authoritative Server from the official PowerDNS repositories
@@ -64,6 +71,7 @@ The examples above, show how to install the PowerDNS Authoritative Server from t
 ```
 
 It is also possible to install the PowerDNS Authoritative Server from custom repositories as demonstrated in the example above.
+**Note:** These repositories are ignored on Arch Linux
 
 ```yaml
  pdns_install_epel: True
@@ -142,8 +150,8 @@ For example:
 
 ```yaml
 pdns_config:
-  master: yes
-  slave: no
+  primary: yes
+  secondary: no
   local-address: '192.0.2.53'
   local-ipv6: '2001:DB8:1::53'
   local-port: '5300'
@@ -152,7 +160,9 @@ pdns_config:
 configures PowerDNS Authoritative Server to listen incoming DNS requests on port 5300.
 
 ```yaml
-pdns_service_overrides: {}
+pdns_service_overrides:
+  User: {{ pdns_user }}
+  Group: {{ pdns_group }}
 ```
 
 Dict with overrides for the service (systemd only).
@@ -210,7 +220,7 @@ pdns_mysql_databases_credentials:
       - "localhost"
 ```
 
-Notice that this must only containes the credentials
+Notice that this must only contain the credentials
 for the `gmysql` backends provided in `pdns_backends`.
 
 ```yaml
@@ -220,9 +230,24 @@ pdns_sqlite_databases_locations: []
 Locations of the SQLite3 databases that have to be created if using the
 `gsqlite3` backend.
 
+```yaml
+pdns_lmdb_databases_locations: []
+```
+
+Locations of the LMDB databases that have to be created if using the
+`lmdb` backend.
+
+Locations of the mysql and sqlite3 base schema.
+When set, this value is used and they are not automatically detected.
+```yaml
+pdns_mysql_schema_file: ''
+
+pdns_sqlite3_schema_file: ''
+```
+
 ## Example Playbooks
 
-Run as a master using the bind backend (when you already have a `named.conf` file):
+Run as a primary using the bind backend (when you already have a `named.conf` file):
 
 ```yaml
 - hosts: ns1.example.net
@@ -230,7 +255,7 @@ Run as a master using the bind backend (when you already have a `named.conf` fil
     - { role: PowerDNS.pdns }
   vars:
     pdns_config:
-      master: true
+      primary: true
       local-address: '192.0.2.53'
     pdns_backends:
       bind:
@@ -246,8 +271,8 @@ Provides also the MySQL administrative credentials to automatically create and i
     - { role: PowerDNS.pdns }
   vars:
     pdns_config:
-      master: true
-      slave: false
+      primary: true
+      secondary: false
       local-address: '192.0.2.77'
     pdns_backends:
       gmysql:
@@ -267,7 +292,7 @@ Provides also the MySQL administrative credentials to automatically create and i
 
 **NOTE:** In this case the role will use the credentials provided in `pdns_mysql_databases_credentials` to automatically create and initialize the user (`user`, `password`) and database (`dbname`) connecting to the MySQL server (`host`, `port`).
 
-Configure PowerDNS Authoritative Server in 'master' mode reading zones from two different PostgreSQL databases:
+Configure PowerDNS Authoritative Server in 'primary' mode reading zones from two different PostgreSQL databases:
 
 ```yaml
 - hosts: ns2.example.net
@@ -275,7 +300,7 @@ Configure PowerDNS Authoritative Server in 'master' mode reading zones from two 
     - { role: PowerDNS.pdns }
   vars:
     pdns_config:
-      master: true
+      primary: true
       local-port: 5300
       local-address: '192.0.2.111'
     pdns_backends:
@@ -300,10 +325,10 @@ in the location specified by the `database_name` variable.
   roles:
     - { role: PowerDNS.pdns }
   vars:
-    database_name: '/var/lib/powerdns/db.sqlite'
+    database_name: '/var/lib/powerdns/pdns.sqlite3'
     pdns_config:
-      master: true
-      slave: false
+      primary: true
+      secondary: false
       local-address: '192.0.2.73'
     pdns_backends:
       gsqlite3:
@@ -329,7 +354,7 @@ To test all the scenarios run
 
 To run a custom molecule command
 
-    $ tox -e py27-ansible27 -- molecule test -s pdns-42
+    $ tox -e ansible214 -- molecule test -s pdns-49
 
 ## License
 

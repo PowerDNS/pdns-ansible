@@ -1,6 +1,6 @@
 
 debian_os = ['debian', 'ubuntu']
-rhel_os = ['redhat', 'centos']
+rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
 
 
 def test_repo_file(host):
@@ -26,8 +26,19 @@ def test_pdns_repo(host):
     assert f.contains('auth-master')
 
 
+def test_repo_pinning_file(host):
+    if host.system_info.distribution.lower() in debian_os:
+        f = host.file('/etc/apt/preferences.d/pdns')
+        assert f.exists
+        assert f.user == 'root'
+        assert f.group == 'root'
+        f.contains('Package: pdns-*')
+        f.contains('Pin: origin repo.powerdns.com')
+        f.contains('Pin-Priority: 600')
+
+
 def test_pdns_version(host):
     cmd = host.run('/usr/sbin/pdns_server --version')
 
-    assert 'PowerDNS Authoritative Server' in cmd.stderr
-    assert 'master' in cmd.stderr
+    assert 'PowerDNS Authoritative Server' in cmd.stderr or 'PowerDNS Authoritative Server' in cmd.stdout
+    assert 'master' in cmd.stderr or 'master' in cmd.stdout

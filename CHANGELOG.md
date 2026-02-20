@@ -1,3 +1,69 @@
+## v1.9.0 (UNRELEASED)
+
+NEW FEATURES:
+- Added pdns50
+
+REMOVED / EOL:
+- EOL pdns47
+
+## v1.8.0 (2023-08-03)
+
+NEW FEATURES:
+- Added pdns48 repository and CI ([\#180](https://github.com/PowerDNS/pdns-ansible/pull/180))
+- Added support for OL9 ([\#145](https://github.com/PowerDNS/pdns-ansible/pull/145))
+- Added pdns47 repository and CI ([\#135](https://github.com/PowerDNS/pdns-ansible/pull/135))
+- Replaced Centos8 with OL8 ([\#133](https://github.com/PowerDNS/pdns-ansible/pull/133))
+- Added pdns46 repository and CI ([\#117](https://github.com/PowerDNS/pdns-ansible/pull/117))
+
+IMPROVEMENTS:
+- Bump versions and various fixes in CI and README.md ([\#179](https://github.com/PowerDNS/pdns-ansible/pull/179)
+- Bump versions in requirements.txt ([\#144](https://github.com/PowerDNS/pdns-ansible/pull/144))
+- Removal of deprecation warning ([\#121](https://github.com/PowerDNS/pdns-ansible/pull/121))
+- Do not restart all servers at once ([\#109](https://github.com/PowerDNS/pdns-ansible/pull/109))
+- Prevent logging of password information ([\#106](https://github.com/PowerDNS/pdns-ansible/pull/106))
+
+REMOVED FEATURES:
+- Drop pdns45, support for Debian 9 ([\#179](https://github.com/PowerDNS/pdns-ansible/pull/179)) EOL
+- Drop Ansible v2.9 - v2.10 - v2.11 from CI  and removed pdns43 and pdns44 ([\#144](https://github.com/PowerDNS/pdns-ansible/pull/144)) for EOL
+
+BUG FIXES:
+- Add MySQL schema path with PowerDNS 4.6 and Rocky Linux 8 with EPEL package installation ([\#114](https://github.com/PowerDNS/pdns-ansible/pull/114))
+
+## v1.7.0 (2021-07-01)
+
+NEW FEATURES:
+- Create directory, set the ownership and permissions for LMDB databases ([\#95](https://github.com/PowerDNS/pdns-ansible/pull/95))
+- Add database schema file detection on the target system with override possibility ([\#100](https://github.com/PowerDNS/pdns-ansible/pull/100))
+- Add 4.4 repositories ([\#91](https://github.com/PowerDNS/pdns-ansible/pull/91))
+
+IMPROVEMENTS:
+- Use systemd task option `daemon_reload` instead of command task ([\#90](https://github.com/PowerDNS/pdns-ansible/pull/90))
+
+REMOVED FEATURES:
+- Drop EL6 support ([\#91](https://github.com/PowerDNS/pdns-ansible/pull/91), [\#94](https://github.com/PowerDNS/pdns-ansible/pull/94))
+- Remove 4.1 and 4.2 repositories ([\#101](https://github.com/PowerDNS/pdns-ansible/pull/101))
+
+BUG FIXES:
+- Re-instate molecule tests ([\#100](https://github.com/PowerDNS/pdns-ansible/pull/100))
+
+## v1.6.1 (2020-10-01)
+
+BUG FIXES:
+- Ensure install does not fail when no overrides are defined ([\#85](https://github.com/PowerDNS/pdns-ansible/pull/85))
+- Ensure that `ExecStart` is overridden, not appended to ([\#86](https://github.com/PowerDNS/pdns-ansible/pull/86))
+
+## v1.6.0 (2020-09-18)
+
+BUG FIXES:
+- Fix path to MySQL schema for Debian 10 ([\#73](https://github.com/PowerDNS/pdns-ansible/pull/73))
+
+IMPROVEMENTS:
+- Allow loading apt key from the ansible server ([\#75](https://github.com/PowerDNS/pdns-ansible/pull/75))
+- CentOS 8 support ([\#74](https://github.com/PowerDNS/pdns-ansible/pull/74), [\#81](https://github.com/PowerDNS/pdns-ansible/pull/81))
+- Archlinux support ([\#76](https://github.com/PowerDNS/pdns-ansible/pull/76))
+- Set the ownership and permissions for config files and databases ([\#82](https://github.com/PowerDNS/pdns-ansible/pull/82))
+- Ensure PowerDNS is started as an unprivileged user by default (in line with PowerDNS 4.3+ behaviour)
+
 ## v1.5.0 (2019-12-11)
 
 BUG FIXES:

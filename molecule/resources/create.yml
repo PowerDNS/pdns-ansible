@@ -8,35 +8,40 @@
     - vars/molecule.yml
   tasks:
 
-    - set_fact:
+    - name: Get list of service instances
+      ansible.builtin.set_fact:
         molecule_service_instances: "{{ molecule_yml.platforms | selectattr('is_service', 'defined') | selectattr('is_service') | list }}"
-    - set_fact:
+
+    - name: Get list of platform instances
+      ansible.builtin.set_fact:
         molecule_platform_instances: "{{ molecule_yml.platforms | difference(molecule_service_instances) }}"
 
     - name: Create Dockerfiles from image names
-      template:
+      ansible.builtin.template:
         src: "Dockerfile.{{ item.dockerfile_tpl | default('default') }}.j2"
         dest: "{{ molecule_ephemeral_directory }}/Dockerfile_{{ item.image | regex_replace('[^a-zA-Z0-9_]', '_') }}"
+        mode: '0644'
       with_items: "{{ molecule_platform_instances }}"
       register: platforms
 
     - name: Discover local Docker images
-      docker_image_facts:
+      community.docker.docker_image_info:
         name: "molecule_pdns/{{ item.item.name }}"
       with_items: "{{ platforms.results }}"
       register: docker_images
 
     - name: Build an Ansible compatible image
-      docker_image:
-        path: "{{ molecule_ephemeral_directory }}"
+      community.docker.docker_image:
+        source: build
         name: "molecule_pdns/{{ item.item.image }}"
-        dockerfile: "{{ item.item.dockerfile | default(item.invocation.module_args.dest) }}"
-        force: "{{ item.item.force | default(True) }}"
+        build:
+          path: "{{ molecule_ephemeral_directory }}"
+          dockerfile: "{{ item.item.dockerfile | default(item.invocation.module_args.dest) }}"
       with_items: "{{ platforms.results }}"
       when: platforms.changed or docker_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
 
     - name: Create molecule instance(s)
-      docker_container:
+      community.docker.docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
         image: "{{ item.image }}"
@@ -48,7 +53,7 @@
       with_items: "{{ molecule_service_instances }}"
 
     - name: Create the required Services instance(s)
-      docker_container:
+      community.docker.docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
         image: "molecule_pdns/{{ item.image }}"
@@ -59,5 +64,6 @@
         privileged: "yes"
         volumes:
           # Mount the cgroups fs to allow SystemD to run into the containers
-          - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+          - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+        cgroupns_mode: host
       with_items: "{{ molecule_platform_instances }}"

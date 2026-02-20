@@ -3,7 +3,7 @@
 # By default, no PowerDNS Authoritative Server repository will be configured by the role
 pdns_install_repo: ""
 
-# To install tje PowerDNS Authoritative Server from the 'master' official repository
+# To install the PowerDNS Authoritative Server from the 'master' official repository
 # use the following playbook snippet
 # - hosts: all
 #   roles:
@@ -61,8 +61,10 @@ pdns_debug_symbols_package_name: "{{ default_pdns_debug_symbols_package_name }}"
 # NOTE: at the moment, we don't create a user as we assume the package creates
 # a "pdns" user and group. If you change these variables, make sure to create
 # the user and groups before applying this role
-pdns_user: pdns
-pdns_group: pdns
+pdns_user: "pdns"
+pdns_group: "pdns"
+pdns_file_owner: "root"
+pdns_file_group: "{{ pdns_group }}"
 
 # Name of the PowerDNS Authoritative Server Service
 pdns_service_name: "pdns"
@@ -82,14 +84,14 @@ pdns_config_file: "pdns.conf"
 # configuration and the "config-dir", "setuid" and "setgid" directives.
 pdns_config: {}
 # pdns_config:
-#  master: yes
-#  slave: no
+#  primary: yes
+#  secondary: no
 #  local-address: '192.0.2.53'
 #  local-ipv6: '2001:DB8:1::53'
 #  local-port: '5300'
 
 # Dict with overrides for the service (systemd only)
-pdns_service_overrides: {}
+pdns_service_overrides: "{{ default_pdns_service_overrides }}"
 # pdns_service_overrides:
 #   LimitNOFILE: 10000
 
@@ -119,6 +121,9 @@ pdns_backends:
 #     'hybrid':  yes
 #     'check-interval': 60
 #     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
+
+# list of pdns backend scripts to install
+pdns_backends_scripts: []
 
 # Administrative credentials to create the PowerDNS Authoritative Server MySQL backend database and user.
 pdns_mysql_databases_credentials: {}
@@ -164,3 +169,20 @@ pdns_named_config: []
 #       - left: 1
 #         type: PTR
 #         right: gateway.example.com
+
+# This will create the PowerDNS Authoritative Server backend LMDB database
+# in the given locations.
+# NOTE: Requries lmdb backend to be installed on the machine.
+pdns_lmdb_databases_locations: []
+
+# Override the schema used to initialize the MySQL database
+# By default, this role tries to detect the correct file
+pdns_mysql_schema_file: ""
+
+# Import the mysql schema only on first node?
+# This should be used if you install pdns on a cluster
+import_mysql_schema_on_first_node_only: false
+
+# Override the schema used to initialize the SQLite database
+# By default, this role tries to detect the correct file
+pdns_sqlite_schema_file: ""

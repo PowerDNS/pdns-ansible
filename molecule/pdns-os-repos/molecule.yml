@@ -1,7 +1,7 @@
 ---
 
 scenario:
-  name: pdns-42
+  name: pdns-os-repos
 
 driver:
   name: docker
@@ -10,35 +10,51 @@ dependency:
   name: galaxy
 
 platforms:
-  - name: centos-6
+  - name: debian-11
     groups: ["pdns"]
-    image: centos:6
+    image: debian:11
+    privileged: True
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    dockerfile_tpl: debian-systemd
+    environment: { container: docker }
 
-  - name: centos-7
+  - name: debian-12
     groups: ["pdns"]
-    image: centos:7
-    dockerfile_tpl: centos-systemd
+    image: debian:12
+    privileged: True
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    dockerfile_tpl: debian-systemd
+    environment: { container: docker }
 
-  # Temporarely disable CentOS 8 due to:
-  # https://github.com/ansible/ansible/issues/64963
-  # - name: centos-8
-  #   groups: ["pdns"]
-  #   image: centos:8
-  #   dockerfile_tpl: centos-systemd
-
-  - name: ubuntu-1804
+  - name: archlinux
     groups: ["pdns"]
-    image: ubuntu:18.04
+    image: archlinux:base
+    dockerfile_tpl: archlinux-systemd
+
+  - name: ubuntu-2204
+    groups: ["pdns"]
+    image: ubuntu:22.04
+    tmpfs:
+      - /run
+      - /tmp
     dockerfile_tpl: debian-systemd
 
-  - name: debian-9
+  - name: ubuntu-2404
     groups: ["pdns"]
-    image: debian:9
-    dockerfile_tpl: debian-systemd
-
-  - name: debian-10
-    groups: ["pdns"]
-    image: debian:10
+    image: ubuntu:24.04
+    tmpfs:
+      - /run
+      - /tmp
     dockerfile_tpl: debian-systemd
 
   # In order to run the tests we need
@@ -57,6 +73,7 @@ provisioner:
   options:
     diff: True
     v: True
+    forks: '1'
   config_options:
     defaults:
       gathering: smart
@@ -72,19 +89,9 @@ provisioner:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
     prepare: ../resources/prepare.yml
-  lint:
-    name: ansible-lint
-    options:
-      x:
-        # "systemctl used in place of systemd module"
-        - "ANSIBLE0006"
-        # "Tasks that run when changed should likely be handlers"
-        - "ANSIBLE0016"
-        # "Shells that use pipes should set the pipefail option"
-        - "306"
+  lint: ansible-lint -x ANSIBLE0006 ANSIBLE0016 306
 
-lint:
-  name: yamllint
+lint: yamllint defaults tasks meta vars
 
 verifier:
   name: testinfra
@@ -94,8 +101,6 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../repo-42/
+    - ../systemd-override/
     - ../backend-sqlite/
     - ../backend-mysql/
-  lint:
-    name: flake8

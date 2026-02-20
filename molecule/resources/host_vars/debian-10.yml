@@ -1,0 +1,7 @@
+---
+
+ansible_python_interpreter: "/usr/bin/python3"
+
+# pdns-os-repos: debian-10 installs auth 4.1.6
+_pdns_config_legacy:
+  master: true
