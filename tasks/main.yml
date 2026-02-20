@@ -30,7 +30,15 @@
     - sqlite
     - config
 
-- include_tasks: database-mysql.yml
+- name: Configure SELinux
+  ansible.builtin.include_tasks: selinux.yml
+  when: ansible_selinux is defined and ansible_selinux.status == 'enabled'
+  tags:
+    - selinux
+    - config
+
+- name: Install and configure MySQL database
+  ansible.builtin.include_tasks: database-mysql.yml
   when: "'gmysql' in pdns_backends"
   tags:
     - db
@@ -55,17 +63,10 @@
   tags:
     - config
 
-- name: Configure SELinux
-  ansible.builtin.include_tasks: selinux.yml
-  when: ansible_selinux is defined and ansible_selinux.status == 'enabled'
-  tags:
-    - selinux
-    - config
-
 - name: Ensure PowerDNS service name is up to date
   ansible.builtin.meta: flush_handlers
 
-- name: Set PowerDNS service state
+- name: Start and enable the PowerDNS service
   throttle: 1
   ansible.builtin.service:
     name: "{{ pdns_service_name }}"
