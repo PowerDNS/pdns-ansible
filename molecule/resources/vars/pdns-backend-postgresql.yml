@@ -1,0 +1,33 @@
+---
+
+# PostgreSQL backend profile
+pdns_backends_pgsql:
+  gpgsql:
+    host: "postgresql"
+    dbname: "{{ ansible_hostname | replace('.', '_') }}"
+    user: "pdns_{{ ansible_hostname | replace('.', '_') | replace('-', '_') }}"
+    password: pdns
+
+pdns_instance:
+  service_name: "pdns@postgresql"
+  service_enabled: "no"
+  config_file: "pdns-postgresql.conf"
+  config_name: "postgresql"
+  config_overrides:
+    local-port: "59"
+    webserver-port: "8007"
+  zone: "postgresql.test"
+
+pdns_pgsql_databases_credentials_pgsql:
+  gpgsql:
+    priv_user: postgres
+    priv_password: "{{ ansible_env.POSTGRESQL_ENV_POSTGRES_PASSWORD | default('pdns') }}"
+
+pdns_pgsql_query_use_socket_pgsql: false
+pdns_pgsql_schema_on_first_node_only: false
+
+pdns_config_overrides_pgsql: {}
+
+pdns_backends: "{{ pdns_backends_pgsql }}"
+pdns_pgsql_databases_credentials: "{{ pdns_pgsql_databases_credentials_pgsql }}"
+pdns_pgsql_query_use_socket: "{{ pdns_pgsql_query_use_socket_pgsql }}"

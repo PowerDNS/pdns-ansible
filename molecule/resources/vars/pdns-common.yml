@@ -4,23 +4,36 @@
 # PowerDNS Configuration
 ##
 
-pdns_config:
+pdns_config_common:
 
   # Turns on primary operations
   primary: true
+
+  include-dir: "user_pdns.d"
 
   # Listen Address
   local-address: "127.0.0.1"
   local-port: "53"
 
   # API Configuration
-  api: yes
+  api: true
   api-key: "powerdns"
 
   # Embedded webserver
-  webserver: yes
-  webserver-address: "0.0.0.0"
+  webserver: true
+  webserver-address: "127.0.0.1"
   webserver-port: "8001"
 
 pdns_service_overrides:
   LimitCORE: infinity
+
+pdns_config_additional_dirs:
+  - path: "{{ pdns_config_common['include-dir'] }}"
+    mode: "0775"
+
+pdns_config_files:
+  - dest: "{{ pdns_config_common['include-dir'] }}/user.config"
+    mode: "0750"
+    content: |
+      # my additional config file
+      version-string=powerdns

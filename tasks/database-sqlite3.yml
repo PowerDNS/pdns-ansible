@@ -18,18 +18,41 @@
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
     state: directory
-    mode: 0750
+    mode: "0750"
   with_items: "{{ pdns_sqlite_databases_locations }}"
 
 - name: Determine location of the SQL file
   ansible.builtin.shell:
     cmd: |
-      for p in /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sql /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql /usr/share/doc/pdns/schema.sqlite3.sql /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql /usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql /usr/share/doc/powerdns/schema.sqlite3.sql; do
-        if [ -f $p ]; then
-          echo $p
+      for p in \
+        /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sql \
+        /usr/share/doc/pdns-backend-sqlite-{{ _pdns_running_version }}/schema.sqlite3.sql \
+        /usr/share/doc/pdns/schema.sqlite3.sql \
+        /usr/share/doc/pdns-backend-sqlite3/schema.sqlite3.sql \
+        /usr/share/doc/pdns-backend-sqlite/schema.sqlite3.sql \
+        /usr/share/doc/powerdns/schema.sqlite3.sql \
+        /usr/share/pdns/schema.sqlite3.sql \
+        /usr/share/powerdns/schema.sqlite3.sql \
+        /usr/share/pdns-backend-sqlite3/schema/schema.sqlite3.sql \
+        /usr/share/pdns-backend-sqlite/schema/schema.sqlite3.sql \
+        /usr/share/doc/pdns/schema.sqlite3.sql.gz \
+        /usr/share/doc/pdns/schema.sqlite3.sql.xz \
+        /usr/share/doc/powerdns/schema.sqlite3.sql.gz \
+        /usr/share/doc/powerdns/schema.sqlite3.sql.xz; do
+        if [ -f "$p" ]; then
+          echo "$p"
           exit 0
         fi
       done
+
+      # Fallback for distribution-specific schema locations.
+      schema_file="$(find /usr/share/doc /usr/share -maxdepth 6 -type f \
+        \( -name "schema.sqlite3.sql" -o -name "schema.sqlite3.sql.gz" -o -name "schema.sqlite3.sql.xz" \) \
+        -print -quit 2>/dev/null)"
+      if [ -n "$schema_file" ]; then
+        echo "$schema_file"
+        exit 0
+      fi
       echo "Can't determine path to SQLite schema">&2
       exit 1
   changed_when: false
@@ -41,7 +64,23 @@
     pdns_sqlite_schema_file_to_use: "{% if pdns_sqlite_schema_file | length == 0 %}{{ pdns_sqlite_schema_file_detected.stdout }}{% else %}{{ pdns_sqlite_schema_file }}{% endif %}"
 
 - name: Create the PowerDNS SQLite databases
-  ansible.builtin.shell: "sqlite3 {{ item }} < {{ pdns_sqlite_schema_file_to_use }}"
+  ansible.builtin.shell: |
+    tmp_schema="$(mktemp)"
+    trap 'rm -f "$tmp_schema"' EXIT
+
+    case "{{ pdns_sqlite_schema_file_to_use }}" in
+      *.gz)
+        gzip -dc "{{ pdns_sqlite_schema_file_to_use }}" > "$tmp_schema"
+        ;;
+      *.xz)
+        xz -dc "{{ pdns_sqlite_schema_file_to_use }}" > "$tmp_schema"
+        ;;
+      *)
+        cp "{{ pdns_sqlite_schema_file_to_use }}" "$tmp_schema"
+        ;;
+    esac
+
+    sqlite3 "{{ item }}" < "$tmp_schema"
   args:
     creates: "{{ item }}"
   with_items: "{{ pdns_sqlite_databases_locations }}"
@@ -51,6 +90,6 @@
     name: "{{ item }}"
     owner: "{{ pdns_user }}"
     group: "{{ pdns_group }}"
-    mode: 0640
+    mode: "0640"
     state: file
   with_items: "{{ pdns_sqlite_databases_locations }}"

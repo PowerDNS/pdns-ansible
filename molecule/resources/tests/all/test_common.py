@@ -1,7 +1,7 @@
 
 debian_os = ['debian', 'ubuntu']
 rhel_os = ['redhat', 'centos', 'ol', 'rocky', 'almalinux']
-archlinux_os = ['arch']
+archlinux_os = ['arch', 'archarm']
 
 
 def test_distribution(host):
@@ -10,19 +10,29 @@ def test_distribution(host):
 
 
 def test_package(host):
-    p = None
-    if host.system_info.distribution.lower() in debian_os:
-        p = host.package('pdns-server')
-    if host.system_info.distribution.lower() in rhel_os:
-        p = host.package('pdns')
-    if host.system_info.distribution.lower() in archlinux_os:
-        p = host.package('powerdns')
-
-    assert p.is_installed
+    distro = host.system_info.distribution.lower()
+    if distro in debian_os:
+        assert host.package('pdns-server').is_installed
+        return
+    if distro in rhel_os:
+        assert host.package('pdns').is_installed
+        return
+    if distro in archlinux_os:
+        # testinfra does not map "archarm" to ArchPackage, so query pacman directly
+        if distro == 'archarm':
+            assert host.run('pacman -Q powerdns').rc == 0
+            return
+        assert host.package('powerdns').is_installed
 
 
 def test_service(host):
     # Using Ansible to mitigate some issues with the service test on debian-8
-    s = host.ansible('service', 'name=pdns state=started enabled=yes')
+    unit = 'pdns'
+    for config_dir in ('/etc/powerdns', '/etc/pdns'):
+        if host.file(f'{config_dir}/pdns-lmdb.conf').exists:
+            unit = 'pdns@lmdb'
+            break
+
+    s = host.ansible('service', f'name={unit} state=started enabled=yes')
 
     assert s["changed"] is False

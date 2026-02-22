@@ -1,0 +1,41 @@
+---
+
+# Bind backend profile
+pdns_backends_bind:
+  bind:
+    config: "{{ pdns_config_dir }}/named.conf"
+
+pdns_instance:
+  service_name: "pdns@bind"
+  service_enabled: "no"
+  config_file: "pdns-bind.conf"
+  config_name: "bind"
+  config_overrides:
+    local-port: "58"
+    webserver-port: "8006"
+  zone: "bind.test"
+
+pdns_config_files_bind:
+  - dest: named.conf
+    mode: "0640"
+    content: |
+      options {
+        directory "{{ pdns_config_dir }}";
+      };
+      zone "bind.test" IN {
+        type master;
+        file "bind.test.zone";
+      };
+  - dest: bind.test.zone
+    mode: "0640"
+    content: |
+      $TTL 60
+      @ IN SOA ns1.bind.test. hostmaster.bind.test. 2026022101 3600 1800 1209600 60
+      @ IN NS ns1.bind.test.
+      ns1 IN A 127.0.0.1
+      @ IN A 127.0.0.58
+
+pdns_config_overrides_bind: {}
+
+pdns_backends: "{{ pdns_backends_bind }}"
+pdns_config_files: "{{ pdns_config_files_bind }}"

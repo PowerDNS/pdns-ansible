@@ -3,10 +3,31 @@
 - name: Create
   hosts: localhost
   connection: local
-  gather_facts: False
+  gather_facts: false
   vars_files:
     - vars/molecule.yml
   tasks:
+
+    - name: Detect host architecture for Docker platform selection
+      ansible.builtin.set_fact:
+        _molecule_host_arch: "{{ lookup('pipe', 'uname -m') | trim | lower }}"
+      changed_when: false
+
+    - name: Define Docker architecture/platform mappings
+      ansible.builtin.set_fact:
+        _molecule_arch_map:
+          x86_64: amd64
+          amd64: amd64
+          aarch64: arm64
+          arm64: arm64
+          armv8l: arm64
+      changed_when: false
+
+    - name: Set Docker target architecture and platform
+      ansible.builtin.set_fact:
+        molecule_docker_arch: "{{ _molecule_arch_map.get(_molecule_host_arch, _molecule_host_arch) }}"
+        molecule_docker_platform: "linux/{{ _molecule_arch_map.get(_molecule_host_arch, _molecule_host_arch) }}"
+      changed_when: false
 
     - name: Get list of service instances
       ansible.builtin.set_fact:
@@ -16,37 +37,48 @@
       ansible.builtin.set_fact:
         molecule_platform_instances: "{{ molecule_yml.platforms | difference(molecule_service_instances) }}"
 
-    - name: Create Dockerfiles from image names
+    - name: Create Dockerfiles from platform names
       ansible.builtin.template:
         src: "Dockerfile.{{ item.dockerfile_tpl | default('default') }}.j2"
-        dest: "{{ molecule_ephemeral_directory }}/Dockerfile_{{ item.image | regex_replace('[^a-zA-Z0-9_]', '_') }}"
+        dest: "{{ molecule_ephemeral_directory }}/Dockerfile_{{ item.name | regex_replace('[^a-zA-Z0-9_]', '_') }}"
         mode: '0644'
       with_items: "{{ molecule_platform_instances }}"
       register: platforms
 
     - name: Discover local Docker images
       community.docker.docker_image_info:
-        name: "molecule_pdns/{{ item.item.name }}"
+        name: "molecule_pdns/{{ item.item.name | lower | regex_replace('[^a-z0-9_.-]', '_') }}-{{ molecule_docker_arch }}"
       with_items: "{{ platforms.results }}"
       register: docker_images
 
     - name: Build an Ansible compatible image
       community.docker.docker_image:
+        name: "molecule_pdns/{{ platforms.results[item].item.name | lower | regex_replace('[^a-z0-9_.-]', '_') }}-{{ molecule_docker_arch }}"
         source: build
-        name: "molecule_pdns/{{ item.item.image }}"
         build:
+          dockerfile: "{{ platforms.results[item].item.dockerfile | default(platforms.results[item].dest) }}"
           path: "{{ molecule_ephemeral_directory }}"
-          dockerfile: "{{ item.item.dockerfile | default(item.invocation.module_args.dest) }}"
-      with_items: "{{ platforms.results }}"
-      when: platforms.changed or docker_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
+          platform: "{{ platforms.results[item].item.platform | default(molecule_docker_platform) }}"
+          pull: true
+        force_source: "{{ platforms.results[item].item.force | default(false) | bool }}"
+        force_tag: "{{ platforms.results[item].item.force | default(false) | bool }}"
+      loop: "{{ range(0, platforms.results | length) | list }}"
+      loop_control:
+        label: "{{ platforms.results[item].item.name }}"
+      when: >-
+        (platforms.results[item].get('changed', false) | bool) or
+        ((docker_images.results[item].images | default([])) | length == 0) or
+        (((docker_images.results[item].images | default([]) | first | default({})).Architecture | default('')) != molecule_docker_arch) or
+        (platforms.results[item].item.force | default(false) | bool)
 
     - name: Create molecule instance(s)
       community.docker.docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
         image: "{{ item.image }}"
+        platform: "{{ item.platform | default(molecule_docker_platform) }}"
         state: started
-        recreate: False
+        recreate: false
         env: "{{ item.env | default(omit) }}"
         privileged: "no"
         volumes: "{{ item.volumes | default(omit) }}"
@@ -56,11 +88,12 @@
       community.docker.docker_container:
         name: "{{ item.name }}"
         hostname: "{{ item.name }}"
-        image: "molecule_pdns/{{ item.image }}"
+        image: "molecule_pdns/{{ item.name | lower | regex_replace('[^a-z0-9_.-]', '_') }}-{{ molecule_docker_arch }}"
+        platform: "{{ item.platform | default(molecule_docker_platform) }}"
         links: "{{ molecule_service_instances | map(attribute='name') | list }}"
         command: "{{ item.command | default(omit) }}"
         state: started
-        recreate: False
+        recreate: false
         privileged: "yes"
         volumes:
           # Mount the cgroups fs to allow SystemD to run into the containers

@@ -9,11 +9,11 @@ def _pdns_config_dir(host):
     return '/etc/pdns'
 
 
-def _mysql_config_file(host):
+def _mariadb_config_file(host):
     config_dir = _pdns_config_dir(host)
-    mysql_instance_conf = host.file(f'{config_dir}/pdns-mysql.conf')
-    if mysql_instance_conf.exists:
-        return mysql_instance_conf
+    mariadb_instance_conf = host.file(f'{config_dir}/pdns-mariadb.conf')
+    if mariadb_instance_conf.exists:
+        return mariadb_instance_conf
     return host.file(f'{config_dir}/pdns.conf')
 
 
@@ -25,13 +25,13 @@ def test_package(host):
 
 def test_config(host):
     with host.sudo():
-        f = _mysql_config_file(host)
+        f = _mariadb_config_file(host)
 
         dbname = host.check_output('hostname -s').replace('.', '_')
 
         assert f.exists
-        assert f.contains('launch+=gmysql:mysql')
-        assert f.contains('gmysql-mysql-host=mysql')
-        assert f.contains('gmysql-mysql-password=pdns')
-        assert f.contains('gmysql-mysql-dbname=' + dbname)
-        assert f.contains('gmysql-mysql-user=pdns')
+        assert f.contains('launch+=gmysql:mariadb')
+        assert f.contains('gmysql-mariadb-host=mariadb')
+        assert f.contains('gmysql-mariadb-password=pdns')
+        assert f.contains('gmysql-mariadb-dbname=' + dbname)
+        assert f.contains('gmysql-mariadb-user=pdns')

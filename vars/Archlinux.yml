@@ -9,13 +9,21 @@ default_pdns_backends_packages: {}
 # The directory where the PowerDNS configuration is located
 default_pdns_config_dir: '/etc/powerdns'
 
-# Change the default mysql client to mariabd "--skip-ssl-verify-server-cert"
-pdns_backends_mysql_cmd: 'mariadb --skip-ssl-verify-server-cert'
+# Use MariaDB client for MySQL/MariaDB schema checks/import
+default_pdns_backends_mysql_cmd: "mariadb"
+
+# Additional MariaDB CLI arguments used for schema checks/import
+default_pdns_mysql_cli_extra_args: "--skip-ssl-verify-server-cert"
 
 # Packages to install for MySQL support
-pdns_mysql_packages:
+default_pdns_mysql_packages:
   - python-pymysql
   - mariadb-clients
+
+# Packages to install for PostgreSQL support
+default_pdns_pgsql_packages:
+  - python-psycopg2
+  - postgresql
 
 # Other defaults
 pdns_user: powerdns

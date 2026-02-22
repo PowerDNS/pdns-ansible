@@ -2,15 +2,15 @@
 - name: Set up version seperator
   when: "pdns_package_version | length > 0"
   block:
-  - name: Prefix the PowerDNS version with the correct separator on RedHat
-    ansible.builtin.set_fact:
-      _pdns_package_version: "-{{ pdns_package_version }}"
-    when: ansible_os_family == 'RedHat'
+    - name: Prefix the PowerDNS version with the correct separator on RedHat
+      ansible.builtin.set_fact:
+        _pdns_package_version: "-{{ pdns_package_version }}"
+      when: ansible_os_family == 'RedHat'
 
-  - name: Prefix the PowerDNS version with the correct separator on Debian
-    ansible.builtin.set_fact:
-      _pdns_package_version: "={{ pdns_package_version }}"
-    when: ansible_os_family == 'Debian'
+    - name: Prefix the PowerDNS version with the correct separator on Debian
+      ansible.builtin.set_fact:
+        _pdns_package_version: "={{ pdns_package_version }}"
+      when: ansible_os_family == 'Debian'
 
 - name: Install PowerDNS
   ansible.builtin.package:

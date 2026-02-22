@@ -1,7 +1,7 @@
 ---
 - name: Reload systemd
   ansible.builtin.systemd:
-    daemon_reload: yes
+    daemon_reload: true
   listen: reload systemd
   when: not pdns_disable_handlers
 
