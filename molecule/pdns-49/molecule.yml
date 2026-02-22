@@ -10,95 +10,94 @@ dependency:
   name: galaxy
 
 platforms:
+
   - name: rockylinux-8
     groups: ["pdns"]
     image: rockylinux:8
-    dockerfile_tpl: centos-systemd
+    dockerfile_tpl: el-systemd
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9
+    dockerfile_tpl: el-systemd
 
   - name: almalinux-8
     groups: ["pdns"]
     image: almalinux:8
-    dockerfile_tpl: centos-systemd
-
-  - name: rockylinux-9
-    groups: ["pdns"]
-    image: rockylinux:9.0
-    dockerfile_tpl: centos-systemd
+    dockerfile_tpl: el-systemd
 
   - name: almalinux-9
     groups: ["pdns"]
     image: almalinux:9
-    dockerfile_tpl: centos-systemd
-
-  - name: oraclelinux-9
-    groups: ["pdns"]
-    image: oraclelinux:9
-    dockerfile_tpl: centos-systemd
+    dockerfile_tpl: el-systemd
 
   - name: oraclelinux-8
     groups: ["pdns"]
     image: oraclelinux:8
-    dockerfile_tpl: centos-systemd
+    dockerfile_tpl: el-systemd
+
+  - name: oraclelinux-9
+    groups: ["pdns"]
+    image: oraclelinux:9
+    dockerfile_tpl: el-systemd
 
   - name: ubuntu-2204
     groups: ["pdns"]
     image: ubuntu:22.04
-    tmpfs:
-      - /run
-      - /tmp
     dockerfile_tpl: debian-systemd
 
   - name: ubuntu-2404
     groups: ["pdns"]
     image: ubuntu:24.04
-    tmpfs:
-      - /run
-      - /tmp
     dockerfile_tpl: debian-systemd
 
   - name: debian-11
     groups: ["pdns"]
     image: debian:11
-    privileged: True
-    volume_mounts:
-      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
-    tmpfs:
-      - /run
-      - /run/lock
-      - /tmp
     dockerfile_tpl: debian-systemd
-    environment: { container: docker }
 
   - name: debian-12
     groups: ["pdns"]
     image: debian:12
-    privileged: True
-    volume_mounts:
-      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
-    tmpfs:
-      - /run
-      - /run/lock
-      - /tmp
     dockerfile_tpl: debian-systemd
-    environment: { container: docker }
+
+  - name: debian-13
+    groups: ["pdns"]
+    image: debian:13
+    dockerfile_tpl: debian-systemd
 
   # In order to run the tests we need
   # a MySQL container to be up & running
   - name: mysql
-    image: mysql:5.7
+    image: mysql:8.4.8
     env:
       MYSQL_ROOT_PASSWORD: pdns
+      MYSQL_ROOT_HOST: '%'
     # Declaring the container as service,
     # will link it to the others Platforms containers
     # on creation.
-    is_service: yes
+    is_service: true
+
+  # Additional service for gmysql tests against MariaDB 10.6
+  - name: mariadb
+    image: mariadb:10.6
+    env:
+      MARIADB_ROOT_PASSWORD: pdns
+      MARIADB_ROOT_HOST: '%'
+    is_service: true
+
+  # PostgreSQL service for gpgsql backend tests
+  - name: postgresql
+    image: postgres:16
+    env:
+      POSTGRES_PASSWORD: pdns
+    is_service: true
 
 provisioner:
   name: ansible
   options:
-    diff: True
-    v: True
-    forks: '1'
+    diff: true
+    v: true
   config_options:
     defaults:
       gathering: smart
@@ -107,17 +106,11 @@ provisioner:
       fact_caching_timeout: 7200
     ssh_connection:
       pipelining: true
-  inventory:
-    links:
-      host_vars: ../resources/host_vars/
   playbooks:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
     prepare: ../resources/prepare.yml
-    # "systemctl used in place of systemd module" "ANSIBLE0006"
-    # "Tasks that run when changed should likely be handlers" "ANSIBLE0016"
-    # "Shells that use pipes should set the pipefail option" "306"
-  lint: ansible-lint -x ANSIBLE0006 ANSIBLE0016 306
+  lint: ansible-lint
 
 lint: yamllint defaults tasks meta vars
 
@@ -125,11 +118,19 @@ verifier:
   name: testinfra
   options:
     hosts: "pdns"
-    vvv: True
+    vvv: true
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
     - ../repo-49/
     - ../backend-sqlite/
+    - ../backend-lmdb/
     - ../backend-mysql/
+    - ../backend-mariadb/
+    - ../backend-postgresql/
+    - ../backend-bind/
+    - ../backend-pipe/
+    - ../backend-geoip/
+    - ../backend-zones/
+    - ../service-mask/
     - ../systemd-override/

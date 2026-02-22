@@ -1,10 +1,40 @@
 ## v1.9.0 (UNRELEASED)
 
 NEW FEATURES:
-- Added pdns50
+- Add configuration for flat files ([\#79](https://github.com/PowerDNS/pdns-ansible/pull/79), @sorrowless)
+- Allow installation of custom scripts ([\#210](https://github.com/PowerDNS/pdns-ansible/pull/210), @zerwes)
+- Add support and tests for Rocky Linux and AlmaLinux ([\#209](https://github.com/PowerDNS/pdns-ansible/pull/209), @romeroalx)
+- Add pdns49 repository and CI ([\#213](https://github.com/PowerDNS/pdns-ansible/pull/213), @npmdnl)
+- Add pdns50 repository and CI ([\#247](https://github.com/PowerDNS/pdns-ansible/pull/247), @npmdnl)
+- Add PostgreSQL backend provisioning and Molecule coverage
+  (based in [\#216](https://github.com/PowerDNS/pdns-ansible/pull/216) @dtrdnk,
+  [\#211](https://github.com/PowerDNS/pdns-ansible/pull/211) @Exchizz,
+  [\#104](https://github.com/PowerDNS/pdns-ansible/pull/104) @commonism)
+
+IMPROVEMENTS:
+- Include `mysql_schema_file` in MySQL import task names ([\#119](https://github.com/PowerDNS/pdns-ansible/pull/119), @zerwes)
+- Run MySQL database commands on the first node only for clustered setups ([\#120](https://github.com/PowerDNS/pdns-ansible/pull/120), @zerwes)
+- Remove `nolog` from backend install while still hiding passwords in logs ([\#175](https://github.com/PowerDNS/pdns-ansible/pull/175), @zerwes)
+- Bump `ansible-lint` to 6.18.0 ([\#190](https://github.com/PowerDNS/pdns-ansible/pull/190), @dependabot[bot])
+- Update `pdns-master` CI configuration and replace Ubuntu Bionic with Focal ([\#207](https://github.com/PowerDNS/pdns-ansible/pull/207), @romeroalx)
+- Update SQLite3 backend defaults ([\#220](https://github.com/PowerDNS/pdns-ansible/pull/220), @kleini)
+- Fix CI request handling in GitHub Actions ([\#221](https://github.com/PowerDNS/pdns-ansible/pull/221), @romeroalx)
+- Upgrade CI tests to newer `molecule` and `ansible-core` versions ([\#230](https://github.com/PowerDNS/pdns-ansible/pull/230), @romeroalx)
+- Update examples after variable deprecations ([\#240](https://github.com/PowerDNS/pdns-ansible/pull/240), @henkjan)
 
 REMOVED / EOL:
-- EOL pdns47
+- Drop pdns46 repository (EOL) ([\#208](https://github.com/PowerDNS/pdns-ansible/pull/208), @npmdnl)
+- Remove EOL CI targets RHEL 7, Debian 10, and Ubuntu 20.04; add Debian 11, Debian 12, and Ubuntu 24.04 ([\#222](https://github.com/PowerDNS/pdns-ansible/pull/222), @romeroalx, [\#243](https://github.com/PowerDNS/pdns-ansible/pull/243), @romeroalx)
+- Drop pdns47 repository (EOL) ([\#247](https://github.com/PowerDNS/pdns-ansible/pull/247), @npmdnl)
+
+BUG FIXES:
+- Reorder `selinux.yml` include to resolve issue #122 ([\#123](https://github.com/PowerDNS/pdns-ansible/pull/123), @pixelrebel)
+- Add missing closing braces ([\#172](https://github.com/PowerDNS/pdns-ansible/pull/172), @arjenz)
+- Fix logging for grant access task ([\#195](https://github.com/PowerDNS/pdns-ansible/pull/195), @zerwes)
+- Fix `pdns-os-repos` CI tests ([\#214](https://github.com/PowerDNS/pdns-ansible/pull/214), @romeroalx)
+- Add missing RHEL-family packages required for SELinux support ([\#218](https://github.com/PowerDNS/pdns-ansible/pull/218), @vhsantos)
+- Move PowerDNS restart logic to handlers ([\#244](https://github.com/PowerDNS/pdns-ansible/pull/244), @valiac)
+- Exclude local `.ansible` cache directory from linting ([\#245](https://github.com/PowerDNS/pdns-ansible/pull/245), @valiac)
 
 ## v1.8.0 (2023-08-03)
 

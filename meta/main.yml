@@ -13,10 +13,12 @@ galaxy_info:
       versions:
         - "8"
         - "9"
+        - "10"
     - name: Debian
       versions:
         - bullseye
         - bookworm
+        - trixie
     - name: Ubuntu
       versions:
         - focal

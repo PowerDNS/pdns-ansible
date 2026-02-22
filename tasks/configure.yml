@@ -3,25 +3,25 @@
   when: ansible_service_mgr == "systemd"
   block:
 
-  - name: Ensure the override directory exists (systemd)
-    ansible.builtin.file:
-      name: "/etc/systemd/system/{{ pdns_service_name }}.service.d"
-      state: directory
-      owner: root
-      group: root
-      mode: 0755
+    - name: Ensure the override directory exists (systemd)
+      ansible.builtin.file:
+        name: "/etc/systemd/system/{{ pdns_service_name }}.service.d"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
 
-  - name: Override the PowerDNS Authoritative Server unit (systemd)
-    ansible.builtin.template:
-      src: "override-service.systemd.conf.j2"
-      dest: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"
-      owner: root
-      group: root
-      mode: 0644
-    notify:
-      - reload systemd
-      - restart pdns
-    when: pdns_service_overrides | length > 0
+    - name: Override the PowerDNS Authoritative Server unit (systemd)
+      ansible.builtin.template:
+        src: "override-service.systemd.conf.j2"
+        dest: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - reload systemd
+        - restart pdns
+      when: pdns_service_overrides | length > 0
 
 - name: Ensure that the PowerDNS configuration directory exists
   ansible.builtin.file:
@@ -29,7 +29,7 @@
     state: directory
     owner: "{{ pdns_file_owner }}"
     group: "{{ pdns_file_group }}"
-    mode: 0750
+    mode: "0750"
 
 - name: Generate the PowerDNS configuration
   ansible.builtin.template:
@@ -37,23 +37,48 @@
     dest: "{{ pdns_config_dir }}/{{ pdns_config_file }}"
     owner: "{{ pdns_file_owner }}"
     group: "{{ pdns_file_group }}"
-    mode: 0640
+    mode: "0640"
   notify: restart pdns
 
-- name: Install configured backend scripts
-  copy:
-    src: "{{ item }}"
-    dest: "{{ pdns_config_dir }}/{{ item }}"
-    owner: "{{ pdns_file_owner }}"
-    group: "{{ pdns_file_group }}"
-    mode: "0750"
-  with_items: "{{ pdns_backends_scripts }}"
-
-- name: Ensure that the PowerDNS 'include-dir' directory exists
+- name: Ensure configured PowerDNS additional directories exist
   ansible.builtin.file:
-    name: "{{ pdns_config['include-dir'] }}"
+    name: "{{ item.path | default(item) }}"
     state: directory
-    owner: "{{ pdns_file_owner }}"
-    group: "{{ pdns_file_group }}"
-    mode: 0750
-  when: "pdns_config['include-dir'] is defined"
+    owner: "{{ item.owner | default(pdns_file_owner) }}"
+    group: "{{ item.group | default(pdns_file_group) }}"
+    mode: "{{ item.mode | default('0750') }}"
+  loop: "{{ pdns_config_additional_dirs }}"
+  loop_control:
+    label: "{{ item.path | default(item) }}"
+  notify: restart pdns
+
+- name: Ensure directories for configured PowerDNS extra files exist
+  ansible.builtin.file:
+    name: "{{ _pdns_config_file_dest | dirname }}"
+    state: directory
+    owner: "{{ item.dir_owner | default(item.owner | default(pdns_file_owner)) }}"
+    group: "{{ item.dir_group | default(item.group | default(pdns_file_group)) }}"
+    mode: "{{ item.dir_mode | default('0750') }}"
+  vars:
+    _pdns_config_file_dest: >-
+      {{ item.dest if (item.dest is match('^/')) else (pdns_config_dir ~ '/' ~ item.dest) }}
+  loop: "{{ pdns_config_files }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: restart pdns
+
+- name: Copy configured PowerDNS extra files
+  ansible.builtin.copy:
+    content: "{{ item.content | default(omit) }}"
+    src: "{{ item.src | default(omit) }}"
+    dest: "{{ _pdns_config_file_dest }}"
+    owner: "{{ item.owner | default(pdns_file_owner) }}"
+    group: "{{ item.group | default(pdns_file_group) }}"
+    mode: "{{ item.mode | default('0640') }}"
+  vars:
+    _pdns_config_file_dest: >-
+      {{ item.dest if (item.dest is match('^/')) else (pdns_config_dir ~ '/' ~ item.dest) }}
+  loop: "{{ pdns_config_files }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: restart pdns

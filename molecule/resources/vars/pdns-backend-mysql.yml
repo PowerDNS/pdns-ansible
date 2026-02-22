@@ -1,0 +1,44 @@
+---
+
+# MySQL backend profile
+pdns_backends_mysql:
+  'gmysql:mysql':
+    host: "mysql"
+    dbname: "{{ ansible_hostname | replace('.', '_') }}"
+    user: "pdns_{{ ansible_hostname | replace('.', '_') | replace('-', '_') }}"
+    password: pdns
+
+pdns_instance:
+  service_name: "pdns@mysql"
+  service_enabled: "no"
+  config_file: "pdns-mysql.conf"
+  config_name: "mysql"
+  config_overrides:
+    local-port: "56"
+    webserver-port: "8004"
+  zone: "mysql.test"
+
+pdns_mysql_databases_credentials_mysql:
+  'gmysql:mysql':
+    priv_user: root
+    priv_password: "{{ ansible_env.MYSQL_ENV_MYSQL_ROOT_PASSWORD | default('pdns') }}"
+    priv_host:
+      - '%'
+      - 'localhost'
+    # MySQL 8.4/9 disables mysql_native_password by default.
+    auth_plugin: caching_sha2_password
+
+# Molecule uses a remote MySQL service container, so connections must use TCP.
+pdns_mysql_query_use_socket_mysql: false
+pdns_mysql_schema_on_first_node_only: false
+pdns_backends_mysql_cmd: "mysql"
+pdns_mysql_cli_extra_args_mysql: >-
+  {{ '--ssl-mode=DISABLED --get-server-public-key' if ansible_distribution == 'Ubuntu'
+     else '--skip-ssl' }}
+pdns_mysql_cli_extra_args: "{{ pdns_mysql_cli_extra_args_mysql }}"
+
+pdns_config_overrides_mysql: {}
+
+pdns_backends: "{{ pdns_backends_mysql }}"
+pdns_mysql_databases_credentials: "{{ pdns_mysql_databases_credentials_mysql }}"
+pdns_mysql_query_use_socket: "{{ pdns_mysql_query_use_socket_mysql }}"

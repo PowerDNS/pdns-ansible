@@ -18,7 +18,7 @@
         dest: /etc/dpkg/dpkg.cfg.d/excludes
         state: absent
 
-    # Install rsyslog to capture the PDNS log messages
+    # Install rsyslog to capture the PowerDNS Recursor log messages
     # when the service is not managed by systemd
     - name: Install rsyslog
       when: ansible_service_mgr != 'systemd'
@@ -32,3 +32,24 @@
           ansible.builtin.service:
             name: rsyslog
             state: started
+
+    - name: Install dnspython and acl on Debian/Ubuntu
+      ansible.builtin.apt:
+        name:
+          - python3-dnspython
+          - acl
+        state: present
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+
+    - name: Install dnspython on RHEL/Alma/Rocky/OL
+      ansible.builtin.dnf:
+        name: python3-dns
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install dnspython on Archlinux
+      ansible.builtin.package:
+        name: python-dnspython
+        state: present
+      when: ansible_pkg_mgr == 'pacman'

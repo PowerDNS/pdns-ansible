@@ -1,27 +1,39 @@
 # Molecule managed
 
-FROM {{ item.image }}
+{% set archlinux_base_image = 'menci/archlinuxarm:latest' if (item.name | lower == 'archlinux' and (molecule_docker_arch | default('')) == 'arm64') else item.image %}
+FROM {{ archlinux_base_image }}
 
-RUN if [ $(command -v pacman) ]; then pacman -Suy --noconfirm && pacman -S --noconfirm systemd && rm -rf /var/cache/pacman/pkg/*; fi
-RUN if [ ! -e /sbin/init ]; then ln -s /lib/systemd/systemd /sbin/init ; fi
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm systemd awk bash ca-certificates geoip grep inetutils \
+        iproute2 libmaxminddb net-tools procps-ng python python-cryptography \
+        python-pip sudo vim yaml-cpp && \
+    rm -rf /usr/share/doc/* && \
+    rm -rf /usr/share/man/* && \
+    pacman -Scc --noconfirm
 
-ENV container docker
+RUN cd /usr/lib/systemd/system/sysinit.target.wants/; \
+    for i in *; do [ $i = systemd-tmpfiles-setup.service ] || rm -f $i; done
 
-# Don't start the optional systemd services. 
-RUN find /etc/systemd/system \
-         /lib/systemd/system \
-         -path '*.wants/*' \
-         -not -name '*journald*' \
-         -not -name '*systemd-tmpfiles*' \
-         -not -name '*systemd-user-sessions*' \
-         -exec rm \{} \;
+RUN rm -f /usr/lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /usr/lib/systemd/system/local-fs.target.wants/* \
+    /usr/lib/systemd/system/sockets.target.wants/*udev* \
+    /usr/lib/systemd/system/sockets.target.wants/*initctl* \
+    /usr/lib/systemd/system/basic.target.wants/* \
+    /usr/lib/systemd/system/anaconda.target.wants/*
 
-RUN systemctl set-default multi-user.target
+# Disable requiretty.
+RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers || echo "Defaults !requiretty" > /etc/sudoers.d/molecule
 
-VOLUME [ "/sys/fs/cgroup" ]
+# Create `ansible` user with sudo permissions
+ENV ANSIBLE_USER=ansible SUDO_GROUP=wheel
+RUN set -xe && \
+    groupadd -r ${ANSIBLE_USER} && \
+    useradd -m -g ${ANSIBLE_USER} ${ANSIBLE_USER} && \
+    usermod -aG ${SUDO_GROUP} ${ANSIBLE_USER} && \
+    sed -i "/^# %${SUDO_GROUP}/s/^# //g" /etc/sudoers && \
+    sed -i "/^%${SUDO_GROUP}/s/ALL$/NOPASSWD:ALL/g" /etc/sudoers
 
-CMD ["/sbin/init"]
+VOLUME [ "/sys/fs/cgroup", "/tmp", "/run" ]
 
-RUN if [ $(command -v pacman) ]; then pacman -Suy && pacman -S --noconfirm python sudo bash net-tools ca-certificates awk inetutils grep && rm -rf /var/cache/pacman/pkg/*; fi
-# This ensures docs are installed, which contains the schema files :)
-RUN sed  -i '/usr\/share\/doc/d' /etc/pacman.conf
+CMD [ "/usr/lib/systemd/systemd" ]

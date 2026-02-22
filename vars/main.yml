@@ -1,8 +1,20 @@
 ---
 
+pdns_apt_repo_arch_map:
+  x86_64: amd64
+  amd64: amd64
+  aarch64: arm64
+  arm64: arm64
+
+pdns_apt_repo_arch: >-
+  {{ pdns_apt_repo_arch_map.get((ansible_architecture | default('amd64')) | lower,
+                                (ansible_architecture | default('amd64')) | lower) }}
+
 pdns_auth_powerdns_repo_master:
   apt_repo_origin: "repo.powerdns.com"
-  apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-master main"
+  apt_repo: >-
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
+    {{ ansible_distribution_release | lower }}-auth-master main
   gpg_key: "http://repo.powerdns.com/CBC8B383-pub.asc"
   gpg_key_id: "D47975F8DAE32700A563E64FFF389421CBC8B383"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master"
@@ -11,7 +23,9 @@ pdns_auth_powerdns_repo_master:
 
 pdns_auth_powerdns_repo_48:
   apt_repo_origin: "repo.powerdns.com"
-  apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-48 main"
+  apt_repo: >-
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
+    {{ ansible_distribution_release | lower }}-auth-48 main
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-48"
@@ -20,7 +34,9 @@ pdns_auth_powerdns_repo_48:
 
 pdns_auth_powerdns_repo_49:
   apt_repo_origin: "repo.powerdns.com"
-  apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-49 main"
+  apt_repo: >-
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
+    {{ ansible_distribution_release | lower }}-auth-49 main
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-49"
@@ -29,15 +45,15 @@ pdns_auth_powerdns_repo_49:
 
 pdns_auth_powerdns_repo_50:
   apt_repo_origin: "repo.powerdns.com"
-  apt_repo: "deb [arch=amd64] http://repo.powerdns.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}-auth-50 main"
+  apt_repo: >-
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
+    {{ ansible_distribution_release | lower }}-auth-50 main
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-50"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-50/debug"
   name: "powerdns-auth-50"
 
-default_pdns_service_overrides: >-
-  {{  { 'User'  : pdns_user
-      , 'Group' : pdns_group
-      }
-  }}
+default_pdns_service_overrides:
+  User: "{{ pdns_user }}"
+  Group: "{{ pdns_group }}"

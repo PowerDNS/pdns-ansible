@@ -1,0 +1,25 @@
+---
+
+# SQLite3 backend profile
+pdns_backends_sqlite3:
+  gsqlite3:
+    database: /var/lib/powerdns/pdns.sqlite3
+    dnssec: true
+
+pdns_instance:
+  service_name: "pdns@sqlite"
+  service_enabled: "no"
+  config_file: "pdns-sqlite.conf"
+  config_name: "sqlite"
+  config_overrides:
+    local-port: "55"
+    webserver-port: "8003"
+  zone: "sqlite3.test"
+
+pdns_sqlite_databases_locations_sqlite3:
+  - '/var/lib/powerdns/pdns.sqlite3'
+
+pdns_config_overrides_sqlite3: {}
+
+pdns_backends: "{{ pdns_backends_sqlite3 }}"
+pdns_sqlite_databases_locations: "{{ pdns_sqlite_databases_locations_sqlite3 }}"

@@ -4,12 +4,19 @@
     name: gnupg
     state: present
 
+- name: Check if apt-key is available
+  ansible.builtin.stat:
+    path: /usr/bin/apt-key
+  register: _pdns_apt_key_cmd
+
 - name: Import the PowerDNS APT Repository key from URL
   ansible.builtin.apt_key:
     url: "{{ pdns_install_repo['gpg_key'] }}"
     id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
     state: present
-  when: pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
+  when:
+    - _pdns_apt_key_cmd.stat.exists
+    - pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
   register: _pdns_apt_key
 
 - name: Import the PowerDNS APT Repository key from File
@@ -17,7 +24,33 @@
     data: "{{ lookup('file', pdns_install_repo['gpg_key']) }}"
     id: "{{ pdns_install_repo['gpg_key_id'] | default('') }}"
     state: present
-  when: not pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
+  when:
+    - _pdns_apt_key_cmd.stat.exists
+    - not pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
+  register: _pdns_apt_key
+
+- name: Import the PowerDNS APT Repository key from URL (without apt-key)
+  ansible.builtin.get_url:
+    url: "{{ pdns_install_repo['gpg_key'] }}"
+    dest: "/etc/apt/trusted.gpg.d/{{ pdns_install_repo['name'] }}.asc"
+    owner: root
+    group: root
+    mode: "0644"
+  when:
+    - not _pdns_apt_key_cmd.stat.exists
+    - pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
+  register: _pdns_apt_key
+
+- name: Import the PowerDNS APT Repository key from File (without apt-key)
+  ansible.builtin.copy:
+    content: "{{ lookup('file', pdns_install_repo['gpg_key']) }}"
+    dest: "/etc/apt/trusted.gpg.d/{{ pdns_install_repo['name'] }}.asc"
+    owner: root
+    group: root
+    mode: "0644"
+  when:
+    - not _pdns_apt_key_cmd.stat.exists
+    - not pdns_install_repo['gpg_key'] is regex("^[a-z]{3,}://")
   register: _pdns_apt_key
 
 - name: Add the PowerDNS APT Repository
@@ -29,7 +62,7 @@
 
 - name: Update the APT cache
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
   when: "_pdns_apt_key.changed or _pdns_apt_repo.changed"
 
 - name: Pin the PowerDNS APT Repository
@@ -38,4 +71,4 @@
     dest: /etc/apt/preferences.d/pdns
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"

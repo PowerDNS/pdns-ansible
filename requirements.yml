@@ -1,6 +1,9 @@
 ---
 collections:
   - name: community.mysql
+  - name: community.postgresql
   - name: community.general
+    version: "<11.0.0"
   - name: community.docker
+    version: "<5.0.0"
   - name: ansible.posix

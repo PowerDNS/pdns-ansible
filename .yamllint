@@ -15,19 +15,23 @@ rules:
   commas:
     max-spaces-after: -1
     level: error
-  comments: disable
+  comments:
+    min-spaces-from-content: 1
   comments-indentation: disable
-  document-start: disable
+  document-start: enable
   empty-lines:
     max: 3
     level: error
   hyphens:
     level: error
-  indentation: disable
+  indentation: enable
   key-duplicates: enable
   line-length: disable
-  new-line-at-end-of-file: disable
+  new-line-at-end-of-file: enable
   new-lines:
     type: unix
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true
   trailing-spaces: disable
-  truthy: disable
+  truthy: enable

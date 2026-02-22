@@ -9,51 +9,76 @@
   community.mysql.mysql_db:
     login_user: "{{ item['value']['priv_user'] }}"
     login_password: "{{ item['value']['priv_password'] }}"
-    login_host: "{{ item['value']['host'] }}"
-    login_port: "{{ item['value']['port'] | default('3306') }}"
+    login_host: "{{ item['value']['host'] | default('localhost') if not pdns_mysql_query_use_socket else omit }}"
+    login_port: "{{ item['value']['port'] | default('3306') if not pdns_mysql_query_use_socket else omit }}"
+    login_unix_socket: "{{ pdns_mysql_unix_socket if pdns_mysql_query_use_socket else omit }}"
     name: "{{ item['value']['dbname'] }}"
     state: present
-  when: "item.key.split(':')[0] == 'gmysql'"
-  run_once: "{{ import_mysql_schema_on_first_node_only }}"
-  no_log: True
+  when:
+    - item.key.split(':')[0] == 'gmysql'
+    - item['value']['priv_user'] is defined
+    - item['value']['priv_password'] is defined
+  run_once: "{{ pdns_mysql_schema_on_first_node_only }}"
+  throttle: 1
+  no_log: false
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
 - name: Grant PowerDNS access to the MySQL databases
   community.mysql.mysql_user:
     login_user: "{{ item[0]['priv_user'] }}"
     login_password: "{{ item[0]['priv_password'] }}"
-    login_host: "{{ item[0]['host'] }}"
-    login_port: "{{ item[0]['port'] | default('3306') }}"
+    login_host: "{{ item[0]['host'] | default('localhost') if not pdns_mysql_query_use_socket else omit }}"
+    login_port: "{{ item[0]['port'] | default('3306') if not pdns_mysql_query_use_socket else omit }}"
+    login_unix_socket: "{{ pdns_mysql_unix_socket if pdns_mysql_query_use_socket else omit }}"
     name: "{{ item[0]['user'] }}"
-    password: "{{ item[0]['password'] }}"
+    password: "{{ item[0]['password'] if (_pdns_mysql_auth_plugin_effective | length == 0) else omit }}"
+    plugin: "{{ _pdns_mysql_auth_plugin_effective if (_pdns_mysql_auth_plugin_effective | length > 0) else omit }}"
+    plugin_auth_string: "{{ item[0]['password'] if (_pdns_mysql_auth_plugin_effective | length > 0) else omit }}"
+    update_password: >-
+      {{ _pdns_mysql_user_update_password_effective
+         if (_pdns_mysql_user_update_password_effective | length > 0)
+         else ('on_create' if (_pdns_mysql_auth_plugin_effective | length > 0) else 'always') }}
     host: "{{ item[1] }}"
     priv: "{{ item[0]['dbname'] }}.*:ALL"
-    append_privs: yes
+    append_privs: true
     state: present
-  when: pdns_mysql_databases_credentials
-  no_log: True
+  when: pdns_mysql_databases_credentials | length > 0
+  no_log: false
+  vars:
+    _pdns_mysql_auth_plugin_effective: "{{ item[0]['auth_plugin'] | default(pdns_mysql_auth_plugin) }}"
+    _pdns_mysql_user_update_password_effective: "{{ item[0]['update_password'] | default(pdns_mysql_user_update_password) }}"
+  run_once: "{{ pdns_mysql_schema_on_first_node_only }}"
+  throttle: 1
   with_subelements:
     - "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
     - priv_host
-    - skip_missing: yes
+    - skip_missing: true
 
-# TODO: add support for file socket connections instead of host/port combos
 - name: Check if the MySQL databases are empty
-  command: >
-    {{ pdns_backends_mysql_cmd | default('mysql') }} --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
-    {% if not (pdns_mysql_query_use_socket | default(false)) %} --host="{{ item['value']['host'] }}" --port "{{ item['value']['port'] | default('3306') }}"{% endif %}
+  ansible.builtin.command: >
+    {{ pdns_backends_mysql_cmd }} --user="{{ item['value']['user'] }}" --password="{{ item['value']['password'] }}"
+    {{ pdns_mysql_cli_extra_args }}
+    {% if pdns_mysql_query_use_socket %} --socket="{{ pdns_mysql_unix_socket }}"
+    {% else %} --host="{{ item['value']['host'] | default('localhost') }}" --port="{{ item['value']['port'] | default('3306') }}"{% endif %}
     --batch --skip-column-names
     --execute="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_schema = '{{ item['value']['dbname'] }}'"
-  when: item.key.split(':')[0] == 'gmysql'
+  when:
+    - pdns_mysql_schema_load
+    - item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_mysql_db
-  no_log: True
-  changed_when: False
+  no_log: false
+  changed_when: false
 
 - name: Determine location of the SQL file
   ansible.builtin.shell:
     cmd: |
-      for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql /usr/share/doc/pdns-backend-mysql/schema.mysql.sql /usr/share/pdns-backend-mysql/schema/schema.mysql.sql /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql /usr/share/doc/powerdns/schema.mysql.sql /usr/share/doc/pdns/schema.mysql.sql; do
+      for p in /usr/share/doc/pdns-backend-mysql-{{ _pdns_running_version }}/schema.mysql.sql \
+        /usr/share/doc/pdns-backend-mysql/schema.mysql.sql \
+        /usr/share/pdns-backend-mysql/schema/schema.mysql.sql \
+        /usr/share/dbconfig-common/data/pdns-backend-mysql/install/mysql \
+        /usr/share/doc/powerdns/schema.mysql.sql \
+        /usr/share/doc/pdns/schema.mysql.sql; do
         if [ -f $p ]; then
           echo $p
           exit 0
@@ -63,23 +88,36 @@
       exit 1
   changed_when: false
   register: pdns_mysql_schema_file_detected
-  when: pdns_mysql_schema_file | length == 0
+  when:
+    - pdns_mysql_schema_load
+    - pdns_mysql_schema_file | length == 0
 
 - name: Set the schema file variable
   ansible.builtin.set_fact:
-    pdns_mysql_schema_file_to_use: "{% if pdns_mysql_schema_file | length == 0 %}{{ pdns_mysql_schema_file_detected.stdout }}{% else %}{{ pdns_mysql_schema_file }}{% endif %}"
+    pdns_mysql_schema_file_to_use: >-
+      {{ pdns_mysql_schema_file_detected.stdout if pdns_mysql_schema_file | length == 0 else pdns_mysql_schema_file }}
+  when: pdns_mysql_schema_load
 
-- name: "Import the PowerDNS MySQL schema from {{ pdns_mysql_schema_file_to_use }}"
-  mysql_db:
-    login_user: "{{ item['item']['value']['user'] }}"
-    login_password: "{{ item['item']['value']['password'] }}"
-    login_host: "{{ item['item']['value']['host'] if not (pdns_mysql_query_use_socket | default(false)) else omit }}"
-    login_port: "{{ item['item']['port'] | default('3306') if not (pdns_mysql_query_use_socket | default(false)) else omit }}"
-    login_unix_socket: "{{ '/var/run/mysqld/mysqld.sock' if (pdns_mysql_query_use_socket | default(false)) else omit }}"
-    name: "{{ item.item['value']['dbname'] }}"
-    state: import
-    target: "{{ pdns_mysql_schema_file_to_use }}"
-  no_log: True
-  run_once: "{{ import_mysql_schema_on_first_node_only }}"
-  when: "item['item']['key'].split(':')[0] == 'gmysql' and item['stdout'] == '0'"
+- name: Import the PowerDNS MySQL schema
+  ansible.builtin.shell: >
+    {{ pdns_backends_mysql_cmd }}
+    --user="{{ item['item']['value']['user'] }}"
+    --password="{{ item['item']['value']['password'] }}"
+    {{ pdns_mysql_cli_extra_args }}
+    {% if pdns_mysql_query_use_socket %}
+    --socket="{{ pdns_mysql_unix_socket }}"
+    {% else %}
+    --host="{{ item['item']['value']['host'] | default('localhost') }}"
+    --port="{{ item['item']['value']['port'] | default('3306') }}"
+    {% endif %}
+    --database="{{ item.item['value']['dbname'] }}"
+    < "{{ pdns_mysql_schema_file_to_use }}"
+  no_log: false
+  run_once: "{{ pdns_mysql_schema_on_first_node_only }}"
+  throttle: 1
+  changed_when: item['stdout'] == '0'
+  when:
+    - pdns_mysql_schema_load
+    - item['item']['key'].split(':')[0] == 'gmysql'
+    - item['stdout'] == '0'
   with_items: "{{ _pdns_check_mysql_db['results'] }}"

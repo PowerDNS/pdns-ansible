@@ -11,11 +11,11 @@ _pdns_config_base:
   local-port: "53"
 
   # API Configuration
-  api: yes
+  api: true
   api-key: "powerdns"
 
   # Embedded webserver
-  webserver: yes
+  webserver: true
   webserver-address: "0.0.0.0"
   webserver-port: "8001"
 

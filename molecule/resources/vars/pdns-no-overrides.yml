@@ -14,13 +14,12 @@ pdns_config:
   local-port: "53"
 
   # API Configuration
-  api: yes
+  api: true
   api-key: "powerdns"
 
   # Embedded webserver
-  webserver: yes
+  webserver: true
   webserver-address: "0.0.0.0"
   webserver-port: "8001"
 
-pdns_install_repo: "{{ pdns_auth_powerdns_repo_49 }}"
-pdns_service_overrides: ''
+pdns_service_overrides: {}

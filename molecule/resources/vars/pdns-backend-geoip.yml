@@ -1,0 +1,35 @@
+---
+
+# GeoIP backend profile
+pdns_backends_geoip:
+  geoip:
+    zones-file: "{{ pdns_config_dir }}/geoip-zones.yml"
+
+pdns_instance:
+  service_name: "pdns@geoip"
+  service_enabled: "no"
+  config_file: "pdns-geoip.conf"
+  config_name: "geoip"
+  config_overrides:
+    local-port: "60"
+    webserver-port: "8008"
+  zone: "geoip.test"
+
+pdns_config_files_geoip:
+  - dest: geoip-zones.yml
+    mode: "0640"
+    content: |
+      domains:
+        - domain: geoip.test
+          ttl: 60
+          records:
+            geoip.test:
+              - soa: ns1.geoip.test hostmaster.geoip.test 2026022101 3600 1800 1209600 60
+              - ns: ns1.geoip.test
+            ns1.geoip.test:
+              - a: 127.0.0.1
+
+pdns_config_overrides_geoip: {}
+
+pdns_backends: "{{ pdns_backends_geoip }}"
+pdns_config_files: "{{ pdns_config_files_geoip }}"

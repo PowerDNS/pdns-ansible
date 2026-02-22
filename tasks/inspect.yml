@@ -2,11 +2,26 @@
 
 - name: Obtain the version of the running PowerDNS instance
   ansible.builtin.shell: |
-    pdns_server --version 2>&1 | grep -o "PowerDNS Authoritative Server.*" | awk '{print $4}'
+    pdns_server --version 2>&1 | awk '{
+      for (i = 1; i <= NF; i++) {
+        if ($i ~ /^[0-9]+\.[0-9]+\.[0-9]+([-.[:alnum:]_]+)?$/) {
+          print $i
+          found = 1
+          exit
+        }
+      }
+    }
+    END {
+      if (!found) {
+        exit 1
+      }
+    }'
+  args:
+    executable: /bin/bash
   register: _pdns_version
-  check_mode: no
-  changed_when: False
+  check_mode: false
+  changed_when: false
 
 - name: Export the running PowerDNS instance version to a variable
   ansible.builtin.set_fact:
-    _pdns_running_version: "{{ _pdns_version['stdout'] | regex_replace('-[.\\d\\w]+$', '') }}"
+    _pdns_running_version: "{{ _pdns_version.stdout | regex_replace('-[.\\d\\w]+$', '') }}"

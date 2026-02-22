@@ -1,0 +1,42 @@
+---
+
+# MariaDB backend profile
+pdns_backends_mariadb:
+  'gmysql:mariadb':
+    host: "mariadb"
+    dbname: "{{ ansible_hostname | replace('.', '_') }}"
+    user: "pdns_{{ ansible_hostname | replace('.', '_') | replace('-', '_') }}"
+    password: pdns
+
+pdns_instance:
+  service_name: "pdns@mariadb"
+  service_enabled: "no"
+  config_file: "pdns-mariadb.conf"
+  config_name: "mariadb"
+  config_overrides:
+    local-port: "57"
+    webserver-port: "8005"
+  zone: "mariadb.test"
+
+pdns_mysql_databases_credentials_mariadb:
+  'gmysql:mariadb':
+    priv_user: root
+    priv_password: "{{ ansible_env.MARIADB_ENV_MARIADB_ROOT_PASSWORD | default('pdns') }}"
+    priv_host:
+      - '%'
+      - 'localhost'
+
+# Molecule uses a remote MariaDB service container, so connections must use TCP.
+pdns_mysql_query_use_socket_mariadb: false
+pdns_mysql_schema_on_first_node_only: false
+pdns_backends_mysql_cmd: "mysql"
+pdns_mysql_cli_extra_args_mariadb: >-
+  {{ '--ssl-mode=DISABLED' if ansible_distribution == 'Ubuntu'
+     else '--skip-ssl' }}
+pdns_mysql_cli_extra_args: "{{ pdns_mysql_cli_extra_args_mariadb }}"
+
+pdns_config_overrides_mariadb: {}
+
+pdns_backends: "{{ pdns_backends_mariadb }}"
+pdns_mysql_databases_credentials: "{{ pdns_mysql_databases_credentials_mariadb }}"
+pdns_mysql_query_use_socket: "{{ pdns_mysql_query_use_socket_mariadb }}"

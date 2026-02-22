@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         ansible:
-          - "2.14"
           - "2.15"
           - "2.16"
         scenario:
@@ -28,7 +27,6 @@ jobs:
           - pdns-50
           - pdns-master
           - pdns-os-repos
-          - systemd-no-overrides
     steps:
       - name: checkout
         uses: actions/checkout@v4

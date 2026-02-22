@@ -1,12 +1,14 @@
 ---
 
-- name: Include OS-specific variables
-  ansible.builtin.include_vars: "{{ item }}"
-  with_first_found:
-    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+- name: Include OS-specific variables (generic to specific)
+  ansible.builtin.include_vars: "{{ role_path }}/vars/{{ item }}"
+  loop:
+    - "{{ ansible_os_family }}.yml"
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
-    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+  when:
+    - lookup('ansible.builtin.fileglob', role_path ~ '/vars/' ~ item, wantlist=True) | length > 0
   tags:
     - always
 
@@ -27,6 +29,7 @@
   tags:
     - db
     - mysql
+    - pgsql
     - sqlite
     - config
 
@@ -39,10 +42,29 @@
 
 - name: Install and configure MySQL database
   ansible.builtin.include_tasks: database-mysql.yml
-  when: "'gmysql' in pdns_backends"
+  when:
+    - pdns_mysql_manage_database | bool
+    - >-
+      (pdns_backends | dict2items
+      | selectattr('key', 'match', '^gmysql(:.*)?$')
+      | list
+      | length) > 0
   tags:
     - db
     - mysql
+
+- name: Install and configure PostgreSQL database
+  ansible.builtin.include_tasks: database-pgsql.yml
+  when:
+    - pdns_pgsql_manage_database | bool
+    - >-
+      (pdns_backends | dict2items
+      | selectattr('key', 'match', '^gpgsql(:.*)?$')
+      | list
+      | length) > 0
+  tags:
+    - db
+    - pgsql
 
 - name: Install and configure SQlite database
   ansible.builtin.include_tasks: database-sqlite3.yml
@@ -50,14 +72,6 @@
   tags:
     - db
     - sqlite
-
-- ansible.builtin.include: database-named.yml
-  when:
-    - pdns_backends.get('bind', False)
-    - pdns_named_config
-  tags:
-    - db
-    - named
 
 - name: Install and configure LMDB database
   ansible.builtin.include_tasks: database-lmdb.yml
@@ -74,11 +88,12 @@
 - name: Ensure PowerDNS service name is up to date
   ansible.builtin.meta: flush_handlers
 
-- name: Start and enable the PowerDNS service
+- name: Start and enable the PowerDNS service (systemd)
   throttle: 1
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ pdns_service_name }}"
     state: "{{ pdns_service_state }}"
     enabled: "{{ pdns_service_enabled }}"
+    masked: "{{ pdns_service_masked }}"
   tags:
     - service

@@ -5,6 +5,22 @@
   vars_files:
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-master.yml
-    - ../resources/vars/pdns-backends.yml
+    - ../resources/vars/pdns-backend-sqlite3.yml
+    - ../resources/vars/pdns-backend-lmdb.yml
+    - ../resources/vars/pdns-backend-mysql.yml
+    - ../resources/vars/pdns-backend-mariadb.yml
+  vars:
+    pdns_backends: >-
+      {{ pdns_backends_sqlite3
+         | combine(pdns_backends_lmdb, recursive=True)
+         | combine(pdns_backends_mysql, recursive=True)
+         | combine(pdns_backends_mariadb, recursive=True) }}
+    pdns_sqlite_databases_locations: "{{ pdns_sqlite_databases_locations_sqlite3 }}"
+    pdns_lmdb_databases_locations: "{{ pdns_lmdb_databases_locations_lmdb }}"
+    pdns_mysql_databases_credentials: >-
+      {{ pdns_mysql_databases_credentials_mysql
+         | combine(pdns_mysql_databases_credentials_mariadb, recursive=True) }}
+    pdns_mysql_query_use_socket: false
+    pdns_mysql_auth_plugin: ""
   roles:
     - { role: powerdns.pdns }

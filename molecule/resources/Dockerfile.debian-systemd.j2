@@ -2,24 +2,35 @@
 
 FROM {{ item.image }}
 
-RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get upgrade -y && apt-get install -y systemd && apt-get clean; fi
-RUN if [ ! -e /sbin/init ]; then ln -s /lib/systemd/systemd /sbin/init ; fi
-
 ENV container docker
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Don't start the optional systemd services. 
-RUN find /etc/systemd/system \
-         /lib/systemd/system \
-         -path '*.wants/*' \
-         -not -name '*journald*' \
-         -not -name '*systemd-tmpfiles*' \
-         -not -name '*systemd-user-sessions*' \
-         -exec rm \{} \;
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends systemd python3 python3-pip python3-apt sudo adduser bash net-tools iproute2 procps && \
+    rm -Rf /usr/share/doc && \
+    rm -Rf /usr/share/man && \
+    apt-get clean
 
-RUN systemctl set-default multi-user.target
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup* \
+    /lib/systemd/system/systemd-update-utmp*
 
-VOLUME [ "/sys/fs/cgroup" ]
+# Disable requiretty.
+RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 
-CMD ["/sbin/init"]
+# Create `ansible` user with sudo permissions
+ENV ANSIBLE_USER=ansible SUDO_GROUP=sudo
+RUN set -xe && \
+    groupadd -r ${ANSIBLE_USER} && \
+    useradd -m -g ${ANSIBLE_USER} ${ANSIBLE_USER} && \
+    usermod -aG ${SUDO_GROUP} ${ANSIBLE_USER} && \
+    sed -i "/^%${SUDO_GROUP}/s/ALL$/NOPASSWD:ALL/g" /etc/sudoers
 
-RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get upgrade -y && apt-get install -y python3 sudo bash net-tools ca-certificates && apt-get clean; fi
+VOLUME [ "/sys/fs/cgroup", "/tmp", "/run" ]
+
+CMD [ "/lib/systemd/systemd" ]

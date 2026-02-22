@@ -1,10 +1,260 @@
 ---
 
-- name: PDNS 4.8
+- name: PDNS 4.8 LMDB default instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-48.yml
-    - ../resources/vars/pdns-backends.yml
+    - ../resources/vars/pdns-backend-lmdb.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_lmdb | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+  post_tasks:
+    - name: Check if the LMDB instance zone exists
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} list-zone {{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_check
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: false
+      failed_when: false
+
+    - name: Provision the LMDB instance zone
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} create-zone {{ pdns_instance.zone }} ns1.{{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_created
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: _pdns_backend_zone_check.rc != 0
+      notify: Restart the LMDB instance service
+      when: _pdns_backend_zone_check.rc != 0
+  handlers:
+    - name: Restart the LMDB instance service
+      ansible.builtin.systemd:
+        name: "{{ pdns_instance.service_name }}"
+        state: restarted
+
+- name: PDNS 4.8 SQLite instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-sqlite3.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_sqlite3 | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+  post_tasks:
+    - name: Check if the SQLite instance zone exists
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} list-zone {{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_check
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: false
+      failed_when: false
+
+    - name: Provision the SQLite instance zone
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} create-zone {{ pdns_instance.zone }} ns1.{{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_created
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: _pdns_backend_zone_check.rc != 0
+      notify: Restart the SQLite instance service
+      when: _pdns_backend_zone_check.rc != 0
+  handlers:
+    - name: Restart the SQLite instance service
+      ansible.builtin.systemd:
+        name: "{{ pdns_instance.service_name }}"
+        state: restarted
+
+- name: PDNS 4.8 MySQL instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-mysql.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_mysql | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+  post_tasks:
+    - name: Check if the MySQL instance zone exists
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} list-zone {{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_check
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: false
+      failed_when: false
+
+    - name: Provision the MySQL instance zone
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} create-zone {{ pdns_instance.zone }} ns1.{{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_created
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: _pdns_backend_zone_check.rc != 0
+      notify: Restart the MySQL instance service
+      when: _pdns_backend_zone_check.rc != 0
+  handlers:
+    - name: Restart the MySQL instance service
+      ansible.builtin.systemd:
+        name: "{{ pdns_instance.service_name }}"
+        state: restarted
+
+- name: PDNS 4.8 MariaDB instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-mariadb.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_mariadb | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+  post_tasks:
+    - name: Check if the MariaDB instance zone exists
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} list-zone {{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_check
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: false
+      failed_when: false
+
+    - name: Provision the MariaDB instance zone
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} create-zone {{ pdns_instance.zone }} ns1.{{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_created
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: _pdns_backend_zone_check.rc != 0
+      notify: Restart the MariaDB instance service
+      when: _pdns_backend_zone_check.rc != 0
+  handlers:
+    - name: Restart the MariaDB instance service
+      ansible.builtin.systemd:
+        name: "{{ pdns_instance.service_name }}"
+        state: restarted
+
+- name: PDNS 4.8 Bind instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-bind.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_bind | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+
+- name: PDNS 4.8 Pipe instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-pipe.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_pipe | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+
+- name: PDNS 4.8 GeoIP instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-geoip.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_geoip | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+
+- name: PDNS 4.8 PostgreSQL instance
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+    - ../resources/vars/pdns-backend-postgresql.yml
+  vars:
+    pdns_service_name: "{{ pdns_instance.service_name }}"
+    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+    pdns_config_file: "{{ pdns_instance.config_file }}"
+    pdns_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides_pgsql | default({}), recursive=true) }}
+  roles:
+    - { role: powerdns.pdns }
+  post_tasks:
+    - name: Check if the PostgreSQL instance zone exists
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} list-zone {{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_check
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: false
+      failed_when: false
+
+    - name: Provision the PostgreSQL instance zone
+      ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} create-zone {{ pdns_instance.zone }} ns1.{{ pdns_instance.zone }}"
+      register: _pdns_backend_zone_created
+      become: true
+      become_user: "{{ pdns_user }}"
+      changed_when: _pdns_backend_zone_check.rc != 0
+      notify: Restart the PostgreSQL instance service
+      when: _pdns_backend_zone_check.rc != 0
+  handlers:
+    - name: Restart the PostgreSQL instance service
+      ansible.builtin.systemd:
+        name: "{{ pdns_instance.service_name }}"
+        state: restarted
+
+- name: PDNS 4.8 Hide default service
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-repo-48.yml
+  vars:
+    pdns_service_name: "pdns"
+    pdns_service_state: "stopped"
+    pdns_service_enabled: "no"
+    pdns_service_masked: true
   roles:
     - { role: powerdns.pdns }

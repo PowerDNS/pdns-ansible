@@ -1,0 +1,25 @@
+---
+
+# LMDB backend profile
+pdns_backends_lmdb:
+  lmdb:
+    filename: /var/lib/powerdns/pdns.lmdb
+
+pdns_instance:
+  service_name: "pdns@lmdb"
+  service_enabled: "yes"
+  config_file: "pdns-lmdb.conf"
+  config_name: "lmdb"
+  config_overrides:
+    local-port: "54"
+    webserver-port: "8002"
+
+  zone: "lmdb.test"
+
+pdns_lmdb_databases_locations_lmdb:
+  - '/var/lib/powerdns/pdns.lmdb'
+
+pdns_config_overrides_lmdb: {}
+
+pdns_backends: "{{ pdns_backends_lmdb }}"
+pdns_lmdb_databases_locations: "{{ pdns_lmdb_databases_locations_lmdb }}"
