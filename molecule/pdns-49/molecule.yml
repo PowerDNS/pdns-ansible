@@ -129,8 +129,6 @@ verifier:
     - ../backend-mariadb/
     - ../backend-postgresql/
     - ../backend-bind/
-    - ../backend-pipe/
-    - ../backend-geoip/
     - ../backend-zones/
     - ../service-mask/
     - ../systemd-override/

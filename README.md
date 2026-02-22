@@ -463,6 +463,8 @@ To run a custom molecule command
 
     $ tox -e ansible216 -- molecule test -s pdns-50
 
+The Molecule backend matrix validates LMDB, SQLite3, MySQL, MariaDB, BIND and PostgreSQL instance profiles.
+
 ## License
 
 MIT

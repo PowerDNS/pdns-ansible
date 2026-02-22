@@ -14,8 +14,8 @@ pdns_instance:
   config_file: "pdns-postgresql.conf"
   config_name: "postgresql"
   config_overrides:
-    local-port: "61"
-    webserver-port: "8009"
+    local-port: "59"
+    webserver-port: "8007"
   zone: "postgresql.test"
 
 pdns_pgsql_databases_credentials_pgsql:

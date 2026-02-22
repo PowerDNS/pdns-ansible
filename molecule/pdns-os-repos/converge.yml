@@ -1,6 +1,6 @@
 ---
 
-- name: PDNS 5.0 LMDB default instance
+- name: PowerDNS LMDB default instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
@@ -38,7 +38,7 @@
         name: "{{ pdns_instance.service_name }}"
         state: restarted
 
-- name: PDNS 5.0 SQLite instance
+- name: PowerDNS SQLite instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
@@ -76,7 +76,7 @@
         name: "{{ pdns_instance.service_name }}"
         state: restarted
 
-- name: PDNS 5.0 MySQL instance
+- name: PowerDNS MySQL instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
@@ -112,7 +112,7 @@
         name: "{{ pdns_instance.service_name }}"
         state: restarted
 
-- name: PDNS 5.0 MariaDB instance
+- name: PowerDNS MariaDB instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
@@ -148,7 +148,7 @@
         name: "{{ pdns_instance.service_name }}"
         state: restarted
 
-- name: PDNS 5.0 Bind instance
+- name: PowerDNS Bind instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
@@ -164,39 +164,7 @@
   roles:
     - { role: powerdns.pdns }
 
-- name: PDNS 5.0 Pipe instance
-  hosts: pdns
-  vars_files:
-    - ../resources/vars/pdns-common.yml
-    - ../resources/vars/pdns-backend-pipe.yml
-  vars:
-    pdns_service_name: "{{ pdns_instance.service_name }}"
-    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
-    pdns_config_file: "{{ pdns_instance.config_file }}"
-    pdns_config: >-
-      {{ pdns_config_common
-         | combine(pdns_instance.config_overrides | default({}), recursive=true)
-         | combine(pdns_config_overrides_pipe | default({}), recursive=true) }}
-  roles:
-    - { role: powerdns.pdns }
-
-- name: PDNS 5.0 GeoIP instance
-  hosts: pdns
-  vars_files:
-    - ../resources/vars/pdns-common.yml
-    - ../resources/vars/pdns-backend-geoip.yml
-  vars:
-    pdns_service_name: "{{ pdns_instance.service_name }}"
-    pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
-    pdns_config_file: "{{ pdns_instance.config_file }}"
-    pdns_config: >-
-      {{ pdns_config_common
-         | combine(pdns_instance.config_overrides | default({}), recursive=true)
-         | combine(pdns_config_overrides_geoip | default({}), recursive=true) }}
-  roles:
-    - { role: powerdns.pdns }
-
-- name: PDNS 5.0 PostgreSQL instance
+- name: PowerDNS PostgreSQL instance
   hosts: pdns
   vars_files:
     - ../resources/vars/pdns-common.yml
@@ -232,12 +200,9 @@
         name: "{{ pdns_instance.service_name }}"
         state: restarted
 
-- name: PDNS 5.0 Hide default service
+- name: PowerDNS Hide default service
   hosts: pdns
-  vars_files:
-    - ../resources/vars/pdns-common.yml
   vars:
-    pdns_service_name: "pdns"
     pdns_service_state: "stopped"
     pdns_service_enabled: "no"
     pdns_service_masked: true

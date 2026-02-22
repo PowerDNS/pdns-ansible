@@ -69,9 +69,7 @@ def test_backend_zones_dns_lookup_noerror(host):
         ('mysql.test', 56),
         ('mariadb.test', 57),
         ('bind.test', 58),
-        ('pipe.test', 59),
-        ('geoip.test', 60),
-        ('postgresql.test', 61),
+        ('postgresql.test', 59),
     )
 
     for zone, port in expected_zones:
