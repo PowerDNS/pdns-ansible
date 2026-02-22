@@ -5,6 +5,7 @@
   register: _pdns_version_raw
   check_mode: false
   changed_when: false
+  failed_when: false
 
 - name: Extract the PowerDNS version from command output
   ansible.builtin.set_fact:
