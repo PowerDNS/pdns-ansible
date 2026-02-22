@@ -116,7 +116,7 @@ verifier:
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'
-    - ../pdns-48/
+    - ../repo-48/
     - ../backend-sqlite/
     - ../backend-lmdb/
     - ../backend-mysql/
