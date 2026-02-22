@@ -17,6 +17,21 @@
         line: path-exclude=/usr/share/doc/*
         dest: /etc/dpkg/dpkg.cfg.d/excludes
         state: absent
+      when: ansible_pkg_mgr == 'apt'
+
+    - name: Disable the pacman 'NoExtract' option for docs
+      ansible.builtin.replace:
+        path: /etc/pacman.conf
+        regexp: '^(\s*NoExtract\s*=\s*)usr/share/doc/\*(\s*)'
+        replace: '\1\2'
+      when: ansible_pkg_mgr == 'pacman'
+
+    - name: Disable the pacman 'NoExtract' doc token in lists
+      ansible.builtin.replace:
+        path: /etc/pacman.conf
+        regexp: '(\s+)usr/share/doc/\*'
+        replace: '\1'
+      when: ansible_pkg_mgr == 'pacman'
 
     # Install rsyslog to capture the PowerDNS Recursor log messages
     # when the service is not managed by systemd

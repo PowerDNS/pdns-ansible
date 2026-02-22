@@ -85,9 +85,6 @@
   tags:
     - config
 
-- name: Ensure PowerDNS service name is up to date
-  ansible.builtin.meta: flush_handlers
-
 - name: Start and enable the PowerDNS service (systemd)
   throttle: 1
   ansible.builtin.systemd:
