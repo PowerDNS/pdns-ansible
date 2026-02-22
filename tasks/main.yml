@@ -12,6 +12,9 @@
   tags:
     - always
 
+- set_fact:
+    _pdns_debug_mode: "{{ ansible_verbosity | int >= 2 }}"
+
 - name: Setup repository
   ansible.builtin.include_tasks: "repo-{{ ansible_os_family }}.yml"
   when: "pdns_install_repo | length > 0"

@@ -61,6 +61,7 @@ The examples above, show how to install the PowerDNS Authoritative Server from t
     pdns_install_repo:
       name: "powerdns" # the name of the repository
       apt_repo_origin: "example.com"  # used to pin the PowerDNS packages to the provided repository
+      apt_version: "auth-50"  # deb822 suites suffix (appended to release codename)
       apt_repo: "deb http://example.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
       gpg_key: "http://example.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
       gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
@@ -72,6 +73,10 @@ The examples above, show how to install the PowerDNS Authoritative Server from t
 
 It is also possible to install the PowerDNS Authoritative Server from custom repositories as demonstrated in the example above.
 **Note:** These repositories are ignored on Arch Linux
+
+When `pdns_install_repo.apt_version` is set, this role configures Debian-family repositories using
+`ansible.builtin.deb822_repository` on supported releases (Ubuntu `>=22.04`, Debian `>=11`).
+If `apt_version` is omitted, the legacy `apt_repo` string is used with `ansible.builtin.apt_repository`.
 
 ```yaml
  pdns_install_epel: true

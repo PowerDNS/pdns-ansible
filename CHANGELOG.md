@@ -15,12 +15,15 @@ IMPROVEMENTS:
 - Include `mysql_schema_file` in MySQL import task names ([\#119](https://github.com/PowerDNS/pdns-ansible/pull/119), @zerwes)
 - Run MySQL database commands on the first node only for clustered setups ([\#120](https://github.com/PowerDNS/pdns-ansible/pull/120), @zerwes)
 - Remove `nolog` from backend install while still hiding passwords in logs ([\#175](https://github.com/PowerDNS/pdns-ansible/pull/175), @zerwes)
-- Bump `ansible-lint` to 6.18.0 ([\#190](https://github.com/PowerDNS/pdns-ansible/pull/190), @dependabot[bot])
 - Update `pdns-master` CI configuration and replace Ubuntu Bionic with Focal ([\#207](https://github.com/PowerDNS/pdns-ansible/pull/207), @romeroalx)
 - Update SQLite3 backend defaults ([\#220](https://github.com/PowerDNS/pdns-ansible/pull/220), @kleini)
 - Fix CI request handling in GitHub Actions ([\#221](https://github.com/PowerDNS/pdns-ansible/pull/221), @romeroalx)
 - Upgrade CI tests to newer `molecule` and `ansible-core` versions ([\#230](https://github.com/PowerDNS/pdns-ansible/pull/230), @romeroalx)
 - Update examples after variable deprecations ([\#240](https://github.com/PowerDNS/pdns-ansible/pull/240), @henkjan)
+- Add Deb822 APT repository support on Debian-family systems while keeping legacy `apt_repo` compatibility
+  (based on [\#242](https://github.com/PowerDNS/pdns-ansible/pull/242) @l00d3r,
+  [\#246](https://github.com/PowerDNS/pdns-ansible/pull/246) @joshsol1)
+- Bump `ansible-lint` to 6.18.0 ([\#190](https://github.com/PowerDNS/pdns-ansible/pull/190), @dependabot[bot])
 
 REMOVED / EOL:
 - Drop pdns46 repository (EOL) ([\#208](https://github.com/PowerDNS/pdns-ansible/pull/208), @npmdnl)

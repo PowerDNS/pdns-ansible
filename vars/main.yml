@@ -12,6 +12,7 @@ pdns_apt_repo_arch: >-
 
 pdns_auth_powerdns_repo_master:
   apt_repo_origin: "repo.powerdns.com"
+  apt_version: "auth-master"
   apt_repo: >-
     deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
     {{ ansible_distribution_release | lower }}-auth-master main
@@ -23,6 +24,7 @@ pdns_auth_powerdns_repo_master:
 
 pdns_auth_powerdns_repo_48:
   apt_repo_origin: "repo.powerdns.com"
+  apt_version: "auth-48"
   apt_repo: >-
     deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
     {{ ansible_distribution_release | lower }}-auth-48 main
@@ -34,6 +36,7 @@ pdns_auth_powerdns_repo_48:
 
 pdns_auth_powerdns_repo_49:
   apt_repo_origin: "repo.powerdns.com"
+  apt_version: "auth-49"
   apt_repo: >-
     deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
     {{ ansible_distribution_release | lower }}-auth-49 main
@@ -45,6 +48,7 @@ pdns_auth_powerdns_repo_49:
 
 pdns_auth_powerdns_repo_50:
   apt_repo_origin: "repo.powerdns.com"
+  apt_version: "auth-50"
   apt_repo: >-
     deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
     {{ ansible_distribution_release | lower }}-auth-50 main

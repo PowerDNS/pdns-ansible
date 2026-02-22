@@ -22,6 +22,7 @@
     - item['value']['priv_password'] is defined
   run_once: "{{ pdns_pgsql_schema_on_first_node_only }}"
   throttle: 1
+  no_log: "{{ not _pdns_debug_mode }}"
   with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
 
 - name: Create the PowerDNS PostgreSQL databases
@@ -40,6 +41,7 @@
     - item['value']['priv_password'] is defined
   run_once: "{{ pdns_pgsql_schema_on_first_node_only }}"
   throttle: 1
+  no_log: "{{ not _pdns_debug_mode }}"
   with_dict: "{{ pdns_backends | combine(pdns_pgsql_databases_credentials, recursive=True) }}"
 
 - name: Check if the PostgreSQL databases are empty
@@ -59,6 +61,7 @@
     - item.key.split(':')[0] == 'gpgsql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_pgsql_db
+  no_log: "{{ not _pdns_debug_mode }}"
   changed_when: false
 
 - name: Determine location of the PostgreSQL schema SQL file
@@ -104,6 +107,7 @@
     target: "{{ pdns_pgsql_schema_file_to_use }}"
   run_once: "{{ pdns_pgsql_schema_on_first_node_only }}"
   throttle: 1
+  no_log: "{{ not _pdns_debug_mode }}"
   when:
     - pdns_pgsql_schema_load
     - item['item']['key'].split(':')[0] == 'gpgsql'
