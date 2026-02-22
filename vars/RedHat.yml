@@ -9,6 +9,7 @@ default_pdns_mysql_packages:
   - mariadb-server
   - mariadb-connector-c
   - python3-PyMySQL
+  - python3-cryptography
   - perl-DBD-MySQL
 
 # The command used for MySQL/MariaDB schema checks/import

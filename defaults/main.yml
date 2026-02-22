@@ -85,6 +85,9 @@ pdns_service_masked: false
 # When True, disable the automated restart of the PowerDNS service
 pdns_disable_handlers: false
 
+# When true, manage SELinux booleans and ports on SELinux-enabled systems.
+pdns_manage_selinux: true
+
 # PowerDNS Authoritative Server configuration file and directory
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
@@ -276,3 +279,6 @@ pdns_pgsql_schema_on_first_node_only: true
 # Override the schema used to initialize the SQLite database
 # By default, this role tries to detect the correct file
 pdns_sqlite_schema_file: ""
+
+# Set debug mode flag from Ansible verbosity
+pdns_verbose: "{{ ansible_verbosity | int >= 2 }}"

@@ -6,10 +6,9 @@
   when: not pdns_disable_handlers
 
 - name: Restart PowerDNS
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ pdns_service_name }}"
     state: restarted
-    sleep: 1
   listen: restart pdns
   when:
     - not pdns_disable_handlers

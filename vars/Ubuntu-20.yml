@@ -4,3 +4,4 @@
 default_pdns_mysql_packages:
   - default-mysql-client
   - python3-pymysql
+  - python3-cryptography

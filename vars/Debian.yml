@@ -10,6 +10,7 @@ default_pdns_debug_symbols_package_name: "pdns-server-dbg"
 default_pdns_mysql_packages:
   - default-mysql-client
   - python3-mysqldb
+  - python3-cryptography
 
 # The command used for MySQL/MariaDB schema checks/import
 default_pdns_backends_mysql_cmd: "mariadb"

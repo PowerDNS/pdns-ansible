@@ -142,6 +142,13 @@ pdns_disable_handlers: false
 Disable automated service restart on configuration changes.
 
 ```yaml
+pdns_manage_selinux: true
+```
+
+Enable management of SELinux booleans and ports on SELinux-enabled systems.
+Set to `false` to skip SELinux changes entirely.
+
+```yaml
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
 ```

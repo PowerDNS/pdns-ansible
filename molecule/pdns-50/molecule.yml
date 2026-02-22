@@ -115,12 +115,8 @@ provisioner:
       fact_caching_timeout: 7200
     ssh_connection:
       pipelining: true
-  # inventory:
-  #   links:
-  #     host_vars: ../resources/host_vars/
   playbooks:
     create: ../resources/create.yml
-    # converge: ../resources/converge-shared.yml
     destroy: ../resources/destroy.yml
     prepare: ../resources/prepare.yml
   lint: ansible-lint
@@ -131,7 +127,7 @@ verifier:
   name: testinfra
   options:
     hosts: "pdns"
-    vvv: true
+    v: true
   directory: ../resources/tests/all
   additional_files_or_dirs:
     # path relative to 'directory'

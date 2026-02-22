@@ -20,7 +20,7 @@
     - item['value']['priv_password'] is defined
   run_once: "{{ pdns_mysql_schema_on_first_node_only }}"
   throttle: 1
-  no_log: "{{ not _pdns_debug_mode }}"
+  no_log: "{{ not pdns_verbose }}"
   with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
 - name: Grant PowerDNS access to the MySQL databases
@@ -43,7 +43,7 @@
     append_privs: true
     state: present
   when: pdns_mysql_databases_credentials | length > 0
-  no_log: "{{ not _pdns_debug_mode }}"
+  no_log: "{{ not pdns_verbose }}"
   vars:
     _pdns_mysql_auth_plugin_effective: "{{ item[0]['auth_plugin'] | default(pdns_mysql_auth_plugin) }}"
     _pdns_mysql_user_update_password_effective: "{{ item[0]['update_password'] | default(pdns_mysql_user_update_password) }}"
@@ -67,7 +67,7 @@
     - item.key.split(':')[0] == 'gmysql'
   with_dict: "{{ pdns_backends }}"
   register: _pdns_check_mysql_db
-  no_log: "{{ not _pdns_debug_mode }}"
+  no_log: "{{ not pdns_verbose }}"
   changed_when: false
 
 - name: Determine location of the SQL file
@@ -112,7 +112,7 @@
     {% endif %}
     --database="{{ item.item['value']['dbname'] }}"
     < "{{ pdns_mysql_schema_file_to_use }}"
-  no_log: "{{ not _pdns_debug_mode }}"
+  no_log: "{{ not pdns_verbose }}"
   run_once: "{{ pdns_mysql_schema_on_first_node_only }}"
   throttle: 1
   changed_when: item['stdout'] == '0'

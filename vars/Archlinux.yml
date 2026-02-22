@@ -18,6 +18,7 @@ default_pdns_mysql_cli_extra_args: "--skip-ssl-verify-server-cert"
 # Packages to install for MySQL support
 default_pdns_mysql_packages:
   - python-pymysql
+  - python-cryptography
   - mariadb-clients
 
 # Packages to install for PostgreSQL support
