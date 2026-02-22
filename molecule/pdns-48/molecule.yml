@@ -45,11 +45,6 @@ platforms:
     image: ubuntu:22.04
     dockerfile_tpl: debian-systemd
 
-  - name: ubuntu-2404
-    groups: ["pdns"]
-    image: ubuntu:24.04
-    dockerfile_tpl: debian-systemd
-
   - name: debian-11
     groups: ["pdns"]
     image: debian:11

@@ -12,7 +12,8 @@
   tags:
     - always
 
-- set_fact:
+- name: Set debug mode flag from Ansible verbosity
+  ansible.builtin.set_fact:
     _pdns_debug_mode: "{{ ansible_verbosity | int >= 2 }}"
 
 - name: Setup repository
