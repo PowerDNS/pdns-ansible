@@ -4,5 +4,5 @@ yamllint==1.38.0
 molecule-plugins[docker]==23.6.0
 molecule-plugins[lint]==23.6.0
 molecule==24.9.0
-pytest-testinfra==10.1.1
+pytest-testinfra==10.2.2
 docker==7.1.0
