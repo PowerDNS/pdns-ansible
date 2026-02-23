@@ -7,7 +7,7 @@ galaxy_info:
   description: Install and configure the PowerDNS Authoritative DNS Server
   company: PowerDNS.COM BV
   license: MIT
-  min_ansible_version: "2.12"
+  min_ansible_version: "2.15"
   platforms:
     - name: EL
       versions:
