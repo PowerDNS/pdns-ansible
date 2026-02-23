@@ -10,6 +10,11 @@ NEW FEATURES:
   (based in [\#216](https://github.com/PowerDNS/pdns-ansible/pull/216) @dtrdnk,
   [\#211](https://github.com/PowerDNS/pdns-ansible/pull/211) @Exchizz,
   [\#104](https://github.com/PowerDNS/pdns-ansible/pull/104) @commonism)
+- Add role-level toggles for PostgreSQL backend bootstrap (`pdns_pgsql_manage_database`, `pdns_pgsql_schema_load`, `pdns_pgsql_schema_on_first_node_only`)
+- Add role-level SELinux control via `pdns_manage_selinux` (enabled by default)
+- Add service masking support via `pdns_service_masked`
+- Add role verbosity toggle (`pdns_verbose`) to control redaction of sensitive SQL task logs
+- Add architecture-aware APT repository settings for Debian-family systems (`pdns_apt_repo_arch` map with `amd64`/`arm64`)
 
 IMPROVEMENTS:
 - Include `mysql_schema_file` in MySQL import task names ([\#119](https://github.com/PowerDNS/pdns-ansible/pull/119), @zerwes)
@@ -24,11 +29,22 @@ IMPROVEMENTS:
   (based on [\#242](https://github.com/PowerDNS/pdns-ansible/pull/242) @l00d3r,
   [\#246](https://github.com/PowerDNS/pdns-ansible/pull/246) @joshsol1)
 - Bump `ansible-lint` to 6.18.0 ([\#190](https://github.com/PowerDNS/pdns-ansible/pull/190), @dependabot[bot])
+- Rework MySQL bootstrap workflow for MySQL 8.4/9 and MariaDB compatibility:
+  - socket/TCP selection with `pdns_mysql_query_use_socket` and `pdns_mysql_unix_socket`
+  - configurable SQL CLI command/flags via `pdns_backends_mysql_cmd` and `pdns_mysql_cli_extra_args`
+  - auth plugin and password-update controls via `pdns_mysql_auth_plugin` and `pdns_mysql_user_update_password`
+- Improve PostgreSQL bootstrap workflow with socket/TCP selection and first-node-only execution controls
+- Improve SQLite schema detection/import by supporting compressed schemas (`.gz`, `.xz`) and additional distro-specific paths
+- Improve PowerDNS version detection by parsing both stdout/stderr to handle plugin load noise
+- Consolidate OS variable loading order in role (`os_family` -> `distribution` -> major-version overrides)
+- Standardize service management on `ansible.builtin.systemd` and apt cache updates through handlers
 
 REMOVED / EOL:
 - Drop pdns46 repository (EOL) ([\#208](https://github.com/PowerDNS/pdns-ansible/pull/208), @npmdnl)
 - Remove EOL CI targets RHEL 7, Debian 10, and Ubuntu 20.04; add Debian 11, Debian 12, and Ubuntu 24.04 ([\#222](https://github.com/PowerDNS/pdns-ansible/pull/222), @romeroalx, [\#243](https://github.com/PowerDNS/pdns-ansible/pull/243), @romeroalx)
 - Drop pdns47 repository (EOL) ([\#247](https://github.com/PowerDNS/pdns-ansible/pull/247), @npmdnl)
+- Remove deprecated named-schema generation role components (`tasks/database-named.yml`, `templates/named.conf.j2`, `templates/named.zone.j2`)
+- Remove version-specific RedHat vars files in favor of consolidated `vars/RedHat.yml`
 
 BUG FIXES:
 - Reorder `selinux.yml` include to resolve issue #122 ([\#123](https://github.com/PowerDNS/pdns-ansible/pull/123), @pixelrebel)
@@ -38,6 +54,8 @@ BUG FIXES:
 - Add missing RHEL-family packages required for SELinux support ([\#218](https://github.com/PowerDNS/pdns-ansible/pull/218), @vhsantos)
 - Move PowerDNS restart logic to handlers ([\#244](https://github.com/PowerDNS/pdns-ansible/pull/244), @valiac)
 - Exclude local `.ansible` cache directory from linting ([\#245](https://github.com/PowerDNS/pdns-ansible/pull/245), @valiac)
+- Fix SELinux DB-connect boolean activation for both MySQL and PostgreSQL backends (including multi-instance backend names)
+- Fix MySQL/MariaDB bootstrap on `caching_sha2_password` by adding required `python*-cryptography` dependencies in role defaults
 
 ## v1.8.0 (2023-08-03)
 

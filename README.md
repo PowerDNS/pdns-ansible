@@ -176,8 +176,8 @@ configures PowerDNS Authoritative Server to listen incoming DNS requests on port
 
 ```yaml
 pdns_service_overrides:
-  User: {{ pdns_user }}
-  Group: {{ pdns_group }}
+  User: "{{ pdns_user }}"
+  Group: "{{ pdns_group }}"
 ```
 
 Dict with overrides for the service (systemd only).
@@ -262,7 +262,7 @@ pdns_backends_mysql_cmd: "{{ default_pdns_backends_mysql_cmd }}"
 pdns_mysql_cli_extra_args: "{{ default_pdns_mysql_cli_extra_args }}"
 pdns_mysql_auth_plugin: ""
 pdns_mysql_user_update_password: ""
-pdns_mysql_packages: []
+pdns_mysql_packages: "{{ default_pdns_mysql_packages }}"
 ```
 
 `pdns_mysql_manage_database` controls whether this role performs MySQL/MariaDB bootstrap operations
@@ -299,7 +299,7 @@ When `pdns_mysql_query_use_socket` is set to `true`, role-internal MySQL operati
 ```yaml
 pdns_pgsql_manage_database: true
 pdns_pgsql_databases_credentials: {}
-pdns_pgsql_packages: []
+pdns_pgsql_packages: "{{ default_pdns_pgsql_packages }}"
 ```
 
 `pdns_pgsql_manage_database` controls whether this role performs PostgreSQL bootstrap operations
@@ -363,6 +363,13 @@ administrative credentials are provided, user/database creation still runs even 
 
 `pdns_mysql_schema_on_first_node_only` and `pdns_pgsql_schema_on_first_node_only` control
 cluster bootstrap execution for shared SQL backends (database/user/grants/schema import).
+
+```yaml
+pdns_verbose: "{{ ansible_verbosity | int >= 2 }}"
+```
+
+Enable verbose/debug role behavior. This currently controls whether sensitive SQL task details
+are hidden in logs (`false`) or visible for troubleshooting (`true`).
 
 ## Example Playbooks
 
