@@ -53,6 +53,8 @@ provisioner:
       fact_caching: jsonfile
       fact_caching_connection: .ansible_cache
       fact_caching_timeout: 7200
+      local_tmp: /tmp/.ansible/tmp
+      remote_tmp: /tmp/.ansible/tmp
     ssh_connection:
       pipelining: true
   playbooks:

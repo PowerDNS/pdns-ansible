@@ -42,3 +42,6 @@ jobs:
         run: tox -- molecule test -s ${{ matrix.scenario }}
         env:
           ANSIBLE: ${{ matrix.ansible }}
+          ANSIBLE_HOME: /tmp/.ansible
+          ANSIBLE_LOCAL_TEMP: /tmp/.ansible/tmp
+          ANSIBLE_REMOTE_TEMP: /tmp/.ansible/tmp
