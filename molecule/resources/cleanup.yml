@@ -2,7 +2,6 @@
 
 - name: Cleanup role-managed PowerDNS packages
   hosts: pdns
-  gather_facts: true
   vars:
     pdns_package_state: absent
     pdns_debug_symbols_package_state: absent
