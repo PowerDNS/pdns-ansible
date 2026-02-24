@@ -1,3 +1,18 @@
+## v1.10.0 (Unreleased)
+
+NEW FEATURES:
+- Add role-level package state controls for PowerDNS, debug symbols, backend packages, and backend dependency packages:
+  `pdns_package_state`, `pdns_debug_symbols_package_state`, `pdns_backends_packages_state`,
+  `pdns_mysql_packages_state`, `pdns_pgsql_packages_state`, and `pdns_sqlite_package_state`.
+- Add role documentation section describing standard tags (`install`, `config`, `service`, `repository`).
+
+IMPROVEMENTS:
+- Add explicit task/handler tags across installation, repository, configuration, and service flows to support predictable partial runs.
+- Refactor MySQL, PostgreSQL, and SQLite database tasks into clearer management blocks with explicit package-state handling.
+- Improve role behavior when `pdns_package_state: absent` by skipping runtime configuration/service tasks while still allowing dependency/package removal paths.
+- Normalize defaults/documentation booleans (`true`/`false`) and fix minor typos.
+- Include `hostname` in the EL Molecule Docker image package set.
+
 ## v1.9.0 (2026-02-23)
 
 NEW FEATURES:

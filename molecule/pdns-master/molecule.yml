@@ -102,6 +102,7 @@ provisioner:
     ssh_connection:
       pipelining: true
   playbooks:
+    cleanup: ../resources/cleanup.yml
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
     prepare: ../resources/prepare.yml

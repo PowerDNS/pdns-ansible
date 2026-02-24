@@ -2,6 +2,9 @@
 
 - name: Install EPEL repositories on RedHat-family distributions
   when: pdns_install_epel
+  tags:
+    - install
+    - repository
   block:
 
     - name: Install epel-release on CentOS
@@ -16,11 +19,10 @@
         state: present
       when: ansible_distribution in [ 'RedHat' ]
 
-    - name: Install epel-release and hostname on OracleLinux
+    - name: Install epel-release on OracleLinux
       ansible.builtin.package:
         name:
           - "oracle-epel-release-el{{ ansible_distribution_major_version }}"
-          - hostname
         state: present
 
       when: ansible_distribution in [ 'OracleLinux' ]
@@ -32,6 +34,9 @@
   when:
     - ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
     - ansible_distribution_major_version | int < 8
+  tags:
+    - install
+    - repository
 
 - name: Install policycoreutils-python-utils to manage an SELinux environment.
   ansible.builtin.package:
@@ -40,6 +45,9 @@
   when:
     - ansible_distribution in [ 'RedHat', 'CentOS', 'Rocky', 'AlmaLinux', 'OracleLinux' ]
     - ansible_distribution_major_version | int >= 8
+  tags:
+    - install
+    - repository
 
 - name: Add the PowerDNS YUM Repository
   ansible.builtin.yum_repository:
@@ -51,6 +59,9 @@
     gpgcheck: true
     priority: "90"
     state: present
+  tags:
+    - install
+    - repository
 
 - name: Add the PowerDNS debug symbols YUM Repository
   ansible.builtin.yum_repository:
@@ -63,3 +74,6 @@
     priority: "90"
     state: present
   when: pdns_install_debug_symbols_package
+  tags:
+    - install
+    - repository

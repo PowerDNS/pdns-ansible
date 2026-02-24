@@ -6,11 +6,17 @@
         (ansible_distribution == 'Ubuntu' and (ansible_distribution_major_version | int) >= 22) or
         (ansible_distribution == 'Debian' and (ansible_distribution_major_version | int) >= 11)
       }}
+  tags:
+    - install
+    - repository
 
 - name: Configure the PowerDNS APT Repository (Deb822-style)
   when:
     - (pdns_install_repo['apt_version'] | default('')) | length > 0
     - _pdns_deb822_supported
+  tags:
+    - install
+    - repository
   block:
     - name: Install python3-debian (required by deb822_repository)
       ansible.builtin.package:
@@ -38,6 +44,9 @@
   when: >-
     ((pdns_install_repo['apt_version'] | default('')) | length == 0) or
     (not _pdns_deb822_supported)
+  tags:
+    - install
+    - repository
   block:
     - name: Install gnupg
       ansible.builtin.package:
@@ -109,6 +118,12 @@
     owner: root
     group: root
     mode: "0644"
+  tags:
+    - install
+    - repository
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
+  tags:
+    - install
+    - repository

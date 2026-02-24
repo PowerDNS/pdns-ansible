@@ -26,6 +26,7 @@
 
 - name: Get version of PowerDNS instance
   ansible.builtin.include_tasks: inspect.yml
+  when: pdns_package_state != 'absent'
   tags:
     - db
     - mysql
@@ -36,6 +37,7 @@
 - name: Configure SELinux
   ansible.builtin.include_tasks: selinux.yml
   when:
+    - pdns_package_state != 'absent'
     - pdns_manage_selinux | bool
     - ansible_selinux is defined
     - ansible_selinux.status == 'enabled'
@@ -46,45 +48,68 @@
 - name: Install and configure MySQL database
   ansible.builtin.include_tasks: database-mysql.yml
   when:
-    - pdns_mysql_manage_database | bool
+    - >-
+      (
+        pdns_package_state != 'absent'
+        and pdns_mysql_manage_database | bool
+      ) or pdns_mysql_packages_state == 'absent'
     - >-
       (pdns_backends | dict2items
       | selectattr('key', 'match', '^gmysql(:.*)?$')
       | list
       | length) > 0
   tags:
+    - install
+    - config
     - db
     - mysql
 
 - name: Install and configure PostgreSQL database
   ansible.builtin.include_tasks: database-pgsql.yml
   when:
-    - pdns_pgsql_manage_database | bool
+    - >-
+      (
+        pdns_package_state != 'absent'
+        and pdns_pgsql_manage_database | bool
+      ) or pdns_pgsql_packages_state == 'absent'
     - >-
       (pdns_backends | dict2items
       | selectattr('key', 'match', '^gpgsql(:.*)?$')
       | list
       | length) > 0
   tags:
+    - install
+    - config
     - db
     - pgsql
 
 - name: Install and configure SQlite database
   ansible.builtin.include_tasks: database-sqlite3.yml
-  when: "pdns_sqlite_databases_locations | length > 0"
+  when:
+    - >-
+      (
+        pdns_package_state != 'absent'
+        and pdns_sqlite_databases_locations | length > 0
+      ) or pdns_sqlite_package_state == 'absent'
   tags:
+    - install
+    - config
     - db
     - sqlite
 
 - name: Install and configure LMDB database
   ansible.builtin.include_tasks: database-lmdb.yml
-  when: "pdns_lmdb_databases_locations | length > 0"
+  when:
+    - pdns_package_state != 'absent'
+    - pdns_lmdb_databases_locations | length > 0
   tags:
+    - config
     - db
     - lmdb
 
 - name: Build config file
   ansible.builtin.include_tasks: configure.yml
+  when: pdns_package_state != 'absent'
   tags:
     - config
 
@@ -95,5 +120,6 @@
     state: "{{ pdns_service_state }}"
     enabled: "{{ pdns_service_enabled }}"
     masked: "{{ pdns_service_masked }}"
+  when: pdns_package_state != 'absent'
   tags:
     - service

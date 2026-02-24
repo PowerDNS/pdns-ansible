@@ -59,11 +59,19 @@ pdns_package_name: "{{ default_pdns_package_name }}"
 #     where each YUM repository can contains multiple versions of the same package.
 pdns_package_version: ""
 
+# Desired state of the PowerDNS Authoritative Server package.
+# Supported values include present, latest and absent.
+pdns_package_state: "present"
+
 # Install the PowerDNS Authoritative Server debug symbols package
 pdns_install_debug_symbols_package: false
 
 # The name of the PowerDNS Authoritative Server debug symbols package
 pdns_debug_symbols_package_name: "{{ default_pdns_debug_symbols_package_name }}"
+
+# Desired state of the debug symbols package when managed by this role.
+# Supported values include present, latest and absent.
+pdns_debug_symbols_package_state: "{{ pdns_package_state }}"
 
 # The user and group the PowerDNS Authoritative Server process will run as.
 # NOTE: at the moment, we don't create a user as we assume the package creates
@@ -79,7 +87,7 @@ pdns_service_name: "pdns"
 
 # State of the PowerDNS Authoritative Server service
 pdns_service_state: "started"
-pdns_service_enabled: "yes"
+pdns_service_enabled: true
 pdns_service_masked: false
 
 # When True, disable the automated restart of the PowerDNS service
@@ -92,7 +100,7 @@ pdns_manage_selinux: true
 pdns_config_dir: "{{ default_pdns_config_dir }}"
 pdns_config_file: "pdns.conf"
 
-# Ddict containing all configuration options, except for backend
+# Dict containing all configuration options, except for backend
 # configuration and the "config-dir", "setuid" and "setgid" directives.
 pdns_config: {}
 # pdns_config:
@@ -110,6 +118,10 @@ pdns_service_overrides: "{{ default_pdns_service_overrides }}"
 # Dictionary of packages that should be installed to enable the backends.
 # backendname: packagename
 pdns_backends_packages: "{{ default_pdns_backends_packages }}"
+
+# Desired state of backend packages.
+# Supported values include present, latest and absent.
+pdns_backends_packages_state: "{{ pdns_package_state }}"
 
 # A dict with all the backends you'd like to configure.
 # This default starts just the bind-backend with an empty config file
@@ -130,7 +142,7 @@ pdns_backends:
 #     'dbname': dns
 #   'bind':
 #     'config': '/etc/named/named.conf'
-#     'hybrid':  yes
+#     'hybrid': true
 #     'check-interval': 60
 #     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
 
@@ -193,6 +205,10 @@ pdns_mysql_query_use_socket: false
 # By default, OS-specific vars files provide the actual package list.
 pdns_mysql_packages: "{{ default_pdns_mysql_packages }}"
 
+# Desired state of MySQL dependency packages.
+# Supported values include present, latest and absent.
+pdns_mysql_packages_state: "{{ pdns_package_state }}"
+
 # UNIX socket path used when pdns_mysql_query_use_socket is true.
 pdns_mysql_unix_socket: "/var/run/mysqld/mysqld.sock"
 
@@ -232,18 +248,26 @@ pdns_pgsql_query_use_socket: false
 # By default, OS-specific vars files provide the actual package list.
 pdns_pgsql_packages: "{{ default_pdns_pgsql_packages }}"
 
+# Desired state of PostgreSQL dependency packages.
+# Supported values include present, latest and absent.
+pdns_pgsql_packages_state: "{{ pdns_package_state }}"
+
 # UNIX socket path used when pdns_pgsql_query_use_socket is true.
 pdns_pgsql_unix_socket: "/var/run/postgresql"
 
 # This will create the PowerDNS Authoritative Server backend SQLite database
 # in the given locations.
-# NOTE: Requries the SQLite CLI tools to be available in the machine and the gsqlite3
+# NOTE: Requires the SQLite CLI tools to be available in the machine and the gsqlite3
 # backend to be installed on the machine.
 pdns_sqlite_databases_locations: []
 
+# Desired state of the SQLite CLI dependency package.
+# Supported values include present, latest and absent.
+pdns_sqlite_package_state: "{{ pdns_package_state }}"
+
 # This will create the PowerDNS Authoritative Server backend LMDB database
 # in the given locations.
-# NOTE: Requries lmdb backend to be installed on the machine.
+# NOTE: Requires lmdb backend to be installed on the machine.
 pdns_lmdb_databases_locations: []
 
 # By default, we'll load the MySQL default schema. Set this to false to disable loading the schema

@@ -1,0 +1,19 @@
+---
+
+- name: Cleanup role-managed PowerDNS packages
+  hosts: pdns
+  vars:
+    pdns_package_state: absent
+    pdns_debug_symbols_package_state: absent
+    pdns_backends_packages_state: absent
+    pdns_mysql_packages_state: absent
+    pdns_pgsql_packages_state: absent
+    pdns_sqlite_package_state: absent
+    pdns_backends:
+      bind: {}
+      gmysql: {}
+      gpgsql: {}
+      gsqlite3: {}
+      lmdb: {}
+  roles:
+    - role: powerdns.pdns

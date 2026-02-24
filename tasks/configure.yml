@@ -1,6 +1,8 @@
 ---
 - name: Set up systemd override
   when: ansible_service_mgr == "systemd"
+  tags:
+    - config
   block:
 
     - name: Ensure the override directory exists (systemd)
@@ -30,6 +32,8 @@
     owner: "{{ pdns_file_owner }}"
     group: "{{ pdns_file_group }}"
     mode: "0750"
+  tags:
+    - config
 
 - name: Generate the PowerDNS configuration
   ansible.builtin.template:
@@ -39,6 +43,8 @@
     group: "{{ pdns_file_group }}"
     mode: "0640"
   notify: restart pdns
+  tags:
+    - config
 
 - name: Ensure configured PowerDNS additional directories exist
   ansible.builtin.file:
@@ -51,6 +57,8 @@
   loop_control:
     label: "{{ item.path | default(item) }}"
   notify: restart pdns
+  tags:
+    - config
 
 - name: Ensure directories for configured PowerDNS extra files exist
   ansible.builtin.file:
@@ -66,6 +74,8 @@
   loop_control:
     label: "{{ item.dest }}"
   notify: restart pdns
+  tags:
+    - config
 
 - name: Copy configured PowerDNS extra files
   ansible.builtin.copy:
@@ -82,3 +92,5 @@
   loop_control:
     label: "{{ item.dest }}"
   notify: restart pdns
+  tags:
+    - config

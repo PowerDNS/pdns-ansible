@@ -1,6 +1,8 @@
 ---
-- name: Set up version seperator
-  when: "pdns_package_version | length > 0"
+- name: Set up version separator
+  when: pdns_package_version | length > 0
+  tags:
+    - install
   block:
     - name: Prefix the PowerDNS version with the correct separator on RedHat
       ansible.builtin.set_fact:
@@ -14,21 +16,34 @@
 
 - name: Install PowerDNS
   ansible.builtin.package:
-    name: "{{ pdns_package_name }}{{ _pdns_package_version | default('') }}"
-    state: present
+    name: >-
+      {{ pdns_package_name }}{{ _pdns_package_version | default('')
+      if pdns_package_state != 'absent' else '' }}
+    state: "{{ pdns_package_state }}"
   notify: reload systemd
+  tags:
+    - install
 
 - name: Install PowerDNS debug symbols
   ansible.builtin.package:
-    name: "{{ pdns_debug_symbols_package_name }}{{ _pdns_package_version | default('') }}"
-    state: present
-  when: pdns_install_debug_symbols_package
+    name: >-
+      {{ pdns_debug_symbols_package_name }}{{ _pdns_package_version | default('')
+      if pdns_debug_symbols_package_state != 'absent' else '' }}
+    state: "{{ pdns_debug_symbols_package_state }}"
+  when:
+    - pdns_install_debug_symbols_package | bool or pdns_debug_symbols_package_state == 'absent'
+  tags:
+    - install
 
 - name: Install PowerDNS backends
   ansible.builtin.package:
-    name: "{{ pdns_backends_packages[item.key.split(':')[0]] }}{{ _pdns_package_version | default('') }}"
-    state: present
+    name: >-
+      {{ pdns_backends_packages[item.key.split(':')[0]] }}{{ _pdns_package_version | default('')
+      if pdns_backends_packages_state != 'absent' else '' }}
+    state: "{{ pdns_backends_packages_state }}"
   when: pdns_backends_packages[item.key.split(':')[0]] is defined
   with_dict: "{{ pdns_backends }}"
   loop_control:
     label: "{{ item.key }}"
+  tags:
+    - install

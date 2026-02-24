@@ -5,7 +5,7 @@ FROM {{ item.image }}
 ENV container docker
 
 RUN dnf makecache && \
-    dnf install -y systemd python3 python3-pip sudo bash vim iproute procps-ng && \
+    dnf install -y systemd python3 python3-pip sudo bash vim iproute procps-ng hostname && \
     rm -Rf /usr/share/doc && \
     rm -Rf /usr/share/man && \
     dnf clean all

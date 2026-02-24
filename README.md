@@ -83,7 +83,7 @@ If `apt_version` is omitted, the legacy `apt_repo` string is used with `ansible.
 ```
 
 By default, install EPEL to satisfy some PowerDNS Authoritative Server dependencies like `protobuf`.
-To skip the installation of EPEL set `pdns_install_epel` to `False`.
+To skip the installation of EPEL set `pdns_install_epel` to `false`.
 
 ```yaml
 pdns_package_name: "{{ default_pdns_package_name }}"
@@ -98,6 +98,13 @@ pdns_package_version: ""
 Optionally, allow to set a specific version of the PowerDNS Authoritative Server package to be installed.
 
 ```yaml
+pdns_package_state: "present"
+```
+
+Desired package state for `pdns_package_name`. Supported values include `present`, `latest`, and `absent`.
+When set to `absent`, the role removes packages and skips runtime configuration tasks.
+
+```yaml
 pdns_install_debug_symbols_package: false
 ```
 
@@ -107,8 +114,14 @@ Install the PowerDNS Authoritative Server debug symbols.
 pdns_debug_symbols_package_name: "{{ default_pdns_debug_symbols_package_name }}"
 ```
 
-The name of the PowerDNS Authoritative Server debug package to be installed when `pdns_install_debug_symbols_package` is `True`,
+The name of the PowerDNS Authoritative Server debug package to be installed when `pdns_install_debug_symbols_package` is `true`,
 `pdns-debuginfo` on RedHat-like systems and `pdns-server-dbg` on Debian-like systems.
+
+```yaml
+pdns_debug_symbols_package_state: "{{ pdns_package_state }}"
+```
+
+Desired package state for the debug symbols package when it is managed by this role.
 
 ```yaml
 pdns_user: pdns
@@ -129,7 +142,7 @@ Name of the PowerDNS service.
 
 ```yaml
 pdns_service_state: "started"
-pdns_service_enabled: "yes"
+pdns_service_enabled: true
 pdns_service_masked: false
 ```
 
@@ -185,6 +198,7 @@ This can be used to change any systemd settings in the `[Service]` category.
 
 ```yaml
 pdns_backends_packages: "{{ default_pdns_backends_packages }}"
+pdns_backends_packages_state: "{{ pdns_package_state }}"
 pdns_backends:
   bind:
     config: '/dev/null'
@@ -208,11 +222,12 @@ pdns_backends:
     'dbname': dns
   'bind':
     'config': '/etc/named/named.conf'
-    'hybrid':  yes
+    'hybrid': true
     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
 ```
 
 By default this role starts just the bind-backend with an empty config file.
+`pdns_backends_packages_state` controls install/update/removal of backend packages.
 
 ```yaml
 pdns_config_additional_dirs: []
@@ -263,6 +278,7 @@ pdns_mysql_cli_extra_args: "{{ default_pdns_mysql_cli_extra_args }}"
 pdns_mysql_auth_plugin: ""
 pdns_mysql_user_update_password: ""
 pdns_mysql_packages: "{{ default_pdns_mysql_packages }}"
+pdns_mysql_packages_state: "present"
 ```
 
 `pdns_mysql_manage_database` controls whether this role performs MySQL/MariaDB bootstrap operations
@@ -295,11 +311,13 @@ When `pdns_mysql_query_use_socket` is set to `true`, role-internal MySQL operati
 `pdns_mysql_unix_socket` instead of TCP host/port.
 `pdns_backends_mysql_cmd` and `pdns_mysql_cli_extra_args` control the MySQL/MariaDB CLI invocation used for schema checks/import.
 `pdns_mysql_packages` allows overriding OS-specific MySQL dependency package lists.
+`pdns_mysql_packages_state` controls install/update/removal of those dependency packages.
 
 ```yaml
 pdns_pgsql_manage_database: true
 pdns_pgsql_databases_credentials: {}
 pdns_pgsql_packages: "{{ default_pdns_pgsql_packages }}"
+pdns_pgsql_packages_state: "present"
 ```
 
 `pdns_pgsql_manage_database` controls whether this role performs PostgreSQL bootstrap operations
@@ -328,6 +346,7 @@ When `pdns_pgsql_query_use_socket` is set to `true`, role-internal PostgreSQL op
 (database/user creation and schema load checks/import) use the UNIX socket path defined by
 `pdns_pgsql_unix_socket` instead of TCP host/port.
 `pdns_pgsql_packages` allows overriding OS-specific PostgreSQL dependency package lists.
+`pdns_pgsql_packages_state` controls install/update/removal of those dependency packages.
 
 ```yaml
 pdns_sqlite_databases_locations: []
@@ -335,6 +354,12 @@ pdns_sqlite_databases_locations: []
 
 Locations of the SQLite3 databases that have to be created if using the
 `gsqlite3` backend.
+
+```yaml
+pdns_sqlite_package_state: "present"
+```
+
+Desired package state for the SQLite CLI dependency used during schema bootstrap.
 
 ```yaml
 pdns_lmdb_databases_locations: []
@@ -370,6 +395,18 @@ pdns_verbose: "{{ ansible_verbosity | int >= 2 }}"
 
 Enable verbose/debug role behavior. This currently controls whether sensitive SQL task details
 are hidden in logs (`false`) or visible for troubleshooting (`true`).
+
+## Role Tags
+
+This role uses the following standard tags so filtered runs stay predictable with `--tags` / `--skip-tags`:
+
+- `install`: package/module installation or software provisioning.
+- `config`: configuration/state changes (templates, files, directories, settings, data bootstrap).
+- `service`: service state management and service-related handlers.
+- `repository`: repository/key/pinning setup and repository cache refresh.
+
+Some prerequisite tasks intentionally have multiple tags (for example `install` + `repository`,
+or `install` + `config`) so filtered runs include the dependencies required by the selected path.
 
 ## Example Playbooks
 

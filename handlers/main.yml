@@ -4,6 +4,8 @@
     daemon_reload: true
   listen: reload systemd
   when: not pdns_disable_handlers
+  tags:
+    - service
 
 - name: Restart PowerDNS
   ansible.builtin.systemd:
@@ -13,8 +15,13 @@
   when:
     - not pdns_disable_handlers
     - pdns_service_state != 'stopped'
+  tags:
+    - service
 
 - name: Update the apt cache
   ansible.builtin.apt:
     update_cache: true
   listen: update the apt cache
+  tags:
+    - install
+    - repository
