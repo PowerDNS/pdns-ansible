@@ -10,9 +10,6 @@ pdns_apt_repo_arch: >-
   {{ pdns_apt_repo_arch_map.get((ansible_architecture | default('amd64')) | lower,
                                 (ansible_architecture | default('amd64')) | lower) }}
 
-_pdns_auth_powerdns_repo_name: powerdns-authoritative
-_pdns_auth_remove_repo_regex: '^powerdns-auth-(master|50|49|48|47|46|45|44|43|42|41|40)\.(list|sources|repo)$'
-
 pdns_auth_powerdns_repo_master:
   apt_repo_origin: "repo.powerdns.com"
   apt_version: "auth-master"
@@ -23,6 +20,7 @@ pdns_auth_powerdns_repo_master:
   gpg_key_id: "D47975F8DAE32700A563E64FFF389421CBC8B383"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master/debug"
+  name: "powerdns-auth-master"
 
 pdns_auth_powerdns_repo_48:
   apt_repo_origin: "repo.powerdns.com"
@@ -34,6 +32,7 @@ pdns_auth_powerdns_repo_48:
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-48"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-48/debug"
+  name: "powerdns-auth-48"
 
 pdns_auth_powerdns_repo_49:
   apt_repo_origin: "repo.powerdns.com"
@@ -45,6 +44,7 @@ pdns_auth_powerdns_repo_49:
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-49"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-49/debug"
+  name: "powerdns-auth-49"
 
 pdns_auth_powerdns_repo_50:
   apt_repo_origin: "repo.powerdns.com"
@@ -56,6 +56,7 @@ pdns_auth_powerdns_repo_50:
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-50"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-50/debug"
+  name: "powerdns-auth-50"
 
 default_pdns_service_overrides:
   User: "{{ pdns_user }}"

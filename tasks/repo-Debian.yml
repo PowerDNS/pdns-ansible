@@ -1,8 +1,11 @@
 ---
-- name: Find repo files using version suffixed sources and list files
+- name: Find repo and key files using version suffixed sources and list files
   ansible.builtin.find:
-    paths: /etc/apt/sources.list.d/
-    patterns: "{{ _pdns_auth_remove_repo_regex }}"
+    paths:
+      - /etc/apt/sources.list.d/
+      - /etc/apt/trusted.gpg.d/
+      - /etc/apt/keyrings/
+    patterns: "{{ pdns_auth_repo_regex }}"
     use_regex: yes
   register: _pdns_auth_version_suffixed_repo_files
   tags:
@@ -44,7 +47,7 @@
 
     - name: Add the PowerDNS APT Repository (Deb822-style)
       ansible.builtin.deb822_repository:
-        name: "{{ _pdns_auth_powerdns_repo_name }}"
+        name: "{{ pdns_auth_repo_name }}"
         types: deb
         uris: "https://{{ pdns_install_repo['apt_repo_origin'] }}/{{ ansible_distribution | lower }}/"
         suites: "{{ ansible_distribution_release | lower }}-{{ pdns_install_repo['apt_version'] }}"
@@ -55,7 +58,7 @@
 
     - name: Remove the legacy PowerDNS APT .list file when using Deb822
       ansible.builtin.file:
-        path: "/etc/apt/sources.list.d/{{ _pdns_auth_powerdns_repo_name }}.list"
+        path: "/etc/apt/sources.list.d/{{ pdns_auth_repo_name }}.list"
         state: absent
       notify: update the apt cache
 
@@ -98,7 +101,7 @@
     - name: Import the PowerDNS APT Repository key from URL (without apt-key)
       ansible.builtin.get_url:
         url: "{{ pdns_install_repo['gpg_key'] }}"
-        dest: "/etc/apt/trusted.gpg.d/{{ _pdns_auth_powerdns_repo_name }}.asc"
+        dest: "/etc/apt/trusted.gpg.d/{{ pdns_auth_repo_name }}.asc"
         owner: root
         group: root
         mode: "0644"
@@ -109,7 +112,7 @@
     - name: Import the PowerDNS APT Repository key from File (without apt-key)
       ansible.builtin.copy:
         content: "{{ lookup('file', pdns_install_repo['gpg_key']) }}"
-        dest: "/etc/apt/trusted.gpg.d/{{ _pdns_auth_powerdns_repo_name }}.asc"
+        dest: "/etc/apt/trusted.gpg.d/{{ pdns_auth_repo_name }}.asc"
         owner: root
         group: root
         mode: "0644"
@@ -119,14 +122,14 @@
 
     - name: Add the PowerDNS APT Repository (legacy format)
       ansible.builtin.apt_repository:
-        filename: "{{ _pdns_auth_powerdns_repo_name }}"
+        filename: "{{ pdns_auth_repo_name }}"
         repo: "{{ pdns_install_repo['apt_repo'] }}"
         state: present
       notify: update the apt cache
 
     - name: Remove the Deb822 PowerDNS APT .sources file when using legacy format
       ansible.builtin.file:
-        path: "/etc/apt/sources.list.d/{{ _pdns_auth_powerdns_repo_name }}.sources"
+        path: "/etc/apt/sources.list.d/{{ pdns_auth_repo_name }}.sources"
         state: absent
       notify: update the apt cache
 

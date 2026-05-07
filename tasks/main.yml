@@ -12,6 +12,12 @@
   tags:
     - always
 
+- name: Set fact for repo name
+  when: "pdns_install_repo | length > 0"
+  ansible.builtin.set_fact:
+    pdns_auth_repo_name: "{{ pdns_remove_versioned_repo_files | ternary(pdns_install_repo_name, pdns_auth_install_repo['name']) }}"
+    pdns_auth_repo_regex: "{{ pdns_remove_versioned_repo_files | ternary(pdns_remove_versioned_repo_regex, pdns_install_repo_regex) }}"
+
 - name: Setup repository
   ansible.builtin.include_tasks: "repo-{{ ansible_os_family }}.yml"
   when: "pdns_install_repo | length > 0"

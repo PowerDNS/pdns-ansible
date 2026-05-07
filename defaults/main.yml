@@ -47,6 +47,11 @@ pdns_install_repo: ""
 #   roles:
 #    - { role: PowerDNS.pdns }
 
+pdns_install_repo_name: powerdns-authoritative
+pdns_install_repo_regex: "{{ '^' + pdns_install_repo_name + '\\.(list|sources|repo|asc)$' }}"
+pdns_remove_versioned_repo_regex: '^powerdns-auth-(master|\d+)\.(list|sources|repo|asc)$'
+pdns_remove_versioned_repo_files: true
+
 # Install the EPEL repository.
 # EPEL is needed to satisfy some PowerDNS Authoritative Server dependencies like protobuf
 pdns_install_epel: true
