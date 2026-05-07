@@ -1,13 +1,19 @@
 ---
+- name: Find repo files using version suffixed sources and list files
+  ansible.builtin.find:
+    paths: /etc/yum.repos.d/
+    patterns: "{{ _pdns_auth_remove_repo_regex }}"
+    use_regex: yes
+  register: _pdns_auth_version_suffixed_repo_files
+  tags:
+    - install
+    - repository
 
-- name: Remove repo files using version suffixed repo files
+- name: Remove version suffixed repo files
   ansible.builtin.file:
-    path: "/etc/yum.repos.d/powerdns-auth-{{ item.0 }}.{{ item.1 }}"
+    path: "{{ item }}"
     state: absent
-  loop: "{{ version | product(extension) | list }}"
-  vars:
-    version: ['master', '50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40']
-    extension: ['repo']
+  loop: "{{ _pdns_auth_version_suffixed_repo_files.files | map(attribute='path') | list }}"
   tags:
     - install
     - repository

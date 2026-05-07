@@ -11,6 +11,7 @@ pdns_apt_repo_arch: >-
                                 (ansible_architecture | default('amd64')) | lower) }}
 
 _pdns_auth_powerdns_repo_name: powerdns-authoritative
+_pdns_auth_remove_repo_regex: '^powerdns-auth-(master|50|49|48|47|46|45|44|43|42|41|40)\.(list|sources|repo)$'
 
 pdns_auth_powerdns_repo_master:
   apt_repo_origin: "repo.powerdns.com"

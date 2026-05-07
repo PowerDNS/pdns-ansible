@@ -1,13 +1,22 @@
 ---
-- name: Remove repo files using version suffixed sources and list files
+- name: Find repo files using version suffixed sources and list files
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d/
+    patterns: "{{ _pdns_auth_remove_repo_regex }}"
+    use_regex: yes
+  register: _pdns_auth_version_suffixed_repo_files
+  tags:
+    - install
+    - repository
+
+- name: Remove version suffixed repo files
   ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/powerdns-auth-{{ item.0 }}.{{ item.1 }}"
+    path: "{{ item }}"
     state: absent
-  notify: update the apt cache
-  loop: "{{ version | product(extension) | list }}"
-  vars:
-    version: ['master', '50', '49', '48', '47', '46', '45', '44', '43', '42', '41', '40']
-    extension: ['list', 'sources']
+  loop: "{{ _pdns_auth_version_suffixed_repo_files.files | map(attribute='path') | list }}"
+  tags:
+    - install
+    - repository
 
 - name: Check if Deb822 repository format is supported by the current distro
   ansible.builtin.set_fact:
