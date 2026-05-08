@@ -6,7 +6,7 @@
       - /etc/apt/trusted.gpg.d/
       - /etc/apt/keyrings/
     patterns: "{{ pdns_auth_repo_regex }}"
-    use_regex: yes
+    use_regex: true
   register: _pdns_auth_version_suffixed_repo_files
   tags:
     - install
