@@ -1,0 +1,58 @@
+---
+- name: Configure Autoprimaries
+  when:
+    - pdns_autoprimaries_manage | bool
+    - (pdns_autoprimaries | default([])) | length > 0
+  block:
+    - name: Retrieve current autoprimaries
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/autoprimaries"
+        method: GET
+        status_code:
+          - 200
+      register: _pdns_autoprimaries_current
+
+    - name: Remove absent Autoprimaries
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/autoprimaries/{{ _absent_autoprimary.ip }}/{{ _absent_autoprimary.nameserver }}"
+        method: DELETE
+        status_code:
+          - 204
+      loop: "{{ _pdns_autoprimaries_current.json | default([]) }}"
+      loop_control:
+        loop_var: _absent_autoprimary
+      vars:
+        _wanted: >-
+          {{ (pdns_autoprimaries | default([]))
+            | selectattr('ip', 'equalto', _absent_autoprimary.ip)
+            | selectattr('nameserver', 'equalto', _absent_autoprimary.nameserver)
+            | list }}
+      when: _wanted | length == 0
+
+    - name: Add Autoprimaries
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/autoprimaries"
+        method: POST
+        body_format: json
+        body:
+          ip: "{{ _autoprimary.ip }}"
+          nameserver: "{{ _autoprimary.nameserver }}"
+          account: "{{ _autoprimary.account | default('') }}"
+        status_code:
+          - 201
+      loop: "{{ pdns_autoprimaries | default([]) }}"
+      loop_control:
+        loop_var: _autoprimary
+      vars:
+        _existing: >-
+          {{ (_pdns_autoprimaries_current.json | default([]))
+            | selectattr('ip', 'equalto', _autoprimary.ip)
+            | selectattr('nameserver', 'equalto', _autoprimary.nameserver)
+            | list }}
+      when: _existing | length == 0

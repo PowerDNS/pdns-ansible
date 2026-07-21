@@ -311,3 +311,22 @@ pdns_sqlite_schema_file: ""
 
 # Set debug mode flag from Ansible verbosity
 pdns_verbose: "{{ ansible_verbosity | int >= 2 }}"
+
+# ServerID used in api calls
+pdns_api_server_id: localhost
+
+# Enable managing the autoprimaries using the role.
+# NOTE: Only available on the following backends:
+#   - gmysql
+#   - gpgsql
+#   - gsqlite3
+pdns_autoprimaries_manage: false
+
+# Dict containing provisioning configuration.
+pdns_autoprimaries: []
+# pdns_autoprimaries:
+#   - ip: 10.1.0.10
+#     nameserver: ns1.example.com
+#     account: "account1" 
+#   - ip: 10.1.0.11
+#     nameserver: ns2.example.com
