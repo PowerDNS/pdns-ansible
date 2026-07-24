@@ -4,7 +4,7 @@
 # PowerDNS Provision Configuration
 ##
 
-pdns_autoprimaries_manage: true
+pdns_provision: true
 
 pdns_autoprimaries:
   - ip: 10.1.0.10

@@ -128,3 +128,4 @@ verifier:
     - ../backend-zones/
     - ../service-mask/
     - ../systemd-override/
+    - ../provision-autoprimary
