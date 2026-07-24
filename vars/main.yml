@@ -62,4 +62,4 @@ default_pdns_service_overrides:
   User: "{{ pdns_user }}"
   Group: "{{ pdns_group }}"
 
-pdns_api_url: http://{{ pdns_config['webserver-address'] | default('127.0.0.1') | replace('0.0.0.0', '127.0.0.1') | replace('::', '127.0.0.1') }}:{{ pdns_config["webserver-port"] | default("8081") }}/api/v1/servers/{{ pdns_api_server_id }}
+pdns_api_server_id: localhost

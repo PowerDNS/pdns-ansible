@@ -1,7 +1,6 @@
 ---
 - name: Configure Autoprimaries
   when:
-    - pdns_autoprimaries_manage | bool
     - (pdns_autoprimaries | default([])) | length > 0
   block:
     - name: Retrieve current autoprimaries

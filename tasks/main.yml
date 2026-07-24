@@ -132,6 +132,8 @@
 
 - name: Provision PowerDNS
   ansible.builtin.include_tasks: provision.yml
-  when: pdns_package_state != 'absent'
+  when: 
+    - pdns_package_state != 'absent'
+    - pdns_provision | bool
   tags:
     - config
