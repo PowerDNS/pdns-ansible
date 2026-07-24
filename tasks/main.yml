@@ -134,4 +134,4 @@
   ansible.builtin.include_tasks: provision.yml
   when: pdns_package_state != 'absent'
   tags:
-    - provision
+    - config
