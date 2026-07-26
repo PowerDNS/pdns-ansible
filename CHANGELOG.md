@@ -4,6 +4,9 @@ IMPROVEMENTS:
 - Rework apt and dnf repo file creation to stop using version suffixed file names which are not cleaned up on version changes ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 - Remove version suffixed apt and dnf repo files ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 
+NEW FEATURES:
+- Add support for provisioning autoprimaries through the PowerDNS API ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/268), @nocderechte)
+
 ## v1.10.0 (2026-02-24)
 
 NEW FEATURES:
