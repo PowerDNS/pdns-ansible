@@ -1,0 +1,14 @@
+---
+
+##
+# PowerDNS Provision Configuration
+##
+
+pdns_provision: true
+
+pdns_autoprimaries:
+  - ip: 10.1.0.10
+    nameserver: ns1.example.com
+  - ip: 10.1.0.11
+    nameserver: ns2.example.com
+    account: account1

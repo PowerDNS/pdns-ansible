@@ -311,3 +311,22 @@ pdns_sqlite_schema_file: ""
 
 # Set debug mode flag from Ansible verbosity
 pdns_verbose: "{{ ansible_verbosity | int >= 2 }}"
+
+# Enable managing the autoprimaries using the role.
+# NOTE: Only available on the following backends:
+#   - gmysql
+#   - gpgsql
+#   - gsqlite3
+pdns_provision: false
+
+# Dict containing provisioning configuration.
+pdns_autoprimaries: []
+# pdns_autoprimaries:
+#   - ip: 10.1.0.10
+#     nameserver: ns1.example.com
+#     account: "account1" 
+#   - ip: 10.1.0.11
+#     nameserver: ns2.example.com
+
+# URL of the PowerDNS api endpoint.
+pdns_api_url: http://{{ pdns_config['webserver-address'] | default('127.0.0.1') | replace('0.0.0.0', '127.0.0.1') | replace('::', '::1') }}:{{ pdns_config["webserver-port"] | default("8081") }}/api/v1/servers/{{ pdns_api_server_id }}

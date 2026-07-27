@@ -45,6 +45,7 @@
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-master.yml
     - ../resources/vars/pdns-backend-sqlite3.yml
+    - ../resources/vars/pdns-provision-autoprimary.yml
   vars:
     pdns_service_name: "{{ pdns_instance.service_name }}"
     pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
@@ -84,6 +85,7 @@
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-master.yml
     - ../resources/vars/pdns-backend-mysql.yml
+    - ../resources/vars/pdns-provision-autoprimary.yml
   vars:
     pdns_service_name: "{{ pdns_instance.service_name }}"
     pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
@@ -123,6 +125,7 @@
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-master.yml
     - ../resources/vars/pdns-backend-mariadb.yml
+    - ../resources/vars/pdns-provision-autoprimary.yml
   vars:
     pdns_service_name: "{{ pdns_instance.service_name }}"
     pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
@@ -179,6 +182,7 @@
     - ../resources/vars/pdns-common.yml
     - ../resources/vars/pdns-repo-master.yml
     - ../resources/vars/pdns-backend-postgresql.yml
+    - ../resources/vars/pdns-provision-autoprimary.yml
   vars:
     pdns_service_name: "{{ pdns_instance.service_name }}"
     pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
