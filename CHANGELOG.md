@@ -3,21 +3,21 @@
 IMPROVEMENTS:
 - Rework apt and dnf repo file creation to stop using version suffixed file names which are not cleaned up on version changes ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 - Remove version suffixed apt and dnf repo files ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
-- Document the check mode support (converged hosts only) and the package/service state variables in the README ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
+- Document the check mode support (converged hosts only) and the package/service state variables in the README ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 
 NEW FEATURES:
 - Add support for provisioning autoprimaries through the PowerDNS API ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/268), @nocderechte)
 
 BUG FIXES:
-- Tag the tasks inside `inspect.yml`, `selinux.yml`, `database-*.yml` and `provision.yml`, and tag the `Set fact for repo name` task with `install` and `repository`. A dynamic `include_tasks` does not pass its tags to the tasks it includes, so `--tags install` and `--tags repository` failed with `'pdns_auth_repo_regex' is undefined`, and `--tags backend` and `--tags selinux` silently did nothing ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
-- Add `check_mode: false` to the read-only schema location probes of all three SQL backends and to the MySQL empty-database probe, so `--check` no longer reasons about schema state from empty registered results ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
-- Replace `community.mysql.mysql_db` and `community.mysql.mysql_user` with `ansible.mysql.mysql_db` and `ansible.mysql.mysql_user`. `community.mysql` 5.x redirects both modules and removes them in 6.0.0, which also made `ansible-lint` fail on `fqcn[canonical]` ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
+- Tag the tasks inside `inspect.yml`, `selinux.yml`, `database-*.yml` and `provision.yml`, and tag the `Set fact for repo name` task with `install` and `repository`. A dynamic `include_tasks` does not pass its tags to the tasks it includes, so `--tags install` and `--tags repository` failed with `'pdns_auth_repo_regex' is undefined`, and `--tags backend` and `--tags selinux` silently did nothing ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
+- Add `check_mode: false` to the read-only schema location probes of all three SQL backends and to the MySQL empty-database probe, so `--check` no longer reasons about schema state from empty registered results ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
+- Replace `community.mysql.mysql_db` and `community.mysql.mysql_user` with `ansible.mysql.mysql_db` and `ansible.mysql.mysql_user`. `community.mysql` 5.x redirects both modules and removes them in 6.0.0, which also made `ansible-lint` fail on `fqcn[canonical]` ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 
 BREAKING CHANGES:
-- Require ansible-core 2.16 or later (`min_ansible_version` 2.15 -> 2.16) and drop the 2.15 CI leg. `ansible.mysql` declares `requires_ansible: '>=2.16.0'` ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
+- Require ansible-core 2.16 or later (`min_ansible_version` 2.15 -> 2.16) and drop the 2.15 CI leg. `ansible.mysql` declares `requires_ansible: '>=2.16.0'` ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 
 REMOVED FEATURES:
-- Remove the per-backend tags `mysql`, `pgsql`, `sqlite` and `lmdb`, and rename `db` to `backend`. The role tag vocabulary is now `repository`, `install`, `config`, `service`, `backend` and `selinux`. The removed tags never selected the backend tasks anyway ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
+- Remove the per-backend tags `mysql`, `pgsql`, `sqlite` and `lmdb`, and rename `db` to `backend`. The role tag vocabulary is now `repository`, `install`, `config`, `service`, `backend` and `selinux`. The removed tags never selected the backend tasks anyway ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 
 ## v1.10.0 (2026-02-24)
 
