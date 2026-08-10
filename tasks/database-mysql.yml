@@ -6,6 +6,7 @@
     state: "{{ pdns_mysql_packages_state }}"
   tags:
     - install
+    - backend
 
 - name: Manage the PowerDNS MySQL databases
   when:
@@ -13,10 +14,11 @@
     - pdns_mysql_manage_database | bool
   tags:
     - config
+    - backend
   block:
 
     - name: Create the PowerDNS MySQL databases
-      community.mysql.mysql_db:
+      ansible.mysql.mysql_db:
         login_user: "{{ item['value']['priv_user'] }}"
         login_password: "{{ item['value']['priv_password'] }}"
         login_host: "{{ item['value']['host'] | default('localhost') if not pdns_mysql_query_use_socket else omit }}"
@@ -34,7 +36,7 @@
       with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
     - name: Grant PowerDNS access to the MySQL databases
-      community.mysql.mysql_user:
+      ansible.mysql.mysql_user:
         login_user: "{{ item[0]['priv_user'] }}"
         login_password: "{{ item[0]['priv_password'] }}"
         login_host: "{{ item[0]['host'] | default('localhost') if not pdns_mysql_query_use_socket else omit }}"
@@ -79,6 +81,7 @@
       with_dict: "{{ pdns_backends }}"
       register: _pdns_check_mysql_db
       no_log: "{{ not pdns_verbose }}"
+      check_mode: false
       changed_when: false
 
     - name: Determine location of the SQL file
@@ -97,6 +100,7 @@
           done
           echo "Can't determine path to MySQL schema">&2
           exit 1
+      check_mode: false
       changed_when: false
       register: _pdns_mysql_schema_file_detected
       when:

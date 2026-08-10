@@ -6,6 +6,7 @@
     state: "{{ pdns_pgsql_packages_state }}"
   tags:
     - install
+    - backend
 
 - name: Manage the PowerDNS PostgreSQL databases
   when:
@@ -13,6 +14,7 @@
     - pdns_pgsql_manage_database | bool
   tags:
     - config
+    - backend
   block:
 
     - name: Create PowerDNS PostgreSQL users
@@ -93,6 +95,7 @@
           done
           echo "Can't determine path to PostgreSQL schema" >&2
           exit 1
+      check_mode: false
       changed_when: false
       register: _pdns_pgsql_schema_file_detected
       when:

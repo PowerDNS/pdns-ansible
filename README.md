@@ -9,7 +9,7 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.15 or higher installation.
+An Ansible 2.16 or higher installation.
 
 ## Dependencies
 
@@ -398,15 +398,54 @@ are hidden in logs (`false`) or visible for troubleshooting (`true`).
 
 ## Role Tags
 
-This role uses the following standard tags so filtered runs stay predictable with `--tags` / `--skip-tags`:
+Tags for `--tags` / `--skip-tags`:
 
-- `install`: package/module installation or software provisioning.
-- `config`: configuration/state changes (templates, files, directories, settings, data bootstrap).
-- `service`: service state management and service-related handlers.
-- `repository`: repository/key/pinning setup and repository cache refresh.
+- `repository`: repo and GPG key setup, pinning, cache refresh.
+- `install`: package installation and removal.
+- `config`: templates, files, directories, settings, data bootstrap.
+- `service`: service state and related handlers.
+- `backend`: database backend management, all backends. No per-backend tags.
+- `selinux`: SELinux policy tasks.
+- `always`: OS variable import.
 
-Some prerequisite tasks intentionally have multiple tags (for example `install` + `repository`,
-or `install` + `config`) so filtered runs include the dependencies required by the selected path.
+Prerequisites carry several tags. The fact deriving the repository name is tagged `install` +
+`repository`; version detection is tagged `config` + `backend`, since the backend tasks need the
+running version to locate the schema files.
+
+Contributors: tags belong on the tasks inside the included files, not only on the `include_tasks`
+in `tasks/main.yml`. A dynamic `include_tasks` does not pass its tags to included tasks, so a task
+relying on the include's tag alone is skipped by a narrow `--tags` run - silently, or with an
+undefined-variable error in whatever depended on it.
+
+## Check Mode
+
+Supported only on a host where this role already ran successfully.
+
+Converged host: `--check` reports real drift only. The read-only probes locating schema files and
+the running version carry `check_mode: false` so they still run and register results; they change
+nothing. Without that, check mode reasons about schema state from empty strings.
+
+Fresh host: `--check` is expected to fail. It installs neither the repository, `python3-debian` nor
+the `pdns` packages, so the run aborts in `deb822_repository` or on the
+`Ensure PowerDNS version was detected` assertion.
+
+`Check if the PostgreSQL databases are empty` uses `community.postgresql.postgresql_query`, which
+honours check mode natively but needs a reachable database.
+
+## Package and Service State
+
+- `pdns_package_state`: `present`, `latest`, `absent`, ...
+- `pdns_debug_symbols_package_state`, `pdns_backends_packages_state`, `pdns_mysql_packages_state`,
+  `pdns_pgsql_packages_state`, `pdns_sqlite_package_state`: default to `pdns_package_state`.
+- `pdns_service_state` (`started`, `stopped`, `restarted`, `reloaded`), `pdns_service_enabled`,
+  `pdns_service_masked`.
+
+Removal works in a normal run: with `pdns_package_state: absent` the packages are removed and the
+version detection, SELinux, backend, config, service and provisioning stages are skipped.
+
+```bash
+ansible-playbook site.yml -e pdns_package_state=absent
+```
 
 ## Example Playbooks
 
