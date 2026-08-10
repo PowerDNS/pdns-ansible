@@ -7,6 +7,7 @@
   when: ansible_os_family == 'RedHat'
   tags:
     - install
+    - backend
 
 - name: Install the SQLite dependencies on Debian
   ansible.builtin.package:
@@ -16,6 +17,7 @@
   tags:
     - install
     - config
+    - backend
 
 - name: Manage the PowerDNS SQLite databases
   when:
@@ -23,6 +25,7 @@
     - pdns_sqlite_databases_locations | length > 0
   tags:
     - config
+    - backend
   block:
     - name: Ensure that the directories containing the PowerDNS SQLite databases exist
       ansible.builtin.file:
@@ -67,6 +70,7 @@
           fi
           echo "Can't determine path to SQLite schema">&2
           exit 1
+      check_mode: false
       changed_when: false
       register: _pdns_sqlite_schema_file_detected
       when: pdns_sqlite_schema_file | length == 0

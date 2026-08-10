@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         ansible:
-          - "2.15"
           - "2.16"
         scenario:
           - pdns-48

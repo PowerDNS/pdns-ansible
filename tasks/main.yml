@@ -17,6 +17,9 @@
   ansible.builtin.set_fact:
     pdns_auth_repo_name: "{{ pdns_remove_versioned_repo_files | ternary(pdns_install_repo_name, pdns_auth_install_repo['name']) }}"
     pdns_auth_repo_regex: "{{ pdns_remove_versioned_repo_files | ternary(pdns_remove_versioned_repo_regex, pdns_install_repo_regex) }}"
+  tags:
+    - install
+    - repository
 
 - name: Setup repository
   ansible.builtin.include_tasks: "repo-{{ ansible_os_family }}.yml"
@@ -34,10 +37,7 @@
   ansible.builtin.include_tasks: inspect.yml
   when: pdns_package_state != 'absent'
   tags:
-    - db
-    - mysql
-    - pgsql
-    - sqlite
+    - backend
     - config
 
 - name: Configure SELinux
@@ -67,8 +67,7 @@
   tags:
     - install
     - config
-    - db
-    - mysql
+    - backend
 
 - name: Install and configure PostgreSQL database
   ansible.builtin.include_tasks: database-pgsql.yml
@@ -86,8 +85,7 @@
   tags:
     - install
     - config
-    - db
-    - pgsql
+    - backend
 
 - name: Install and configure SQlite database
   ansible.builtin.include_tasks: database-sqlite3.yml
@@ -100,8 +98,7 @@
   tags:
     - install
     - config
-    - db
-    - sqlite
+    - backend
 
 - name: Install and configure LMDB database
   ansible.builtin.include_tasks: database-lmdb.yml
@@ -110,8 +107,7 @@
     - pdns_lmdb_databases_locations | length > 0
   tags:
     - config
-    - db
-    - lmdb
+    - backend
 
 - name: Build config file
   ansible.builtin.include_tasks: configure.yml

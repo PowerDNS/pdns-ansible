@@ -10,3 +10,4 @@
   with_items: "{{ pdns_lmdb_databases_locations }}"
   tags:
     - config
+    - backend

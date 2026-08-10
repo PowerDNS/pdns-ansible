@@ -8,6 +8,7 @@
   failed_when: false
   tags:
     - config
+    - backend
 
 - name: Extract the PowerDNS version from command output
   ansible.builtin.set_fact:
@@ -17,6 +18,7 @@
          | default('') }}
   tags:
     - config
+    - backend
 
 - name: Ensure PowerDNS version was detected
   ansible.builtin.assert:
@@ -27,9 +29,11 @@
       stderr='{{ _pdns_version_raw.stderr }}'
   tags:
     - config
+    - backend
 
 - name: Export the running PowerDNS instance version to a variable
   ansible.builtin.set_fact:
     _pdns_running_version: "{{ _pdns_version | regex_replace('-[.\\d\\w]+$', '') }}"
   tags:
     - config
+    - backend

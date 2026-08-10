@@ -12,6 +12,7 @@
     | length) > 0
   tags:
     - config
+    - selinux
 
 - name: Allow pdns to bind to udp high ports
   community.general.seport:
@@ -21,3 +22,4 @@
     state: present
   tags:
     - config
+    - selinux

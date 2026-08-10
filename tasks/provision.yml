@@ -2,6 +2,8 @@
 - name: Configure Autoprimaries
   when:
     - (pdns_autoprimaries | default([])) | length > 0
+  tags:
+    - config
   block:
     - name: Retrieve current autoprimaries
       ansible.builtin.uri:
