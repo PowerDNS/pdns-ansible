@@ -1,0 +1,46 @@
+---
+
+scenario:
+  name: multi-instance
+
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+
+platforms:
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9
+    dockerfile_tpl: el-systemd
+
+provisioner:
+  name: ansible
+  options:
+    diff: true
+    v: true
+  config_options:
+    defaults:
+      gathering: smart
+      fact_caching: jsonfile
+      fact_caching_connection: .ansible_cache
+      fact_caching_timeout: 7200
+    ssh_connection:
+      pipelining: true
+  lint: ansible-lint
+  playbooks:
+    create: ../resources/create.yml
+    destroy: ../resources/destroy.yml
+    prepare: ../resources/prepare.yml
+    side_effect: side_effect.yml
+
+lint: yamllint defaults handlers tasks meta vars
+
+verifier:
+  name: testinfra
+  options:
+    hosts: "pdns"
+    v: true
+  directory: ../resources/tests/multi-instance

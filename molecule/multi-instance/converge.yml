@@ -1,0 +1,17 @@
+---
+
+# Every instance is configured in the same play. Handlers are shared between
+# role invocations, so every invocation flushes its own handlers.
+- name: PowerDNS Authoritative Server multiple instances in a single play
+  hosts: pdns
+  vars_files:
+    - ../resources/vars/pdns-repo-50.yml
+    - ../resources/vars/pdns-instances.yml
+  tasks:
+
+    - name: Configure the PowerDNS instances
+      ansible.builtin.include_tasks: ../resources/tasks/pdns-instance.yml
+      loop: "{{ pdns_multi_instances }}"
+      loop_control:
+        loop_var: instance
+        label: "{{ instance.name }}"

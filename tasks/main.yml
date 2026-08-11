@@ -12,6 +12,16 @@
   tags:
     - always
 
+# Handlers cannot read role parameters reliably when the role runs more than
+# once in a play; they resolve to the last invocation. Publish them as facts.
+- name: Publish the handler context of this role invocation
+  ansible.builtin.set_fact:
+    _pdns_disable_handlers: "{{ pdns_disable_handlers }}"
+    _pdns_service_name: "{{ pdns_service_name }}"
+    _pdns_service_state: "{{ pdns_service_state }}"
+  tags:
+    - always
+
 - name: Set fact for repo name
   when: "pdns_install_repo | length > 0"
   ansible.builtin.set_fact:
@@ -126,10 +136,26 @@
   tags:
     - service
 
+# Provisioning talks to the API of the running server with the configured
+# address, port and API key, so a pending restart has to happen first.
+- name: Flush the handlers before provisioning
+  ansible.builtin.meta: flush_handlers
+  when:
+    - pdns_package_state != 'absent'
+    - pdns_provision | bool
+  tags:
+    - always
+
 - name: Provision PowerDNS
   ansible.builtin.include_tasks: provision.yml
-  when: 
+  when:
     - pdns_package_state != 'absent'
     - pdns_provision | bool
   tags:
     - config
+
+- name: Flush the handlers
+  ansible.builtin.meta: flush_handlers
+  when: pdns_flush_handlers | bool
+  tags:
+    - always

@@ -1,0 +1,15 @@
+---
+
+##
+# Instances of the templated pdns@.service unit used by the multi-instance
+# scenario. The first entry is the one the side effect reconfigures.
+##
+
+pdns_multi_instances:
+  - name: a
+    port: "5401"
+    webserver_port: "8011"
+
+  - name: b
+    port: "5402"
+    webserver_port: "8012"
