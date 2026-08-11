@@ -98,6 +98,10 @@ pdns_service_masked: false
 # When True, disable the automated restart of the PowerDNS service
 pdns_disable_handlers: false
 
+# When true, run the notified handlers at the end of the role instead of at the
+# end of the play. Set this when the role runs more than once in a play.
+pdns_flush_handlers: false
+
 # When true, manage SELinux booleans and ports on SELinux-enabled systems.
 pdns_manage_selinux: true
 

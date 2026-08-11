@@ -26,6 +26,7 @@ jobs:
           - pdns-50
           - pdns-master
           - pdns-os-repos
+          - multi-instance
     steps:
       - name: checkout
         uses: actions/checkout@v6
