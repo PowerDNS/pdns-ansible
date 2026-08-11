@@ -1,0 +1,24 @@
+---
+
+# Configure one Authoritative Server instance. `instance` is an entry of
+# `pdns_multi_instances`; `instance_revision` changes the generated
+# configuration so the restart handler is notified.
+- name: Configure the PowerDNS instance {{ instance.name }}
+  ansible.builtin.include_role:
+    name: powerdns.pdns
+  vars:
+    pdns_service_name: "pdns@{{ instance.name }}"
+    pdns_config_file: "pdns-{{ instance.name }}.conf"
+    pdns_flush_handlers: true
+    pdns_backends:
+      gsqlite3:
+        database: "/var/lib/powerdns/pdns-{{ instance.name }}.sqlite3"
+    pdns_sqlite_databases_locations:
+      - "/var/lib/powerdns/pdns-{{ instance.name }}.sqlite3"
+    pdns_config:
+      local-address: 127.0.0.1
+      local-port: "{{ instance.port }}"
+      webserver: true
+      webserver-address: 127.0.0.1
+      webserver-port: "{{ instance.webserver_port }}"
+      version-string: "revision {{ instance_revision | default(1) }}"

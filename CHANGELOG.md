@@ -4,13 +4,18 @@ IMPROVEMENTS:
 - Rework apt and dnf repo file creation to stop using version suffixed file names which are not cleaned up on version changes ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 - Remove version suffixed apt and dnf repo files ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 - Document the check mode support (converged hosts only) and the package/service state variables in the README ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
+- Document the handler behaviour and the multi-instance usage in the README ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
 
 NEW FEATURES:
 - Add support for provisioning autoprimaries through the PowerDNS API ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/268), @nocderechte)
+- Add `pdns_flush_handlers` to run the notified handlers at the end of the role instead of at the end of the play, which is required when the role runs more than once in a play ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
+- Add the `multi-instance` Molecule scenario, which configures two instances in a single play ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
 
 BUG FIXES:
 - Tag the tasks inside `inspect.yml`, `selinux.yml`, `database-*.yml` and `provision.yml`, and tag the `Set fact for repo name` task with `install` and `repository`. A dynamic `include_tasks` does not pass its tags to the tasks it includes, so `--tags install` and `--tags repository` failed with `'pdns_auth_repo_regex' is undefined`, and `--tags backend` and `--tags selinux` silently did nothing ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 - Add `check_mode: false` to the read-only schema location probes of all three SQL backends and to the MySQL empty-database probe, so `--check` no longer reasons about schema state from empty registered results ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
+- Flush the handlers before provisioning when `pdns_provision` is enabled. Provisioning calls the API of the running server with the configured address, port and API key, so rotating the API key or changing the webserver port failed with `401 Unauthorized` or a refused connection while the pending restart was still queued for the end of the play ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
+- Read the service name and state from facts published per role invocation in the restart handlers. Ansible shares handlers between invocations of the same role and resolves role parameters to the last invocation, so a play with more than one instance restarted the wrong service. Correct restarts need `pdns_flush_handlers: true` as well ([\#XXX](https://github.com/PowerDNS/pdns-ansible/pull/XXX))
 - Replace `community.mysql.mysql_db` and `community.mysql.mysql_user` with `ansible.mysql.mysql_db` and `ansible.mysql.mysql_user`. `community.mysql` 5.x redirects both modules and removes them in 6.0.0, which also made `ansible-lint` fail on `fqcn[canonical]` ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 
 BREAKING CHANGES:
