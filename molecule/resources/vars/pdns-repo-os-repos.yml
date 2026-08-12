@@ -1,0 +1,8 @@
+---
+
+##
+# No PowerDNS repository: the packages come from the distribution. An empty
+# value skips the repository tasks entirely.
+##
+
+pdns_install_repo: ""

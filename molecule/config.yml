@@ -1,0 +1,62 @@
+---
+
+##
+# Configuration shared by every Molecule scenario.
+#
+# This file is not auto-discovered: Molecule only looks for a base config at
+# .config/molecule/config.yml, so every invocation names it explicitly, which is
+# what tox and the CI workflow do:
+#
+#   molecule -c molecule/config.yml -c molecule/platforms/<set>.yml test -s <scenario>
+#
+# Files given with --base-config are merged in order and the scenario's own
+# molecule.yml is merged last. A platform set replaces the platform list below,
+# because merging overwrites lists rather than appending to them.
+##
+
+driver:
+  # The scenarios create their own containers in molecule/resources/create.yml,
+  # so no driver plugin is involved. The connection plugin the Docker driver
+  # would have configured is declared in the inventory below.
+  name: default
+
+dependency:
+  name: galaxy
+
+provisioner:
+  name: ansible
+  options:
+    diff: true
+    v: true
+  config_options:
+    defaults:
+      gathering: smart
+      fact_caching: jsonfile
+      fact_caching_connection: .ansible_cache
+      fact_caching_timeout: 7200
+    ssh_connection:
+      pipelining: true
+  inventory:
+    # Molecule writes group_vars only when no inventory link is configured
+    # (manage_inventory: `if not self.links`), so the two cannot be combined.
+    group_vars:
+      all:
+        ansible_connection: community.docker.docker
+  playbooks:
+    create: ../resources/create.yml
+    destroy: ../resources/destroy.yml
+    prepare: ../resources/prepare.yml
+
+verifier:
+  name: testinfra
+  options:
+    v: true
+    hosts: "pdns"
+
+# Platform used when no platform set is given, which keeps a plain
+# `molecule test` usable while developing. CI always passes a platform set.
+platforms:
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9
+    dockerfile_tpl: el-systemd

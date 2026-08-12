@@ -127,7 +127,7 @@
 
 - name: Start and enable the PowerDNS service (systemd)
   throttle: 1
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ pdns_service_name }}"
     state: "{{ pdns_service_state }}"
     enabled: "{{ pdns_service_enabled }}"

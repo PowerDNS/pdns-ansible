@@ -3,6 +3,11 @@
 {% set archlinux_base_image = 'menci/archlinuxarm:latest' if (item.name | lower == 'archlinux' and (molecule_docker_arch | default('')) == 'arm64') else item.image %}
 FROM {{ archlinux_base_image }}
 
+# pacman 7 confines itself with Landlock and an unprivileged download user,
+# neither of which is available while building an image. Unknown directives are
+# only warned about, so this stays compatible with older pacman.
+RUN sed -i '/^\[options\]/a DisableSandbox' /etc/pacman.conf
+
 RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm systemd awk bash ca-certificates geoip grep inetutils \
         iproute2 libmaxminddb net-tools procps-ng python python-cryptography \

@@ -6,7 +6,17 @@
   gather_facts: false
   vars_files:
     - vars/molecule.yml
+    - vars/services.yml
   tasks:
+
+    - name: Fail when no platform was configured
+      ansible.builtin.assert:
+        that: molecule_yml.platforms | default([]) | length > 0
+        fail_msg: >-
+          No platform is configured. molecule/config.yml is not auto-discovered,
+          so pass it and a platform set:
+          molecule -c molecule/config.yml -c molecule/platforms/<set>.yml ...
+        quiet: true
 
     - name: Detect host architecture for Docker platform selection
       ansible.builtin.set_fact:
@@ -31,11 +41,14 @@
 
     - name: Get list of service instances
       ansible.builtin.set_fact:
-        molecule_service_instances: "{{ molecule_yml.platforms | selectattr('is_service', 'defined') | selectattr('is_service') | list }}"
+        molecule_service_instances: >-
+          {{ molecule_service_definitions
+             if (lookup('env', 'MOLECULE_WITH_SERVICES') | default('', true) | bool)
+             else [] }}
 
     - name: Get list of platform instances
       ansible.builtin.set_fact:
-        molecule_platform_instances: "{{ molecule_yml.platforms | difference(molecule_service_instances) }}"
+        molecule_platform_instances: "{{ molecule_yml.platforms }}"
 
     - name: Create Dockerfiles from platform names
       ansible.builtin.template:

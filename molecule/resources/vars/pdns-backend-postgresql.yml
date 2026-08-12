@@ -31,3 +31,6 @@ pdns_config_overrides_pgsql: {}
 pdns_backends: "{{ pdns_backends_pgsql }}"
 pdns_pgsql_databases_credentials: "{{ pdns_pgsql_databases_credentials_pgsql }}"
 pdns_pgsql_query_use_socket: "{{ pdns_pgsql_query_use_socket_pgsql }}"
+
+# Consumed by vars/pdns-instance-vars.yml under a uniform name.
+pdns_config_overrides: "{{ pdns_config_overrides_pgsql }}"

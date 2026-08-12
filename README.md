@@ -9,7 +9,9 @@ An Ansible role created by the folks behind PowerDNS to setup the [PowerDNS Auth
 
 ## Requirements
 
-An Ansible 2.16 or higher installation.
+An ansible-core 2.16 or newer installation. Enterprise Linux 8 targets must be
+managed with ansible-core 2.16: their system Python is 3.6, which the modules of
+ansible-core 2.20 cannot run.
 
 ## Dependencies
 
@@ -600,16 +602,11 @@ A detailed changelog of all the changes applied to the role is available [here](
 Tests are performed by [Molecule](http://molecule.readthedocs.org/en/latest/).
 
     $ pip install tox
-
-To test all the scenarios run
-
     $ tox
 
-To run a custom molecule command
-
-    $ tox -e ansible216 -- molecule test -s pdns-50
-
-The Molecule backend matrix validates LMDB, SQLite3, MySQL, MariaDB, BIND and PostgreSQL instance profiles.
+See [molecule/README.md](./molecule/README.md) for the test layout, how to run a
+single leg, which storage backends the backend matrix covers, and what to change
+when a new release, operating system or backend has to be covered.
 
 ## License
 

@@ -1,0 +1,44 @@
+---
+
+##
+# Install the Authoritative Server from the packages of the distribution instead
+# of a PowerDNS repository. Arch Linux is rolling, so it always carries a single
+# current release and cannot be pinned to a tested one: this scenario declares
+# its own platform and ignores any platform set passed with --base-config.
+##
+
+scenario:
+  name: os-repos
+
+provisioner:
+  playbooks:
+    # Also named here so a bare `molecule` invocation, which does not load
+    # molecule/config.yml, still reaches the platform guard in create.yml.
+    create: ../resources/create.yml
+  env:
+    # The gmysql and gpgsql instances need the database containers.
+    MOLECULE_WITH_SERVICES: "true"
+
+platforms:
+
+  - name: archlinux
+    groups: ["pdns"]
+    image: archlinux:base
+    dockerfile_tpl: archlinux-systemd
+
+verifier:
+  directory: ../resources/tests/all
+  additional_files_or_dirs:
+    # path relative to 'directory'
+    - ../backend-sqlite/
+    - ../backend-lmdb/
+    - ../backend-mysql/
+    - ../backend-mariadb/
+    - ../backend-postgresql/
+    - ../backend-bind/
+    - ../backend-zones/
+    - ../service-mask/
+    - ../systemd-override/
+    # The shared converge provisions autoprimaries through the API, so assert
+    # them here too instead of running that path unverified.
+    - ../provision-autoprimary/

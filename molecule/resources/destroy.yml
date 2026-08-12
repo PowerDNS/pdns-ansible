@@ -6,10 +6,11 @@
   gather_facts: false
   vars_files:
     - vars/molecule.yml
+    - vars/services.yml
   tasks:
     - name: Destroy the target Platforms instance(s)
       community.docker.docker_container:
         name: "{{ item.name }}"
         state: absent
         force_kill: "{{ item.force_kill | default(true) }}"
-      with_items: "{{ molecule_yml.platforms }}"
+      with_items: "{{ molecule_yml.platforms + molecule_service_definitions }}"

@@ -1,0 +1,14 @@
+---
+
+##
+# The role parameters every backend instance sets, derived from the
+# `pdns_instance` of the backend profile that is loaded after this file.
+##
+
+pdns_service_name: "{{ pdns_instance.service_name }}"
+pdns_service_enabled: "{{ pdns_instance.service_enabled }}"
+pdns_config_file: "{{ pdns_instance.config_file }}"
+pdns_config: >-
+  {{ pdns_config_common
+     | combine(pdns_instance.config_overrides | default({}), recursive=true)
+     | combine(pdns_config_overrides | default({}), recursive=true) }}

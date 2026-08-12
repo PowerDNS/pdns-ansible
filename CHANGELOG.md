@@ -1,12 +1,15 @@
 ## v1.11.0 (Unreleased)
 
 IMPROVEMENTS:
+- Manage the service with `ansible.builtin.systemd_service` instead of `ansible.builtin.systemd`, matching the module name used by the other PowerDNS roles ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
+- Declare Ubuntu 26.04 in the Galaxy metadata ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Rework apt and dnf repo file creation to stop using version suffixed file names which are not cleaned up on version changes ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 - Remove version suffixed apt and dnf repo files ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
 - Document the check mode support (converged hosts only) and the package/service state variables in the README ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 - Document the handler behaviour and the multi-instance usage in the README ([\#272](https://github.com/PowerDNS/pdns-ansible/pull/272))
 
 NEW FEATURES:
+- Add the `pdns_auth_powerdns_repo_51` repository preset for the '5.1.x' release series ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Add support for provisioning autoprimaries through the PowerDNS API ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/268), @nocderechte)
 - Add `pdns_flush_handlers` to run the notified handlers at the end of the role instead of at the end of the play, which is required when the role runs more than once in a play ([\#272](https://github.com/PowerDNS/pdns-ansible/pull/272))
 - Add the `multi-instance` Molecule scenario, which configures two instances in a single play ([\#272](https://github.com/PowerDNS/pdns-ansible/pull/272))
@@ -20,8 +23,11 @@ BUG FIXES:
 
 BREAKING CHANGES:
 - Require ansible-core 2.16 or later (`min_ansible_version` 2.15 -> 2.16) and drop the 2.15 CI leg. `ansible.mysql` declares `requires_ansible: '>=2.16.0'` ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
+- Manage Enterprise Linux 8 targets with ansible-core 2.16 only. Their system Python is 3.6, which ansible-core 2.20 modules cannot run ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 
 REMOVED FEATURES:
+- Remove `vars/Ubuntu-20.yml`. Ubuntu 20.04 hosts now fall through to `vars/Debian.yml`, which uses `python3-mysqldb` instead of `python3-pymysql` for the MySQL modules. Ubuntu 20.04 itself stays supported and tested against the 4.9 series, the only one upstream publishes `focal` packages for, with ansible-core 2.16 because of its Python 3.8 ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
+- Stop testing the `auth-master` repository and the 4.8 series, and test the three most recent release series instead. The `pdns_auth_powerdns_repo_master` and `pdns_auth_powerdns_repo_48` presets are unchanged and still usable ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Remove the per-backend tags `mysql`, `pgsql`, `sqlite` and `lmdb`, and rename `db` to `backend`. The role tag vocabulary is now `repository`, `install`, `config`, `service`, `backend` and `selinux`. The removed tags never selected the backend tasks anyway ([\#271](https://github.com/PowerDNS/pdns-ansible/pull/271))
 
 ## v1.10.0 (2026-02-24)

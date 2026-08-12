@@ -1,0 +1,62 @@
+---
+
+##
+# Platforms for PowerDNS Authoritative Server 5.1, run with the ansible220 tox environment
+# (and the ansible218 one where the matrix says so).
+#
+# Only operating systems that upstream publishes pdns-51 packages for are listed.
+# Enterprise Linux 8 and Ubuntu 20.04 live in pdns-51-ansible216.yml instead,
+# because their Python needs ansible-core 2.16.
+##
+
+platforms:
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9
+    dockerfile_tpl: el-systemd
+
+  - name: oraclelinux-9
+    groups: ["pdns"]
+    image: oraclelinux:9
+    dockerfile_tpl: el-systemd
+
+  - name: rockylinux-10
+    groups: ["pdns"]
+    image: rockylinux/rockylinux:10
+    dockerfile_tpl: el-systemd
+
+  - name: oraclelinux-10
+    groups: ["pdns"]
+    image: oraclelinux:10
+    dockerfile_tpl: el-systemd
+
+  - name: debian-11
+    groups: ["pdns"]
+    image: debian:11
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-12
+    groups: ["pdns"]
+    image: debian:12
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-13
+    groups: ["pdns"]
+    image: debian:13
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2204
+    groups: ["pdns"]
+    image: ubuntu:22.04
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2404
+    groups: ["pdns"]
+    image: ubuntu:24.04
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2604
+    groups: ["pdns"]
+    image: ubuntu:26.04
+    dockerfile_tpl: debian-systemd

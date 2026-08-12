@@ -5,7 +5,7 @@
 - name: PowerDNS Authoritative Server multiple instances in a single play
   hosts: pdns
   vars_files:
-    - ../resources/vars/pdns-repo-50.yml
+    - ../resources/vars/pdns-repo-default.yml
     - ../resources/vars/pdns-instances.yml
   tasks:
 

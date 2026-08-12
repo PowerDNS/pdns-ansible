@@ -1,0 +1,47 @@
+---
+
+##
+# Platforms for PowerDNS Authoritative Server 4.9, run with the ansible220 tox environment
+# (and the ansible218 one where the matrix says so).
+#
+# Only operating systems that upstream publishes pdns-49 packages for are listed.
+# Enterprise Linux 8 and Ubuntu 20.04 live in pdns-49-ansible216.yml instead,
+# because their Python needs ansible-core 2.16.
+##
+
+platforms:
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9
+    dockerfile_tpl: el-systemd
+
+  - name: oraclelinux-9
+    groups: ["pdns"]
+    image: oraclelinux:9
+    dockerfile_tpl: el-systemd
+
+  - name: debian-11
+    groups: ["pdns"]
+    image: debian:11
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-12
+    groups: ["pdns"]
+    image: debian:12
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-13
+    groups: ["pdns"]
+    image: debian:13
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2204
+    groups: ["pdns"]
+    image: ubuntu:22.04
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2404
+    groups: ["pdns"]
+    image: ubuntu:24.04
+    dockerfile_tpl: debian-systemd

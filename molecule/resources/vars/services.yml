@@ -1,0 +1,32 @@
+---
+
+##
+# Database servers the backend instances connect to, started as sibling
+# containers and linked to every platform instance.
+#
+# They are not platforms: no play targets them, and scenarios that need no
+# database must not pay for booting them. create.yml starts them only when
+# MOLECULE_WITH_SERVICES is set, which the scenarios that exercise the database
+# backends do in their molecule.yml.
+##
+
+molecule_service_definitions:
+
+  - name: mysql
+    image: mysql:8.4.8
+    env:
+      MYSQL_ROOT_PASSWORD: pdns
+      MYSQL_ROOT_HOST: '%'
+
+  # Additional service for gmysql tests against MariaDB 10.6
+  - name: mariadb
+    image: mariadb:10.6
+    env:
+      MARIADB_ROOT_PASSWORD: pdns
+      MARIADB_ROOT_HOST: '%'
+
+  # PostgreSQL service for gpgsql backend tests
+  - name: postgresql
+    image: postgres:16
+    env:
+      POSTGRES_PASSWORD: pdns

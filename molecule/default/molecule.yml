@@ -1,0 +1,42 @@
+---
+
+##
+# Install the Authoritative Server from a PowerDNS repository and configure one
+# instance per storage backend.
+#
+# The release under test comes from the PDNS_AUTH_VERSION environment variable
+# and the platforms from the platform set given with --base-config, for example:
+#
+#   PDNS_AUTH_VERSION=51 molecule \
+#     -c molecule/config.yml \
+#     -c molecule/platforms/pdns-51.yml \
+#     test -s default
+##
+
+scenario:
+  name: default
+
+provisioner:
+  playbooks:
+    # Also named here so a bare `molecule` invocation, which does not load
+    # molecule/config.yml, still reaches the platform guard in create.yml.
+    create: ../resources/create.yml
+  env:
+    # The gmysql and gpgsql instances need the database containers.
+    MOLECULE_WITH_SERVICES: "true"
+
+verifier:
+  directory: ../resources/tests/all
+  additional_files_or_dirs:
+    # path relative to 'directory'
+    - ../repo/
+    - ../backend-sqlite/
+    - ../backend-lmdb/
+    - ../backend-mysql/
+    - ../backend-mariadb/
+    - ../backend-postgresql/
+    - ../backend-bind/
+    - ../backend-zones/
+    - ../service-mask/
+    - ../systemd-override/
+    - ../provision-autoprimary/

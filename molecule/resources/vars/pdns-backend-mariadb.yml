@@ -40,3 +40,6 @@ pdns_config_overrides_mariadb: {}
 pdns_backends: "{{ pdns_backends_mariadb }}"
 pdns_mysql_databases_credentials: "{{ pdns_mysql_databases_credentials_mariadb }}"
 pdns_mysql_query_use_socket: "{{ pdns_mysql_query_use_socket_mariadb }}"
+
+# Consumed by vars/pdns-instance-vars.yml under a uniform name.
+pdns_config_overrides: "{{ pdns_config_overrides_mariadb }}"
