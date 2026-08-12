@@ -30,15 +30,25 @@ RUN rm -f /usr/lib/systemd/system/multi-user.target.wants/* \
 # Disable requiretty.
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers || echo "Defaults !requiretty" > /etc/sudoers.d/molecule
 
-# Create the `ansible` connection user with passwordless sudo. The sudoers drop-in
-# replaces editing the distribution's default %wheel or %sudo line, which differs
-# per family and is silently ineffective if that line ever changes.
+# Create the `ansible` connection user with passwordless sudo.
+#
+# The sudoers drop-in replaces editing the distribution's default %wheel or %sudo
+# line, which differs per family and is silently ineffective if that line ever
+# changes.
+#
+# The account also gets a password and has every aging field disabled. Without
+# them the shadow entry is locked (`!!`) with distribution-dependent aging, and
+# pam_unix's account management then reports "Authentication service cannot
+# retrieve authentication info", which makes every sudo call fail - observed on
+# Oracle Linux 9 while Rocky Linux 9 with the same PAM configuration was fine.
 ENV ANSIBLE_USER=ansible
 RUN set -xe && \
     groupadd -r ${ANSIBLE_USER} && \
     useradd -m -g ${ANSIBLE_USER} ${ANSIBLE_USER} && \
     printf '%s ALL=(ALL) NOPASSWD:ALL\n' "${ANSIBLE_USER}" > /etc/sudoers.d/${ANSIBLE_USER} && \
-    chmod 0440 /etc/sudoers.d/${ANSIBLE_USER}
+    chmod 0440 /etc/sudoers.d/${ANSIBLE_USER} && \
+    printf '%s:%s\n' "${ANSIBLE_USER}" "${ANSIBLE_USER}" | chpasswd && \
+    chage -M -1 -m 0 -I -1 -E -1 ${ANSIBLE_USER}
 
 VOLUME [ "/sys/fs/cgroup", "/tmp", "/run" ]
 
