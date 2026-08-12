@@ -2,6 +2,8 @@
 collections:
   - name: ansible.mysql
   - name: community.postgresql
+  # Also provides the pacman module that ansible.builtin.package dispatches to
+  # on Arch Linux. Capped below 11.0.0, which requires ansible-core 2.18.
   - name: community.general
     version: "<11.0.0"
   - name: community.docker

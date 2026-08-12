@@ -3,6 +3,22 @@
 - name: Prepare the Molecule Test Resources
   hosts: pdns
   tasks:
+
+    # create.yml starts the database containers and returns immediately, so
+    # converge can reach the gmysql or gpgsql play before a server has finished
+    # initialising. Wait here instead of racing the fixtures.
+    - name: Wait for the database services to accept connections
+      ansible.builtin.wait_for:
+        host: "{{ item.host }}"
+        port: "{{ item.port }}"
+        timeout: 180
+      loop:
+        - {host: mysql, port: 3306}
+        - {host: mariadb, port: 3306}
+        - {host: postgresql, port: 5432}
+      loop_control:
+        label: "{{ item.host }}:{{ item.port }}"
+      when: lookup('ansible.builtin.env', 'MOLECULE_WITH_SERVICES') | default('', true) | bool
     # The image is older than the run, so the package database can still point at
     # package versions the mirrors have already dropped.
     - name: Refresh the pacman package database
