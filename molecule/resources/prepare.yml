@@ -2,7 +2,6 @@
 
 - name: Prepare the Molecule Test Resources
   hosts: pdns
-  become: true
   tasks:
 
     # create.yml starts the database containers and returns immediately, so

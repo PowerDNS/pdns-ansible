@@ -4,7 +4,6 @@
 # restarted, which is what the per-invocation handler flushing guarantees.
 - name: Restart only the reconfigured instance
   hosts: pdns
-  become: true
   vars_files:
     - ../resources/vars/pdns-repo-default.yml
     - ../resources/vars/pdns-instances.yml

@@ -130,6 +130,17 @@
           echo "== sudoers drop-in"; ls -l /etc/sudoers.d/ 2>&1; cat /etc/sudoers.d/ansible 2>&1;
           echo "== sudoers includedir"; grep -hE "^[@#]includedir" /etc/sudoers 2>&1;
           echo "== packages"; (rpm -q sudo pam shadow-utils 2>&1 || dpkg-query -W sudo libpam-modules 2>&1);
+          echo "== pam.d/sudo"; cat /etc/pam.d/sudo 2>&1;
+          echo "== system-auth link"; ls -l /etc/pam.d/system-auth /etc/pam.d/password-auth 2>&1;
+          echo "== system-auth resolves"; readlink -f /etc/pam.d/system-auth 2>&1; test -e /etc/pam.d/system-auth && echo resolves-ok || echo DANGLING;
+          echo "== system-auth account lines"; grep -h "^account" /etc/pam.d/system-auth 2>&1;
+          echo "== pam modules"; for m in pam_unix pam_faillock pam_localuser pam_succeed_if pam_permit; do
+            f=$(ls /usr/lib64/security/$m.so /lib/x86_64-linux-gnu/security/$m.so /usr/lib/x86_64-linux-gnu/security/$m.so /usr/lib/aarch64-linux-gnu/security/$m.so 2>/dev/null | head -1);
+            echo "  $m=${f:-MISSING}"; done;
+          echo "== pam packages"; (rpm -q pam authselect authselect-libs libpwquality 2>&1 || true);
+          echo "== faillock dir"; ls -ld /var/run/faillock /run/faillock 2>&1;
+          echo "== tmpfiles unit"; systemctl is-active systemd-tmpfiles-setup.service 2>&1; systemctl is-system-running 2>&1;
+          echo "== tmpfiles pam.conf"; grep -h faillock /usr/lib/tmpfiles.d/*.conf 2>&1;
           echo "== sudo -l as ansible"; runuser -u ansible -- sudo -n -l 2>&1;
           echo "== sudo true as ansible"; runuser -u ansible -- sudo -n true 2>&1; echo "rc=$?";
           '
