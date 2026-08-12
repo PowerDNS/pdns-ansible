@@ -10,6 +10,7 @@
 
 - name: PowerDNS LMDB default instance
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
     - vars/pdns-common.yml
@@ -23,6 +24,7 @@
 
 - name: PowerDNS SQLite instance
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
     - vars/pdns-common.yml
@@ -37,6 +39,7 @@
 
 - name: PowerDNS MySQL instance
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
     - vars/pdns-common.yml
@@ -51,6 +54,7 @@
 
 - name: PowerDNS MariaDB instance
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
     - vars/pdns-common.yml
@@ -65,6 +69,7 @@
 
 - name: PowerDNS Bind instance
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
     - vars/pdns-common.yml
@@ -75,6 +80,7 @@
 
 - name: PowerDNS PostgreSQL instance
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
     - vars/pdns-common.yml
@@ -89,6 +95,7 @@
 
 - name: PowerDNS Hide default service
   hosts: pdns
+  become: true
   vars_files:
     - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
   vars:

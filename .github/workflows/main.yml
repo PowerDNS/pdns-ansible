@@ -1,9 +1,21 @@
 ---
 on:
+  # A push to a branch that has an open pull request would otherwise run the
+  # whole matrix twice, once per event. Pull requests get the full matrix, and
+  # pushes only run it on the default branch, after a merge.
   push:
+    branches:
+      - master
   pull_request:
   schedule:
     - cron: '33 5 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  # Supersede an in-flight run of the same ref, so pushing again to a pull
+  # request does not leave the previous matrix running.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   Lint:
