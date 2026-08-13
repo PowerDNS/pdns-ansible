@@ -30,6 +30,12 @@ provisioner:
     v: true
   config_options:
     defaults:
+      # Under the home directory of the connection user the temporary files of a
+      # task with become_user are unreachable for the target account on the
+      # distributions that create a home directory with mode 0700, and Ansible
+      # then depends on setfacl alone. A path under /tmp is traversable
+      # everywhere.
+      remote_tmp: /tmp/.ansible/tmp
       gathering: smart
       fact_caching: jsonfile
       fact_caching_connection: .ansible_cache

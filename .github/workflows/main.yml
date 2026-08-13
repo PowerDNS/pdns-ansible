@@ -41,6 +41,13 @@ jobs:
         # hold the platforms whose Python is too old for a newer ansible-core:
         # Enterprise Linux 8 always, and Ubuntu 20.04 where it has packages. Those
         # platforms are never run with ansible218 or ansible220.
+        #
+        # Only the newest release runs the full operating system matrix. The sets
+        # of the older releases run one RPM host and one DEB host, because what
+        # differs between releases is the upstream repository, not the role logic.
+        # Every job builds its own images, so a platform costs an image build and
+        # a converge of every storage backend in every run. The sets say which
+        # platforms this trades away.
         include:
           - {scenario: default, version: "49", platforms: pdns-49-ansible216, toxenv: ansible216}
           - {scenario: default, version: "50", platforms: pdns-50-ansible216, toxenv: ansible216}
@@ -50,9 +57,13 @@ jobs:
           - {scenario: default, version: "51", platforms: pdns-51, toxenv: ansible220}
           # One pre-2.19 leg, so the templating engine from before the rewrite
           # stays covered. Enterprise Linux 8 cannot serve this purpose: its
-          # Python 3.6 is below the 3.8 floor of 2.18.
-          - {scenario: default, version: "51", platforms: pdns-51, toxenv: ansible218}
-          - {scenario: multi-instance, version: "51", platforms: pdns-51-ansible216, toxenv: ansible216}
+          # Python 3.6 is below the 3.8 floor of 2.18. One platform is enough,
+          # because templating does not vary per operating system.
+          - {scenario: default, version: "51", platforms: pdns-51-ansible218, toxenv: ansible218}
+          # A single Enterprise Linux 8 host: what this scenario can break is
+          # ansible-core version specific rather than vendor specific, and the
+          # `default` legs above still run both EL8 vendors.
+          - {scenario: multi-instance, version: "51", platforms: pdns-51-ansible216-single, toxenv: ansible216}
           # No platform set: molecule/config.yml already defaults to a single
           # container, which is all this scenario needs.
           - {scenario: multi-instance, version: "51", platforms: "", toxenv: ansible220}

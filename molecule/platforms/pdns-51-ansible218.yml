@@ -1,0 +1,23 @@
+---
+
+##
+# One platform for the ansible218 leg, on the newest release.
+#
+# That leg exists to keep the templating engine from before the 2.19 rewrite
+# covered, and templating is the same on every operating system, so running it on
+# the whole pdns-51.yml matrix repeated one finding nine times. Every CI job builds
+# its own images, so those extra platforms were an image build and a converge each
+# per run that could not fail for a reason 2.20 would not also catch on the same
+# host - and for this role a converge means every storage backend.
+#
+# Debian 13 is the host because its Python and its deb822 repository handling are
+# the newest of the DEB family, so the leg still exercises current code paths.
+# Any single platform of pdns-51.yml would serve the purpose equally.
+##
+
+platforms:
+
+  - name: debian-13
+    groups: ["pdns"]
+    image: debian:13
+    dockerfile_tpl: debian-systemd

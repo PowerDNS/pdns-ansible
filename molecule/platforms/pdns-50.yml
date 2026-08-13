@@ -1,8 +1,19 @@
 ---
 
 ##
-# Platforms for PowerDNS Authoritative Server 5.0, run with the ansible220 tox environment
-# (and the ansible218 one where the matrix says so).
+# Platforms for PowerDNS Authoritative Server 5.0, run with the ansible220 tox
+# environment.
+#
+# One platform per packaging family rather than the full operating system matrix.
+# What changes from one release of the Authoritative Server to the next is the
+# upstream repository path and which packages exist for it, and a single RPM host
+# plus a single DEB host establish both. The role logic that does vary per
+# operating system is covered in full by the set of the newest release,
+# pdns-51.yml, where every supported operating system still runs.
+#
+# The other platforms are commented out rather than removed: they are what this
+# set used to run, so widening this release back to the full matrix is a matter
+# of uncommenting them.
 #
 # Only operating systems that upstream publishes pdns-50 packages for are listed.
 # Enterprise Linux 8 and Ubuntu 20.04 live in pdns-50-ansible216.yml instead,
@@ -11,47 +22,47 @@
 
 platforms:
 
-  - name: rockylinux-9
-    groups: ["pdns"]
-    image: rockylinux:9
-    dockerfile_tpl: el-systemd
-
   - name: oraclelinux-9
     groups: ["pdns"]
     image: oraclelinux:9
     dockerfile_tpl: el-systemd
-
-  - name: rockylinux-10
-    groups: ["pdns"]
-    image: rockylinux/rockylinux:10
-    dockerfile_tpl: el-systemd
-
-  - name: oraclelinux-10
-    groups: ["pdns"]
-    image: oraclelinux:10
-    dockerfile_tpl: el-systemd
-
-  - name: debian-11
-    groups: ["pdns"]
-    image: debian:11
-    dockerfile_tpl: debian-systemd
 
   - name: debian-12
     groups: ["pdns"]
     image: debian:12
     dockerfile_tpl: debian-systemd
 
-  - name: debian-13
-    groups: ["pdns"]
-    image: debian:13
-    dockerfile_tpl: debian-systemd
-
-  - name: ubuntu-2204
-    groups: ["pdns"]
-    image: ubuntu:22.04
-    dockerfile_tpl: debian-systemd
-
-  - name: ubuntu-2404
-    groups: ["pdns"]
-    image: ubuntu:24.04
-    dockerfile_tpl: debian-systemd
+  # - name: rockylinux-9
+  #   groups: ["pdns"]
+  #   image: rockylinux:9
+  #   dockerfile_tpl: el-systemd
+  #
+  # - name: rockylinux-10
+  #   groups: ["pdns"]
+  #   image: rockylinux/rockylinux:10
+  #   dockerfile_tpl: el-systemd
+  #
+  # - name: oraclelinux-10
+  #   groups: ["pdns"]
+  #   image: oraclelinux:10
+  #   dockerfile_tpl: el-systemd
+  #
+  # - name: debian-11
+  #   groups: ["pdns"]
+  #   image: debian:11
+  #   dockerfile_tpl: debian-systemd
+  #
+  # - name: debian-13
+  #   groups: ["pdns"]
+  #   image: debian:13
+  #   dockerfile_tpl: debian-systemd
+  #
+  # - name: ubuntu-2204
+  #   groups: ["pdns"]
+  #   image: ubuntu:22.04
+  #   dockerfile_tpl: debian-systemd
+  #
+  # - name: ubuntu-2404
+  #   groups: ["pdns"]
+  #   image: ubuntu:24.04
+  #   dockerfile_tpl: debian-systemd

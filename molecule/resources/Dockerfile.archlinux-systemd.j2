@@ -8,10 +8,18 @@ FROM {{ archlinux_base_image }}
 # only warned about, so this stays compatible with older pacman.
 RUN sed -i '/^\[options\]/a DisableSandbox' /etc/pacman.conf
 
+# The base image already carries bash, awk, grep, ps and systemd, and nothing
+# here calls netstat, ps or pip, so only what is genuinely missing is installed.
+# inetutils stays for `hostname -s`, which the MySQL and PostgreSQL tests derive
+# the database name from, and geoip, libmaxminddb, python-cryptography and
+# yaml-cpp because the distribution package of the Authoritative Server and the
+# API provisioning need them.
+# acl is needed for the unprivileged to unprivileged escalation of a task with
+# become_user: Ansible hands the temporary files over with setfacl.
+# `-Syu` rather than `-Sy`: Arch is rolling and a partial upgrade breaks it.
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm systemd awk bash ca-certificates geoip grep inetutils \
-        iproute2 libmaxminddb net-tools procps-ng python python-cryptography \
-        python-pip sudo vim yaml-cpp && \
+    pacman -S --noconfirm systemd ca-certificates acl geoip inetutils iproute2 \
+        libmaxminddb python python-cryptography sudo yaml-cpp && \
     rm -rf /usr/share/doc/* && \
     rm -rf /usr/share/man/* && \
     pacman -Scc --noconfirm

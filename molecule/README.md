@@ -76,7 +76,7 @@ platform set, never from the scenario:
 | leg | tox env | target Python floor | what it is for |
 |---|---|---|---|
 | 2.16 | `ansible216` | 3.6 | Enterprise Linux 8, and Ubuntu 20.04 where the release has focal packages. 2.16 is the last ansible-core whose modules run on Python 3.6 and those hosts cannot move to a newer one, so the role has to keep working with it. These platforms never run under another leg. |
-| 2.18 | `ansible218` | 3.8 | The last release before the 2.19 templating rewrite, run on the newest release's own set. Enterprise Linux 8 cannot serve this purpose because its Python 3.6 is below the 3.8 floor of 2.18. |
+| 2.18 | `ansible218` | 3.8 | The last release before the 2.19 templating rewrite, run on **one** platform of the newest release. Enterprise Linux 8 cannot serve this purpose because its Python 3.6 is below the 3.8 floor of 2.18. |
 | 2.20 | `ansible220` | 3.9 | Current. Every platform except Enterprise Linux 8 and Ubuntu 20.04. |
 
 ## Platform sets
@@ -87,12 +87,30 @@ generic name:
 
 | set | contents | leg |
 |---|---|---|
-| `pdns-<release>` | the operating systems that release has packages for, from Enterprise Linux 9 upwards | `ansible220`, plus one `ansible218` row |
+| `pdns-<newest>` | every operating system that release has packages for, from Enterprise Linux 9 upwards | `ansible220` |
+| `pdns-<older>` | one RPM host and one DEB host of that release | `ansible220` |
 | `pdns-<release>-ansible216` | Enterprise Linux 8 always, and Ubuntu 20.04 where that release has focal packages | `ansible216` only |
+| `pdns-<newest>-ansible218` | one platform | `ansible218` only |
+| `pdns-<newest>-ansible216-single` | one Enterprise Linux 8 host | `ansible216`, `multi-instance` only |
 
-The split exists because of the target Python, not preference: Enterprise Linux 8
-has 3.6 and Ubuntu 20.04 has 3.8. Those platforms are **never** run with
+The 2.16 split exists because of the target Python, not preference: Enterprise
+Linux 8 has 3.6 and Ubuntu 20.04 has 3.8. Those platforms are **never** run with
 `ansible218` or `ansible220`.
+
+The narrow sets exist because every CI job builds its own images - the runners
+start with an empty image store - so each platform in a set costs an image build
+and a converge of every storage backend in every run. Only the newest release
+therefore carries the full operating system matrix: what changes between releases
+is the upstream repository path and which packages exist for it, which one RPM
+host and one DEB host establish, while the role logic that varies per operating
+system is covered by the newest release's set. For the same reason the
+`ansible218` leg runs on one platform, since templating does not vary per
+operating system, and the `multi-instance` 2.16 leg runs on one Enterprise Linux 8
+host, since what it can break is ansible-core version specific rather than vendor
+specific.
+
+Every platform that this trades away is **commented out in the set itself**, with
+the reason, so widening coverage again is a matter of uncommenting.
 
 Availability is sparse, which is exactly why the sets are per release. Upstream
 publishes Enterprise Linux 10 and Debian 13 only from the second-newest release
@@ -112,7 +130,7 @@ leg, so step 3 checks every operating system before the sets are written.
    than one.
 2. **`defaults/main.yml`** - add the commented usage example for the new preset,
    next to the others.
-3. **Two new platform sets.** Check availability first, then list exactly what
+3. **Four new platform sets.** Check availability first, then list exactly what
    exists:
 
    ```bash
@@ -122,28 +140,39 @@ leg, so step 3 checks every operating system before the sets are written.
    done
    ```
 
-   - `molecule/platforms/pdns-52.yml` - Enterprise Linux 9 upwards, Debian and
-     Ubuntu 22.04 upwards. Copy the newest existing set and delete what has no
-     packages.
+   - `molecule/platforms/pdns-52.yml` - the full operating system matrix, which only
+     the newest release carries: Enterprise Linux 9 upwards, Debian and Ubuntu 22.04
+     upwards. Copy the set of the release that was newest until now, uncomment the
+     platforms it had narrowed away, and delete what has no packages. Keep
+     `groups: ["pdns"]` on every platform: the plays and the verifier target that
+     group.
    - `molecule/platforms/pdns-52-ansible216.yml` - Enterprise Linux 8, plus
      Ubuntu 20.04 only if `focal-auth-52` exists.
+   - `molecule/platforms/pdns-52-ansible218.yml` - one platform, Debian 13.
+   - `molecule/platforms/pdns-52-ansible216-single.yml` - one Enterprise Linux 8
+     host.
 
-4. **`.github/workflows/main.yml`** - add one row per set:
+4. **Narrow the release that was newest until now.** In `pdns-51.yml`, comment out
+   every platform except one RPM host and one DEB host, keeping the reason in the
+   file, and delete `pdns-51-ansible218.yml` and `pdns-51-ansible216-single.yml`:
+   those two only ever apply to the newest release.
+5. **`.github/workflows/main.yml`** - add one row per set:
 
    ```yaml
    - {scenario: default, version: "52", platforms: pdns-52-ansible216, toxenv: ansible216}
    - {scenario: default, version: "52", platforms: pdns-52, toxenv: ansible220}
    ```
 
-   Move the single `ansible218` row to the new release as well.
+   Repoint the single `ansible218` row at `pdns-52-ansible218`.
 
-5. **Move `multi-instance` to the new release** by changing `version: "51"` to
-   `version: "52"` in its two matrix rows. That scenario only ever runs against
-   the newest release.
-6. **Retire the oldest release** in the same change: delete both of its platform sets
+6. **Move `multi-instance` to the new release** by changing `version: "51"` to
+   `version: "52"` in its two matrix rows, and the 2.16 one to
+   `pdns-52-ansible216-single`. That scenario only ever runs against the newest
+   release.
+7. **Retire the oldest release** in the same change: delete both of its platform sets
    and its matrix rows, and remove its `pdns_auth_powerdns_repo_49` block only if the
    series is really end of life. Three releases are tested at a time.
-7. **Default for local runs** - `molecule/resources/vars/pdns-repo-default.yml`
+8. **Default for local runs** - `molecule/resources/vars/pdns-repo-default.yml`
    defaults `PDNS_AUTH_VERSION` to the newest tested release. Bump it there.
 
 No test module needs editing. `molecule/resources/tests/repo/test_repo.py` reads
@@ -154,7 +183,10 @@ the release from the environment through the `component_version` fixture in
 ## Adding a new operating system
 
 Because the sets are per release, an image goes into every set whose release has
-packages for it - and nowhere else.
+packages for it - and nowhere else. In practice that means the set of the newest
+release, which is the one carrying the full operating system matrix; the older
+releases run one RPM host and one DEB host, so a new image only belongs there if
+it becomes one of those two.
 
 1. Check which releases have it:
 

@@ -73,8 +73,17 @@
           path: "{{ molecule_ephemeral_directory }}"
           platform: "{{ platforms.results[item].item.platform | default(molecule_docker_platform) }}"
           pull: true
-        force_source: "{{ platforms.results[item].item.force | default(false) | bool }}"
-        force_tag: "{{ platforms.results[item].item.force | default(false) | bool }}"
+        # An existing tag makes the module skip the build, so a rendered
+        # Dockerfile that differs from the one the existing image was built from
+        # has to force it. Without this a local rerun silently keeps the stale
+        # image and tests something other than the templates in the repository.
+        # CI never hits either case: its image store starts empty.
+        force_source: >-
+          {{ (platforms.results[item].get('changed', false) | bool)
+             or (platforms.results[item].item.force | default(false) | bool) }}
+        force_tag: >-
+          {{ (platforms.results[item].get('changed', false) | bool)
+             or (platforms.results[item].item.force | default(false) | bool) }}
       loop: "{{ range(0, platforms.results | length) | list }}"
       loop_control:
         label: "{{ platforms.results[item].item.name }}"

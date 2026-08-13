@@ -1,0 +1,22 @@
+---
+
+##
+# One Enterprise Linux 8 host for the ansible216 leg of the multi-instance
+# scenario, on the newest release.
+#
+# That scenario proves that the role publishes its facts and flushes its handlers
+# per invocation when a play configures more than one instance. What can break
+# there is ansible-core version specific, not vendor specific, so one EL8 host
+# under 2.16 answers the question and the second vendor only added an image build
+# and a converge to every run.
+#
+# Oracle Linux 8 is deliberately absent here. The vendor difference is covered by
+# the `default` scenario, which still runs both vendors on pdns-51-ansible216.yml.
+##
+
+platforms:
+
+  - name: rockylinux-8
+    groups: ["pdns"]
+    image: rockylinux:8
+    dockerfile_tpl: el-systemd

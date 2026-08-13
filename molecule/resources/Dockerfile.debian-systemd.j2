@@ -5,8 +5,31 @@ FROM {{ item.image }}
 ENV container docker
 ENV DEBIAN_FRONTEND=noninteractive
 
+# apt does not retry a failed download, so a single reset connection to a
+# Debian or Ubuntu mirror fails the whole run with "Error reading from server -
+# read (104: Connection reset by peer)". Retry instead and cap the wait, so a
+# flaky mirror does not decide whether a leg passes.
+RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+    > /etc/apt/apt.conf.d/80-molecule-retries
+
+# The package list is the minimum these images lack. `bash`, `awk`, `grep` and
+# `hostname` come with the base image, and `net-tools` and `procps` are gone
+# because nothing calls `netstat` or `ps`. `iproute2` stays because `ss` is what
+# the socket assertions of testinfra call, and `python3-apt` because the apt and
+# deb822_repository modules need it. Nothing runs `pip` inside a container.
+#
+# `acl` is not optional: Molecule connects as the unprivileged `ansible` account,
+# so a task with `become_user` performs an unprivileged to unprivileged escalation
+# and Ansible needs setfacl to hand the temporary files to the target account. No
+# Debian or Ubuntu base image ships it.
+#
+# `adduser` stays even though Debian 11, Debian 12 and Ubuntu 22.04 ship it in
+# the base image: Debian 13, Ubuntu 24.04 and Ubuntu 26.04 do not, and the
+# postinst of a PowerDNS package creates its service account with it. Without it
+# the installation can still succeed while the account is silently missing, and
+# the role then fails later on an unknown owner.
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends systemd python3 python3-pip python3-apt sudo adduser bash net-tools iproute2 procps && \
+    apt-get install -y --no-install-recommends systemd python3 python3-apt sudo adduser acl iproute2 && \
     rm -Rf /usr/share/doc && \
     rm -Rf /usr/share/man && \
     apt-get clean

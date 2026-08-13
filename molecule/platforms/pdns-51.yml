@@ -1,8 +1,11 @@
 ---
 
 ##
-# Platforms for PowerDNS Authoritative Server 5.1, run with the ansible220 tox environment
-# (and the ansible218 one where the matrix says so).
+# Platforms for PowerDNS Authoritative Server 5.1, the newest release, run with
+# the ansible220 tox environment. This is the one set that carries the full
+# operating system matrix: the sets of the older releases run a single RPM host
+# and a single DEB host, because what differs between releases is the upstream
+# repository rather than the role logic.
 #
 # Only operating systems that upstream publishes pdns-51 packages for are listed.
 # Enterprise Linux 8 and Ubuntu 20.04 live in pdns-51-ansible216.yml instead,
@@ -16,10 +19,15 @@ platforms:
     image: rockylinux:9
     dockerfile_tpl: el-systemd
 
-  - name: oraclelinux-9
-    groups: ["pdns"]
-    image: oraclelinux:9
-    dockerfile_tpl: el-systemd
+  # Oracle Linux 9 is commented out because Rocky Linux 9 above covers the
+  # Enterprise Linux 9 code path, and where Oracle diverges from Rocky - EPEL
+  # handling and its own repository layout - it is still exercised on Oracle
+  # Linux 8 and 10 in this same matrix, and on Oracle Linux 9 in the sets of the
+  # older releases. Uncomment to test both EL9 vendors on the newest release.
+  # - name: oraclelinux-9
+  #   groups: ["pdns"]
+  #   image: oraclelinux:9
+  #   dockerfile_tpl: el-systemd
 
   - name: rockylinux-10
     groups: ["pdns"]
