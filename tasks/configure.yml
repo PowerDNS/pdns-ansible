@@ -1,6 +1,6 @@
 ---
 - name: Set up systemd override
-  when: ansible_service_mgr == "systemd"
+  when: ansible_facts.service_mgr == "systemd"
   tags:
     - config
   block:

@@ -23,3 +23,6 @@ pdns_config_overrides_sqlite3: {}
 
 pdns_backends: "{{ pdns_backends_sqlite3 }}"
 pdns_sqlite_databases_locations: "{{ pdns_sqlite_databases_locations_sqlite3 }}"
+
+# Consumed by vars/pdns-instance-vars.yml under a uniform name.
+pdns_config_overrides: "{{ pdns_config_overrides_sqlite3 }}"

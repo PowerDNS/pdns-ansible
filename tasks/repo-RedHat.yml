@@ -29,29 +29,29 @@
       ansible.builtin.package:
         name: epel-release
         state: present
-      when: ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
+      when: ansible_facts.distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
 
     - name: Install epel-release on RHEL
       ansible.builtin.package:
-        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_facts.distribution_major_version }}.noarch.rpm"
         state: present
-      when: ansible_distribution in [ 'RedHat' ]
+      when: ansible_facts.distribution in [ 'RedHat' ]
 
     - name: Install epel-release on OracleLinux
       ansible.builtin.package:
         name:
-          - "oracle-epel-release-el{{ ansible_distribution_major_version }}"
+          - "oracle-epel-release-el{{ ansible_facts.distribution_major_version }}"
         state: present
 
-      when: ansible_distribution in [ 'OracleLinux' ]
+      when: ansible_facts.distribution in [ 'OracleLinux' ]
 
 - name: Install yum-plugin-priorities
   ansible.builtin.package:
     name: yum-plugin-priorities
     state: present
   when:
-    - ansible_distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
-    - ansible_distribution_major_version | int < 8
+    - ansible_facts.distribution in [ 'CentOS', 'Rocky', 'AlmaLinux' ]
+    - ansible_facts.distribution_major_version | int < 8
   tags:
     - install
     - repository
@@ -61,8 +61,8 @@
     name: policycoreutils-python-utils
     state: present
   when:
-    - ansible_distribution in [ 'RedHat', 'CentOS', 'Rocky', 'AlmaLinux', 'OracleLinux' ]
-    - ansible_distribution_major_version | int >= 8
+    - ansible_facts.distribution in [ 'RedHat', 'CentOS', 'Rocky', 'AlmaLinux', 'OracleLinux' ]
+    - ansible_facts.distribution_major_version | int >= 8
   tags:
     - install
     - repository

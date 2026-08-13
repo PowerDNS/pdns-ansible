@@ -1,0 +1,26 @@
+---
+
+##
+# Platforms for PowerDNS Authoritative Server 5.1 that need ansible-core 2.16, always run
+# with the ansible216 tox environment.
+#
+# Enterprise Linux 8 has Python 3.6 and 2.16 is the last ansible-core whose
+# modules run on it. Those hosts cannot move to a newer ansible-core, which is
+# why the role has to keep working with 2.16.
+#
+# Ubuntu 20.04 is absent: upstream publishes no focal packages for this release.
+#
+# These platforms are never run with ansible218 or ansible220.
+##
+
+platforms:
+
+  - name: rockylinux-8
+    groups: ["pdns"]
+    image: rockylinux:8
+    dockerfile_tpl: el-systemd
+
+  - name: oraclelinux-8
+    groups: ["pdns"]
+    image: oraclelinux:8
+    dockerfile_tpl: el-systemd

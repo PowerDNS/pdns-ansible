@@ -1,5 +1,19 @@
 ---
 
+# The modules that manage the database and the user of the gmysql backend, chosen
+# by pdns_mysql_flavor. `ansible.mariadb` is the MariaDB half of the split of
+# `community.mysql`; both accept the same arguments for these two tasks, so the
+# tasks stay single and only the module name changes.
+pdns_mysql_db_module: >-
+  {{ 'ansible.mariadb.mariadb_db'
+     if pdns_mysql_flavor == 'mariadb'
+     else 'ansible.mysql.mysql_db' }}
+
+pdns_mysql_user_module: >-
+  {{ 'ansible.mariadb.mariadb_user'
+     if pdns_mysql_flavor == 'mariadb'
+     else 'ansible.mysql.mysql_user' }}
+
 pdns_apt_repo_arch_map:
   x86_64: amd64
   amd64: amd64
@@ -7,15 +21,15 @@ pdns_apt_repo_arch_map:
   arm64: arm64
 
 pdns_apt_repo_arch: >-
-  {{ pdns_apt_repo_arch_map.get((ansible_architecture | default('amd64')) | lower,
-                                (ansible_architecture | default('amd64')) | lower) }}
+  {{ pdns_apt_repo_arch_map.get((ansible_facts.architecture | default('amd64')) | lower,
+                                (ansible_facts.architecture | default('amd64')) | lower) }}
 
 pdns_auth_powerdns_repo_master:
   apt_repo_origin: "repo.powerdns.com"
   apt_version: "auth-master"
   apt_repo: >-
-    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
-    {{ ansible_distribution_release | lower }}-auth-master main
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_facts.distribution | lower }}
+    {{ ansible_facts.distribution_release | lower }}-auth-master main
   gpg_key: "http://repo.powerdns.com/CBC8B383-pub.asc"
   gpg_key_id: "D47975F8DAE32700A563E64FFF389421CBC8B383"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-master"
@@ -26,8 +40,8 @@ pdns_auth_powerdns_repo_48:
   apt_repo_origin: "repo.powerdns.com"
   apt_version: "auth-48"
   apt_repo: >-
-    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
-    {{ ansible_distribution_release | lower }}-auth-48 main
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_facts.distribution | lower }}
+    {{ ansible_facts.distribution_release | lower }}-auth-48 main
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-48"
@@ -38,20 +52,32 @@ pdns_auth_powerdns_repo_49:
   apt_repo_origin: "repo.powerdns.com"
   apt_version: "auth-49"
   apt_repo: >-
-    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
-    {{ ansible_distribution_release | lower }}-auth-49 main
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_facts.distribution | lower }}
+    {{ ansible_facts.distribution_release | lower }}-auth-49 main
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-49"
   yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-49/debug"
   name: "powerdns-auth-49"
 
+pdns_auth_powerdns_repo_51:
+  apt_repo_origin: "repo.powerdns.com"
+  apt_version: "auth-51"
+  apt_repo: >-
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_facts.distribution | lower }}
+    {{ ansible_facts.distribution_release | lower }}-auth-51 main
+  gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
+  gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
+  yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-51"
+  yum_debug_symbols_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-51/debug"
+  name: "powerdns-auth-51"
+
 pdns_auth_powerdns_repo_50:
   apt_repo_origin: "repo.powerdns.com"
   apt_version: "auth-50"
   apt_repo: >-
-    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_distribution | lower }}
-    {{ ansible_distribution_release | lower }}-auth-50 main
+    deb [arch={{ pdns_apt_repo_arch }}] http://repo.powerdns.com/{{ ansible_facts.distribution | lower }}
+    {{ ansible_facts.distribution_release | lower }}-auth-50 main
   gpg_key: "http://repo.powerdns.com/FD380FBB-pub.asc"
   gpg_key_id: "9FAAA5577E8FCF62093D036C1B0C6205FD380FBB"
   yum_repo_baseurl: "http://repo.powerdns.com/centos/$basearch/$releasever/auth-50"

@@ -6,7 +6,17 @@
   gather_facts: false
   vars_files:
     - vars/molecule.yml
+    - vars/services.yml
   tasks:
+
+    - name: Fail when no platform was configured
+      ansible.builtin.assert:
+        that: molecule_yml.platforms | default([]) | length > 0
+        fail_msg: >-
+          No platform is configured. molecule/config.yml is not auto-discovered,
+          so pass it and a platform set:
+          molecule -c molecule/config.yml -c molecule/platforms/<set>.yml ...
+        quiet: true
 
     - name: Detect host architecture for Docker platform selection
       ansible.builtin.set_fact:
@@ -31,11 +41,14 @@
 
     - name: Get list of service instances
       ansible.builtin.set_fact:
-        molecule_service_instances: "{{ molecule_yml.platforms | selectattr('is_service', 'defined') | selectattr('is_service') | list }}"
+        molecule_service_instances: >-
+          {{ molecule_service_definitions
+             if (lookup('env', 'MOLECULE_WITH_SERVICES') | default('', true) | bool)
+             else [] }}
 
     - name: Get list of platform instances
       ansible.builtin.set_fact:
-        molecule_platform_instances: "{{ molecule_yml.platforms | difference(molecule_service_instances) }}"
+        molecule_platform_instances: "{{ molecule_yml.platforms }}"
 
     - name: Create Dockerfiles from platform names
       ansible.builtin.template:
@@ -60,8 +73,17 @@
           path: "{{ molecule_ephemeral_directory }}"
           platform: "{{ platforms.results[item].item.platform | default(molecule_docker_platform) }}"
           pull: true
-        force_source: "{{ platforms.results[item].item.force | default(false) | bool }}"
-        force_tag: "{{ platforms.results[item].item.force | default(false) | bool }}"
+        # An existing tag makes the module skip the build, so a rendered
+        # Dockerfile that differs from the one the existing image was built from
+        # has to force it. Without this a local rerun silently keeps the stale
+        # image and tests something other than the templates in the repository.
+        # CI never hits either case: its image store starts empty.
+        force_source: >-
+          {{ (platforms.results[item].get('changed', false) | bool)
+             or (platforms.results[item].item.force | default(false) | bool) }}
+        force_tag: >-
+          {{ (platforms.results[item].get('changed', false) | bool)
+             or (platforms.results[item].item.force | default(false) | bool) }}
       loop: "{{ range(0, platforms.results | length) | list }}"
       loop_control:
         label: "{{ platforms.results[item].item.name }}"

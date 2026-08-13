@@ -1,0 +1,13 @@
+---
+
+##
+# The Authoritative Server release under test.
+#
+# The value is the release as named by the PowerDNS repositories (49, 50, 51)
+# and defaults to the newest tested release. The repository presets it resolves
+# to live in the role's vars/main.yml, so the second variable is only rendered
+# once the role runs.
+##
+
+pdns_test_version: "{{ lookup('env', 'PDNS_AUTH_VERSION') | default('51', true) }}"
+pdns_install_repo: "{{ lookup('vars', 'pdns_auth_powerdns_repo_' ~ pdns_test_version) }}"

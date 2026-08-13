@@ -39,3 +39,6 @@ pdns_config_overrides_bind: {}
 
 pdns_backends: "{{ pdns_backends_bind }}"
 pdns_config_files: "{{ pdns_config_files_bind }}"
+
+# Consumed by vars/pdns-instance-vars.yml under a uniform name.
+pdns_config_overrides: "{{ pdns_config_overrides_bind }}"

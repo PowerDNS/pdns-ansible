@@ -18,3 +18,10 @@ __pycache__/
 
 #venv
 venv
+.ansible/
+
+# Role symlinks that Molecule needs for a local run:
+# molecule/<scenario>/roles/<namespace>.<role> -> the repository root.
+# They must never be committed. They make a self-referential tree, and
+# ansible-lint follows it: a lint run goes from seconds to over ten minutes.
+molecule/*/roles/

@@ -1,44 +1,96 @@
 ---
 on:
+  # A push to a branch that has an open pull request would otherwise run the
+  # whole matrix twice, once per event. Pull requests get the full matrix, and
+  # pushes only run it on the default branch, after a merge.
   push:
+    branches:
+      - master
   pull_request:
   schedule:
     - cron: '33 5 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  # Supersede an in-flight run of the same ref, so pushing again to a pull
+  # request does not leave the previous matrix running.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   Lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+      - name: Install python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@v25.2.0
+        uses: ansible/ansible-lint@v26.6.0
+        with:
+          setup_python: "false"
   Tests:
-    name: Test role on different ansible versions
-    runs-on: ubuntu-22.04
+    name: ${{ matrix.scenario }} ${{ matrix.version }} ${{ matrix.platforms }}
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        ansible:
-          - "2.16"
-        scenario:
-          - pdns-48
-          - pdns-49
-          - pdns-50
-          - pdns-master
-          - pdns-os-repos
-          - multi-instance
+        # Each release has its own platform set, listing exactly the operating
+        # systems upstream publishes packages for. The <release>-ansible216 sets
+        # hold the platforms whose Python is too old for a newer ansible-core:
+        # Enterprise Linux 8 always, and Ubuntu 20.04 where it has packages. Those
+        # platforms are never run with ansible218 or ansible220.
+        #
+        # Only the newest release runs the full operating system matrix. The sets
+        # of the older releases run one RPM host and one DEB host, because what
+        # differs between releases is the upstream repository, not the role logic.
+        # Every job builds its own images, so a platform costs an image build and
+        # a converge of every storage backend in every run. The sets say which
+        # platforms this trades away.
+        include:
+          - {scenario: default, version: "49", platforms: pdns-49-ansible216, toxenv: ansible216}
+          - {scenario: default, version: "50", platforms: pdns-50-ansible216, toxenv: ansible216}
+          - {scenario: default, version: "51", platforms: pdns-51-ansible216, toxenv: ansible216}
+          - {scenario: default, version: "49", platforms: pdns-49, toxenv: ansible220}
+          - {scenario: default, version: "50", platforms: pdns-50, toxenv: ansible220}
+          - {scenario: default, version: "51", platforms: pdns-51, toxenv: ansible220}
+          # One pre-2.19 leg, so the templating engine from before the rewrite
+          # stays covered. Enterprise Linux 8 cannot serve this purpose: its
+          # Python 3.6 is below the 3.8 floor of 2.18. One platform is enough,
+          # because templating does not vary per operating system.
+          - {scenario: default, version: "51", platforms: pdns-51-ansible218, toxenv: ansible218}
+          # A single Enterprise Linux 8 host: what this scenario can break is
+          # ansible-core version specific rather than vendor specific, and the
+          # `default` legs above still run both EL8 vendors.
+          - {scenario: multi-instance, version: "51", platforms: pdns-51-ansible216-single, toxenv: ansible216}
+          # No platform set: molecule/config.yml already defaults to a single
+          # container, which is all this scenario needs.
+          - {scenario: multi-instance, version: "51", platforms: "", toxenv: ansible220}
+          # The os-repos scenario declares its own Arch Linux platform.
+          - {scenario: os-repos, version: "", platforms: "", toxenv: ansible220}
     steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install tox tox-gh-actions
+          pip install tox
       - name: Run the tests
-        run: tox -- molecule test -s ${{ matrix.scenario }}
+        run: |
+          set -eu
+          args="-c molecule/config.yml"
+          if [ -n "${{ matrix.platforms }}" ]; then
+            set="molecule/platforms/${{ matrix.platforms }}.yml"
+            # Molecule drops a --base-config that does not exist, which would
+            # silently run the leg against the default platform instead.
+            test -f "${set}" || { echo "missing platform set ${set}"; exit 1; }
+            args="${args} -c ${set}"
+          fi
+          tox -e ${{ matrix.toxenv }} -- molecule ${args} test -s ${{ matrix.scenario }} --destroy always
         env:
-          ANSIBLE: ${{ matrix.ansible }}
+          PDNS_AUTH_VERSION: ${{ matrix.version }}

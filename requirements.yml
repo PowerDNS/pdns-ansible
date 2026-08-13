@@ -1,9 +1,40 @@
 ---
+
+##
+# Every collection carries an upper bound on purpose.
+#
+# The role supports ansible-core 2.16, and a collection that raises its
+# requires_ansible in a new major would break the ansible216 leg on the day it is
+# published, without a commit here. A cap turns that into a deliberate bump
+# instead of a red pipeline on an untouched repository. Raise a cap only together
+# with the floor of the tox environments.
+##
+
 collections:
+  # 5.2.0 requires ansible-core 2.16. 6.0.0 drops MariaDB support, which the
+  # gmysql backend of this role reaches through ansible.mariadb instead, so the
+  # cap also keeps that migration a deliberate step.
   - name: ansible.mysql
+    version: "<6.0.0"
+
+  # Used for the MariaDB flavour of the gmysql backend. 6.0.2 requires
+  # ansible-core 2.16.
+  - name: ansible.mariadb
+    version: "<7.0.0"
+
+  # 4.2.0 requires ansible-core 2.9. The cap is precautionary.
   - name: community.postgresql
+    version: "<5.0.0"
+
+  # Also provides the pacman module that ansible.builtin.package dispatches to
+  # on Arch Linux. Capped below 11.0.0, which requires ansible-core 2.18.
   - name: community.general
     version: "<11.0.0"
+
   - name: community.docker
     version: "<5.0.0"
+
+  # 2.2.2 requires ansible-core 2.16. The cap is precautionary: no 3.0.0 exists
+  # yet, and whenever it appears it must be checked against the 2.16 leg first.
   - name: ansible.posix
+    version: "<3.0.0"

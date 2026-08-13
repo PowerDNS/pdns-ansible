@@ -3,40 +3,78 @@
 - name: Prepare the Molecule Test Resources
   hosts: pdns
   tasks:
-    # Make sure the default MySQL and SQLite
-    # schemas are installed in /usr/share/doc/
-    - name: Disable the YUM 'nodocs' option
+
+    # create.yml starts the database containers and returns immediately, so
+    # converge can reach the gmysql or gpgsql play before a server has finished
+    # initialising. Wait here instead of racing the fixtures.
+    - name: Wait for the database services to accept connections
+      ansible.builtin.wait_for:
+        host: "{{ item.host }}"
+        port: "{{ item.port }}"
+        timeout: 180
+      loop:
+        - {host: mysql, port: 3306}
+        - {host: mariadb, port: 3306}
+        - {host: postgresql, port: 5432}
+      loop_control:
+        label: "{{ item.host }}:{{ item.port }}"
+      when: lookup('ansible.builtin.env', 'MOLECULE_WITH_SERVICES') | default('', true) | bool
+    # The image is older than the run, so the package database can still point at
+    # package versions the mirrors have already dropped.
+    - name: Refresh the pacman package database
+      ansible.builtin.command: pacman --sync --refresh --sysupgrade --noconfirm
+      when: ansible_facts.pkg_mgr == 'pacman'
+      changed_when: false
+
+    # Make sure the default MySQL and SQLite schemas are installed in
+    # /usr/share/doc/. The Rocky Linux 10 image sets tsflags=nodocs in both
+    # /etc/dnf/dnf.conf and /etc/yum.conf, and reports ansible_facts.pkg_mgr as dnf, so
+    # both files have to be handled for every Enterprise Linux package manager.
+    - name: Look for the package manager configuration
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/dnf/dnf.conf
+        - /etc/yum.conf
+      register: _pdns_pkg_mgr_conf
+      when: ansible_facts.os_family == 'RedHat'
+
+    - name: Disable the 'nodocs' transaction flag
       ansible.builtin.lineinfile:
         line: tsflags=nodocs
-        dest: /etc/yum.conf
+        dest: "{{ item.item }}"
         state: absent
-      when: ansible_pkg_mgr == 'yum'
+      loop: >-
+        {{ _pdns_pkg_mgr_conf.results | default([])
+           | selectattr('stat.exists', 'defined') | selectattr('stat.exists') | list }}
+      loop_control:
+        label: "{{ item.item }}"
 
     - name: Disable the APT 'nodoc' option
       ansible.builtin.lineinfile:
         line: path-exclude=/usr/share/doc/*
         dest: /etc/dpkg/dpkg.cfg.d/excludes
         state: absent
-      when: ansible_pkg_mgr == 'apt'
+      when: ansible_facts.pkg_mgr == 'apt'
 
     - name: Disable the pacman 'NoExtract' option for docs
       ansible.builtin.replace:
         path: /etc/pacman.conf
         regexp: '^(\s*NoExtract\s*=\s*)usr/share/doc/\*(\s*)'
         replace: '\1\2'
-      when: ansible_pkg_mgr == 'pacman'
+      when: ansible_facts.pkg_mgr == 'pacman'
 
     - name: Disable the pacman 'NoExtract' doc token in lists
       ansible.builtin.replace:
         path: /etc/pacman.conf
         regexp: '(\s+)usr/share/doc/\*'
         replace: '\1'
-      when: ansible_pkg_mgr == 'pacman'
+      when: ansible_facts.pkg_mgr == 'pacman'
 
     # Install rsyslog to capture the PowerDNS Recursor log messages
     # when the service is not managed by systemd
     - name: Install rsyslog
-      when: ansible_service_mgr != 'systemd'
+      when: ansible_facts.service_mgr != 'systemd'
       block:
         - name: Install rsyslog
           ansible.builtin.package:
@@ -55,16 +93,16 @@
           - acl
         state: present
         update_cache: true
-      when: ansible_os_family == 'Debian'
+      when: ansible_facts.os_family == 'Debian'
 
     - name: Install dnspython on RHEL/Alma/Rocky/OL
       ansible.builtin.dnf:
         name: python3-dns
         state: present
-      when: ansible_os_family == 'RedHat'
+      when: ansible_facts.os_family == 'RedHat'
 
     - name: Install dnspython on Archlinux
       ansible.builtin.package:
         name: python-dnspython
         state: present
-      when: ansible_pkg_mgr == 'pacman'
+      when: ansible_facts.pkg_mgr == 'pacman'

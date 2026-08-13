@@ -24,6 +24,7 @@ galaxy_info:
         - focal
         - jammy
         - noble
+        - resolute
     - name: ArchLinux
   galaxy_tags:
     - system

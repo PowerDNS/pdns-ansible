@@ -31,6 +31,13 @@ pdns_install_repo: ""
 #    - { role: PowerDNS.pdns,
 #        pdns_install_repo: "{{ pdns_auth_powerdns_repo_50 }}" }
 #
+# To install the PowerDNS Authoritative Server from the '5.1.x' official repository
+# use the following playbook snippet
+# - hosts: all
+#   roles:
+#    - { role: PowerDNS.pdns,
+#        pdns_install_repo: "{{ pdns_auth_powerdns_repo_51 }}" }
+#
 # To make this role configure a custom repository and install the
 # PowerDNS Authoritative Server from it override the `pdns_install_repo` variable
 # as follows
@@ -39,7 +46,7 @@ pdns_install_repo: ""
 #     pdns_install_repo:
 #       apt_repo_origin: "example.com"  # Pin the PowerDNS packages to the provided repository origin
 #       apt_version: "auth-50"          # Deb822 suite suffix (appended to release codename, Ubuntu >=22.04 / Debian >=11)
-#       apt_repo: "deb http://example.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }}/pdns main"
+#       apt_repo: "deb http://example.com/{{ ansible_facts.distribution | lower }} {{ ansible_facts.distribution_release | lower }}/pdns main"
 #       gpg_key: "http://example.com/MYREPOGPGPUBKEY.asc" # repository public GPG key
 #       gpg_key_id: "MYREPOGPGPUBKEYID" # to avoid to reimport the key each time the role is executed
 #       yum_repo_baseurl: "http://example.com/centos/$basearch/$releasever/pdns"
@@ -191,6 +198,18 @@ pdns_config_files: []
 # Enable role-managed MySQL backend bootstrap tasks.
 # When false, the role will only write gmysql backend settings in pdns.conf and won't connect to MySQL/MariaDB.
 pdns_mysql_manage_database: true
+
+# Which server the gmysql backend talks to, `mysql` or `mariadb`.
+#
+# It selects the collection that creates the database and the user: `ansible.mysql`
+# for MySQL, `ansible.mariadb` for MariaDB. The two are the same code base split
+# in two, and `ansible.mysql` still manages MariaDB today while warning that its
+# support goes away in 6.0.0, so a MariaDB server keeps working with the default.
+# Setting `mariadb` uses the collection that will keep supporting it.
+#
+# Only the database and user tasks are affected. The gmysql settings written to
+# pdns.conf, the client packages and the schema import are identical either way.
+pdns_mysql_flavor: mysql
 
 # Administrative credentials to create the PowerDNS Authoritative Server MySQL backend database and user.
 pdns_mysql_databases_credentials: {}

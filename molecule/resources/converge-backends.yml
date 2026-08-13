@@ -1,0 +1,99 @@
+---
+
+##
+# One instance per storage backend, each in its own play because the backend
+# profiles set the same role variables to different values.
+#
+# The repository is chosen by the scenario: `pdns-repo-<scenario>.yml` selects a
+# PowerDNS repository for the release under test, or none at all.
+##
+
+- name: PowerDNS LMDB default instance
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - vars/pdns-common.yml
+    - vars/pdns-instance-vars.yml
+    - vars/pdns-backend-lmdb.yml
+  roles:
+    - role: powerdns.pdns
+  post_tasks:
+    - name: Provision the LMDB instance zone
+      ansible.builtin.include_tasks: tasks/pdns-zone.yml
+
+- name: PowerDNS SQLite instance
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - vars/pdns-common.yml
+    - vars/pdns-instance-vars.yml
+    - vars/pdns-backend-sqlite3.yml
+    - vars/pdns-provision-autoprimary.yml
+  roles:
+    - role: powerdns.pdns
+  post_tasks:
+    - name: Provision the SQLite instance zone
+      ansible.builtin.include_tasks: tasks/pdns-zone.yml
+
+- name: PowerDNS MySQL instance
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - vars/pdns-common.yml
+    - vars/pdns-instance-vars.yml
+    - vars/pdns-backend-mysql.yml
+    - vars/pdns-provision-autoprimary.yml
+  roles:
+    - role: powerdns.pdns
+  post_tasks:
+    - name: Provision the MySQL instance zone
+      ansible.builtin.include_tasks: tasks/pdns-zone.yml
+
+- name: PowerDNS MariaDB instance
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - vars/pdns-common.yml
+    - vars/pdns-instance-vars.yml
+    - vars/pdns-backend-mariadb.yml
+    - vars/pdns-provision-autoprimary.yml
+  roles:
+    - role: powerdns.pdns
+  post_tasks:
+    - name: Provision the MariaDB instance zone
+      ansible.builtin.include_tasks: tasks/pdns-zone.yml
+
+- name: PowerDNS Bind instance
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - vars/pdns-common.yml
+    - vars/pdns-instance-vars.yml
+    - vars/pdns-backend-bind.yml
+  roles:
+    - role: powerdns.pdns
+
+- name: PowerDNS PostgreSQL instance
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - vars/pdns-common.yml
+    - vars/pdns-instance-vars.yml
+    - vars/pdns-backend-postgresql.yml
+    - vars/pdns-provision-autoprimary.yml
+  roles:
+    - role: powerdns.pdns
+  post_tasks:
+    - name: Provision the PostgreSQL instance zone
+      ansible.builtin.include_tasks: tasks/pdns-zone.yml
+
+- name: PowerDNS Hide default service
+  hosts: pdns
+  vars_files:
+    - "vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+  vars:
+    pdns_service_state: "stopped"
+    pdns_service_enabled: "no"
+    pdns_service_masked: true
+  roles:
+    - role: powerdns.pdns

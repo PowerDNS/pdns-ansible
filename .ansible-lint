@@ -1,3 +1,10 @@
 ---
+exclude_paths:
+  # Platform sets are Molecule base configs, not playbooks.
+  - molecule/platforms/
+  # Role symlinks a local Molecule run needs, pointing at the repository
+  # root. They are gitignored, but if one is present ansible-lint follows
+  # it into a self-referential tree and takes minutes instead of seconds.
+  - molecule/*/roles/
 
 skip_list: []

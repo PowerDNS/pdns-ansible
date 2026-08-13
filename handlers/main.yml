@@ -5,7 +5,7 @@
 # the fallback for runs that skip tasks/main.yml.
 
 - name: Reload systemd
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     daemon_reload: true
   listen: reload systemd
   when: not _pdns_disable_handlers | default(pdns_disable_handlers) | bool
@@ -13,7 +13,7 @@
     - service
 
 - name: Restart PowerDNS
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ _pdns_service_name | default(pdns_service_name) }}"
     state: restarted
   listen: restart pdns

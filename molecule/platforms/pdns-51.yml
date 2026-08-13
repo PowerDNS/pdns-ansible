@@ -1,0 +1,70 @@
+---
+
+##
+# Platforms for PowerDNS Authoritative Server 5.1, the newest release, run with
+# the ansible220 tox environment. This is the one set that carries the full
+# operating system matrix: the sets of the older releases run a single RPM host
+# and a single DEB host, because what differs between releases is the upstream
+# repository rather than the role logic.
+#
+# Only operating systems that upstream publishes pdns-51 packages for are listed.
+# Enterprise Linux 8 and Ubuntu 20.04 live in pdns-51-ansible216.yml instead,
+# because their Python needs ansible-core 2.16.
+##
+
+platforms:
+
+  - name: rockylinux-9
+    groups: ["pdns"]
+    image: rockylinux:9
+    dockerfile_tpl: el-systemd
+
+  # Oracle Linux 9 is commented out because Rocky Linux 9 above covers the
+  # Enterprise Linux 9 code path, and where Oracle diverges from Rocky - EPEL
+  # handling and its own repository layout - it is still exercised on Oracle
+  # Linux 8 and 10 in this same matrix, and on Oracle Linux 9 in the sets of the
+  # older releases. Uncomment to test both EL9 vendors on the newest release.
+  # - name: oraclelinux-9
+  #   groups: ["pdns"]
+  #   image: oraclelinux:9
+  #   dockerfile_tpl: el-systemd
+
+  - name: rockylinux-10
+    groups: ["pdns"]
+    image: rockylinux/rockylinux:10
+    dockerfile_tpl: el-systemd
+
+  - name: oraclelinux-10
+    groups: ["pdns"]
+    image: oraclelinux:10
+    dockerfile_tpl: el-systemd
+
+  - name: debian-11
+    groups: ["pdns"]
+    image: debian:11
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-12
+    groups: ["pdns"]
+    image: debian:12
+    dockerfile_tpl: debian-systemd
+
+  - name: debian-13
+    groups: ["pdns"]
+    image: debian:13
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2204
+    groups: ["pdns"]
+    image: ubuntu:22.04
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2404
+    groups: ["pdns"]
+    image: ubuntu:24.04
+    dockerfile_tpl: debian-systemd
+
+  - name: ubuntu-2604
+    groups: ["pdns"]
+    image: ubuntu:26.04
+    dockerfile_tpl: debian-systemd

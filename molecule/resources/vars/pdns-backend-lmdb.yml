@@ -23,3 +23,6 @@ pdns_config_overrides_lmdb: {}
 
 pdns_backends: "{{ pdns_backends_lmdb }}"
 pdns_lmdb_databases_locations: "{{ pdns_lmdb_databases_locations_lmdb }}"
+
+# Consumed by vars/pdns-instance-vars.yml under a uniform name.
+pdns_config_overrides: "{{ pdns_config_overrides_lmdb }}"

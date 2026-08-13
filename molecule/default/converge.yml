@@ -1,0 +1,4 @@
+---
+
+- name: Configure one instance per storage backend
+  ansible.builtin.import_playbook: ../resources/converge-backends.yml

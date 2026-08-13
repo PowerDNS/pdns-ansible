@@ -1,0 +1,27 @@
+---
+
+# Create the test zone of the current `pdns_instance` and restart the instance
+# when the zone was missing. Used as the post_tasks of every backend play, which
+# is why the restart is done here instead of through a handler: a task file
+# cannot declare one.
+
+- name: Check the existing zone of the instance {{ pdns_instance.config_name }}
+  ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} list-zone {{ pdns_instance.zone }}"
+  register: _pdns_backend_zone_check
+  become: true
+  become_user: "{{ pdns_user }}"
+  changed_when: false
+  failed_when: false
+
+- name: Provision the zone of the instance {{ pdns_instance.config_name }}
+  ansible.builtin.command: "pdnsutil --config-name={{ pdns_instance.config_name }} create-zone {{ pdns_instance.zone }} ns1.{{ pdns_instance.zone }}"
+  become: true
+  become_user: "{{ pdns_user }}"
+  changed_when: true
+  when: _pdns_backend_zone_check.rc != 0
+
+- name: Restart the service of the instance {{ pdns_instance.config_name }}
+  ansible.builtin.systemd_service:
+    name: "{{ pdns_instance.service_name }}"
+    state: restarted
+  when: _pdns_backend_zone_check.rc != 0

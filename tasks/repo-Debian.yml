@@ -25,8 +25,8 @@
   ansible.builtin.set_fact:
     _pdns_deb822_supported: >-
       {{
-        (ansible_distribution == 'Ubuntu' and (ansible_distribution_major_version | int) >= 22) or
-        (ansible_distribution == 'Debian' and (ansible_distribution_major_version | int) >= 11)
+        (ansible_facts.distribution == 'Ubuntu' and (ansible_facts.distribution_major_version | int) >= 22) or
+        (ansible_facts.distribution == 'Debian' and (ansible_facts.distribution_major_version | int) >= 11)
       }}
   tags:
     - install
@@ -49,8 +49,8 @@
       ansible.builtin.deb822_repository:
         name: "{{ pdns_auth_repo_name }}"
         types: deb
-        uris: "https://{{ pdns_install_repo['apt_repo_origin'] }}/{{ ansible_distribution | lower }}/"
-        suites: "{{ ansible_distribution_release | lower }}-{{ pdns_install_repo['apt_version'] }}"
+        uris: "https://{{ pdns_install_repo['apt_repo_origin'] }}/{{ ansible_facts.distribution | lower }}/"
+        suites: "{{ ansible_facts.distribution_release | lower }}-{{ pdns_install_repo['apt_version'] }}"
         components: main
         architectures: "{{ pdns_apt_repo_arch }}"
         signed_by: "{{ pdns_install_repo['gpg_key'] }}"

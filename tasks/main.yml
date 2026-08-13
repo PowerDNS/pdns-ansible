@@ -3,10 +3,10 @@
 - name: Include OS-specific variables (generic to specific)
   ansible.builtin.include_vars: "{{ role_path }}/vars/{{ item }}"
   loop:
-    - "{{ ansible_os_family }}.yml"
-    - "{{ ansible_distribution }}.yml"
-    - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
-    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_facts.os_family }}.yml"
+    - "{{ ansible_facts.distribution }}.yml"
+    - "{{ ansible_facts.os_family }}-{{ ansible_facts.distribution_major_version }}.yml"
+    - "{{ ansible_facts.distribution }}-{{ ansible_facts.distribution_major_version }}.yml"
   when:
     - lookup('ansible.builtin.fileglob', role_path ~ '/vars/' ~ item, wantlist=True) | length > 0
   tags:
@@ -32,7 +32,7 @@
     - repository
 
 - name: Setup repository
-  ansible.builtin.include_tasks: "repo-{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "repo-{{ ansible_facts.os_family }}.yml"
   when: "pdns_install_repo | length > 0"
   tags:
     - install
@@ -55,8 +55,8 @@
   when:
     - pdns_package_state != 'absent'
     - pdns_manage_selinux | bool
-    - ansible_selinux is defined
-    - ansible_selinux.status == 'enabled'
+    - ansible_facts.selinux is defined
+    - ansible_facts.selinux.status == 'enabled'
   tags:
     - selinux
     - config
@@ -127,7 +127,7 @@
 
 - name: Start and enable the PowerDNS service (systemd)
   throttle: 1
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ pdns_service_name }}"
     state: "{{ pdns_service_state }}"
     enabled: "{{ pdns_service_enabled }}"
