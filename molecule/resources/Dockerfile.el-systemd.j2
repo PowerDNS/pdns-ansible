@@ -28,7 +28,7 @@ ENV container docker
 RUN ok=0; \
     for i in 1 2 3; do \
         dnf makecache && \
-        dnf install -y systemd python3 sudo iproute acl hostname && \
+        dnf install -y systemd python3 sudo iproute acl ca-certificates hostname && \
         { ok=1; break; }; \
         echo "dnf attempt ${i} failed, retrying in 15 seconds"; \
         sleep 15; \

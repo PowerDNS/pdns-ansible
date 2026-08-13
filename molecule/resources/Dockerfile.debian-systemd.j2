@@ -18,6 +18,11 @@ RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https:
 # the socket assertions of testinfra call, and `python3-apt` because the apt and
 # deb822_repository modules need it. Nothing runs `pip` inside a container.
 #
+# `ca-certificates` is required as well: no Debian or Ubuntu base image carries a
+# CA bundle, and the apt repository of PowerDNS is served over https, so without
+# it apt reports "No system certificates available" and the repository has no
+# Release file. It used to arrive as a dependency of `python3-pip`.
+#
 # `acl` is not optional: Molecule connects as the unprivileged `ansible` account,
 # so a task with `become_user` performs an unprivileged to unprivileged escalation
 # and Ansible needs setfacl to hand the temporary files to the target account. No
@@ -29,7 +34,7 @@ RUN printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https:
 # the installation can still succeed while the account is silently missing, and
 # the role then fails later on an unknown owner.
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends systemd python3 python3-apt sudo adduser acl iproute2 && \
+    apt-get install -y --no-install-recommends systemd python3 python3-apt sudo adduser acl ca-certificates iproute2 && \
     rm -Rf /usr/share/doc && \
     rm -Rf /usr/share/man && \
     apt-get clean
