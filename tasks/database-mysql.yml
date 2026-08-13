@@ -17,8 +17,12 @@
     - backend
   block:
 
+    # ansible.mysql.mysql_db or ansible.mariadb.mariadb_db, chosen by
+    # pdns_mysql_flavor. The module name is a template, so the arguments go under
+    # `args`: the mapping form of `action` is rejected by the ansible-lint schema.
     - name: Create the PowerDNS MySQL databases
-      ansible.mysql.mysql_db:
+      action: "{{ pdns_mysql_db_module }}"
+      args:
         login_user: "{{ item['value']['priv_user'] }}"
         login_password: "{{ item['value']['priv_password'] }}"
         login_host: "{{ item['value']['host'] | default('localhost') if not pdns_mysql_query_use_socket else omit }}"
@@ -35,8 +39,11 @@
       no_log: "{{ not pdns_verbose }}"
       with_dict: "{{ pdns_backends | combine(pdns_mysql_databases_credentials, recursive=True) }}"
 
+    # ansible.mysql.mysql_user or ansible.mariadb.mariadb_user, chosen by
+    # pdns_mysql_flavor, with the arguments under `args` for the same reason.
     - name: Grant PowerDNS access to the MySQL databases
-      ansible.mysql.mysql_user:
+      action: "{{ pdns_mysql_user_module }}"
+      args:
         login_user: "{{ item[0]['priv_user'] }}"
         login_password: "{{ item[0]['priv_password'] }}"
         login_host: "{{ item[0]['host'] | default('localhost') if not pdns_mysql_query_use_socket else omit }}"

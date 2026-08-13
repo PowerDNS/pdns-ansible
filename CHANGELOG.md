@@ -1,6 +1,9 @@
 ## v1.11.0 (Unreleased)
 
 IMPROVEMENTS:
+- Read facts through `ansible_facts` instead of the injected top-level `ansible_*` variables. ansible-core deprecated that injection and removes it in 2.24, after which a role reading `ansible_distribution` would break. The Molecule configuration sets `inject_facts_as_vars: false`, so a missed reference fails a test run instead of surfacing on a future ansible-core ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
+- Install `python3-pymysql` instead of `python3-mysqldb` on Debian. The MySQL modules warn that support of the MySQLdb connector is deprecated, they stop testing it in collection version 4.0.0 and remove it in 5.0.0. Enterprise Linux and Arch Linux already used PyMySQL, so the three families now agree ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
+- Cap every collection in `requirements.yml`. A collection that raises its `requires_ansible` in a new major would otherwise break the ansible-core 2.16 leg on the day it is published, without a change in this repository ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Manage the service with `ansible.builtin.systemd_service` instead of `ansible.builtin.systemd`, matching the module name used by the other PowerDNS roles ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Declare Ubuntu 26.04 in the Galaxy metadata ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Rework apt and dnf repo file creation to stop using version suffixed file names which are not cleaned up on version changes ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/265), @l00d3r)
@@ -9,6 +12,7 @@ IMPROVEMENTS:
 - Document the handler behaviour and the multi-instance usage in the README ([\#272](https://github.com/PowerDNS/pdns-ansible/pull/272))
 
 NEW FEATURES:
+- Add `pdns_mysql_flavor`, `mysql` or `mariadb`, to choose which collection creates the database and the user of the `gmysql` backend: `ansible.mysql` or `ansible.mariadb`. The default `mysql` keeps the current behaviour for every existing user, because `ansible.mysql` still manages MariaDB, while warning that its support ends in 6.0.0. A MariaDB server can be moved to the collection that keeps supporting it by setting `mariadb`; nothing else about the backend changes ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Add the `pdns_auth_powerdns_repo_51` repository preset for the '5.1.x' release series ([\#274](https://github.com/PowerDNS/pdns-ansible/pull/274))
 - Add support for provisioning autoprimaries through the PowerDNS API ([\#265](https://github.com/PowerDNS/pdns-ansible/pull/268), @nocderechte)
 - Add `pdns_flush_handlers` to run the notified handlers at the end of the role instead of at the end of the play, which is required when the role runs more than once in a play ([\#272](https://github.com/PowerDNS/pdns-ansible/pull/272))

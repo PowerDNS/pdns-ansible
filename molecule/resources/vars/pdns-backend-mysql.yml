@@ -4,8 +4,8 @@
 pdns_backends_mysql:
   'gmysql:mysql':
     host: "mysql"
-    dbname: "{{ ansible_hostname | replace('.', '_') }}"
-    user: "pdns_{{ ansible_hostname | replace('.', '_') | replace('-', '_') }}"
+    dbname: "{{ ansible_facts.hostname | replace('.', '_') }}"
+    user: "pdns_{{ ansible_facts.hostname | replace('.', '_') | replace('-', '_') }}"
     password: pdns
 
 pdns_instance:
@@ -21,7 +21,7 @@ pdns_instance:
 pdns_mysql_databases_credentials_mysql:
   'gmysql:mysql':
     priv_user: root
-    priv_password: "{{ ansible_env.MYSQL_ENV_MYSQL_ROOT_PASSWORD | default('pdns') }}"
+    priv_password: "{{ ansible_facts.env.MYSQL_ENV_MYSQL_ROOT_PASSWORD | default('pdns') }}"
     priv_host:
       - '%'
       - 'localhost'
@@ -33,7 +33,7 @@ pdns_mysql_query_use_socket_mysql: false
 pdns_mysql_schema_on_first_node_only: false
 pdns_backends_mysql_cmd: "mysql"
 pdns_mysql_cli_extra_args_mysql: >-
-  {{ '--ssl-mode=DISABLED --get-server-public-key' if ansible_distribution == 'Ubuntu'
+  {{ '--ssl-mode=DISABLED --get-server-public-key' if ansible_facts.distribution == 'Ubuntu'
      else '--skip-ssl' }}
 pdns_mysql_cli_extra_args: "{{ pdns_mysql_cli_extra_args_mysql }}"
 

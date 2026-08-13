@@ -30,6 +30,12 @@ provisioner:
     v: true
   config_options:
     defaults:
+      # The roles read facts only through `ansible_facts`, never through the
+      # injected top-level `ansible_*` variables, whose auto-injection
+      # ansible-core deprecated and removes in 2.24. Turning the injection off
+      # here means a leg fails now if a reference is missed, instead of the roles
+      # breaking silently on a future ansible-core.
+      inject_facts_as_vars: false
       # Under the home directory of the connection user the temporary files of a
       # task with become_user are unreachable for the target account on the
       # distributions that create a home directory with mode 0700, and Ansible

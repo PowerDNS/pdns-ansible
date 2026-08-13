@@ -279,6 +279,7 @@ pdns_config_files:
 
 ```yaml
 pdns_mysql_manage_database: true
+pdns_mysql_flavor: mysql
 pdns_mysql_databases_credentials: {}
 pdns_mysql_query_use_socket: false
 pdns_mysql_unix_socket: "/var/run/mysqld/mysqld.sock"
@@ -293,6 +294,15 @@ pdns_mysql_packages_state: "present"
 `pdns_mysql_manage_database` controls whether this role performs MySQL/MariaDB bootstrap operations
 (database creation, user/grants management and schema checks/import).
 Set it to `false` for config-only mode.
+
+`pdns_mysql_flavor` selects which collection creates the database and the user of
+the `gmysql` backend: `ansible.mysql` for the default `mysql`, `ansible.mariadb`
+for `mariadb`. The two are one code base split in two. `ansible.mysql` still
+manages a MariaDB server and only warns that its support ends in 6.0.0, so the
+default works for both servers and nothing changes for an existing playbook. Set
+`mariadb` to move a MariaDB server to the collection that keeps supporting it;
+the settings written to `pdns.conf`, the client packages and the schema import
+are identical either way.
 
 Administrative credentials for the MySQL backend used to create the PowerDNS Authoritative Server databases and users.
 For example:

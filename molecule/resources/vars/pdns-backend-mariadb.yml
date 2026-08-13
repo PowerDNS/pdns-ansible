@@ -4,8 +4,8 @@
 pdns_backends_mariadb:
   'gmysql:mariadb':
     host: "mariadb"
-    dbname: "{{ ansible_hostname | replace('.', '_') }}"
-    user: "pdns_{{ ansible_hostname | replace('.', '_') | replace('-', '_') }}"
+    dbname: "{{ ansible_facts.hostname | replace('.', '_') }}"
+    user: "pdns_{{ ansible_facts.hostname | replace('.', '_') | replace('-', '_') }}"
     password: pdns
 
 pdns_instance:
@@ -21,7 +21,7 @@ pdns_instance:
 pdns_mysql_databases_credentials_mariadb:
   'gmysql:mariadb':
     priv_user: root
-    priv_password: "{{ ansible_env.MARIADB_ENV_MARIADB_ROOT_PASSWORD | default('pdns') }}"
+    priv_password: "{{ ansible_facts.env.MARIADB_ENV_MARIADB_ROOT_PASSWORD | default('pdns') }}"
     priv_host:
       - '%'
       - 'localhost'
@@ -31,11 +31,16 @@ pdns_mysql_query_use_socket_mariadb: false
 pdns_mysql_schema_on_first_node_only: false
 pdns_backends_mysql_cmd: "mysql"
 pdns_mysql_cli_extra_args_mariadb: >-
-  {{ '--ssl-mode=DISABLED' if ansible_distribution == 'Ubuntu'
+  {{ '--ssl-mode=DISABLED' if ansible_facts.distribution == 'Ubuntu'
      else '--skip-ssl' }}
 pdns_mysql_cli_extra_args: "{{ pdns_mysql_cli_extra_args_mariadb }}"
 
 pdns_config_overrides_mariadb: {}
+
+# The point of this profile: the database and the user are managed through
+# ansible.mariadb here, while the mysql profile next to it stays on ansible.mysql,
+# so both halves of the split collection are exercised in the same converge.
+pdns_mysql_flavor: mariadb
 
 pdns_backends: "{{ pdns_backends_mariadb }}"
 pdns_mysql_databases_credentials: "{{ pdns_mysql_databases_credentials_mariadb }}"
