@@ -204,6 +204,10 @@ pdns_service_overrides:
 
 Dict with overrides for the service (systemd only).
 This can be used to change any systemd settings in the `[Service]` category.
+The role writes them to `/etc/systemd/system/<service name>.service.d/override.conf`. Setting
+`pdns_service_overrides: {}` removes that file again and restarts the service on the packaged
+unit, so the `User` and `Group` of the default above go back to the values of the package. Other
+drop-ins in the same directory are left alone.
 
 ```yaml
 pdns_backends_packages: "{{ default_pdns_backends_packages }}"
@@ -503,6 +507,19 @@ Every instance needs its own service name and configuration file; `pdns@<instanc
 
 `meta: flush_handlers` is play-wide: it also runs handlers that earlier roles in the same play
 notified. `pdns_disable_handlers: true` skips the restart handlers entirely.
+
+`pdns_flush_handlers` defaults to `false`, which is correct for a single invocation and wrong for
+more than one: without it the pending restarts of every instance run once, at the end of the play,
+against the service name of the last invocation.
+
+The restart handler reloads the systemd units in the same task, so a restart never runs against a
+unit systemd has not read. The reload happens even when `pdns_service_state: stopped` keeps the
+service down, so the next manual start uses the drop-in this run wrote.
+
+Tag selection filters tasks, not handlers: under `--skip-tags service` the service task is skipped,
+but a configuration change still notifies the restart handler, and restarting an inactive unit
+starts it. Use `pdns_disable_handlers: true` to apply configuration without touching the running
+service.
 
 With `pdns_provision: true` the role always flushes the handlers before provisioning, whatever
 `pdns_flush_handlers` is set to: provisioning talks to the API of the running server at the

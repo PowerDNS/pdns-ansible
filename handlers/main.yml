@@ -3,30 +3,36 @@
 # parameters resolve to the values of the *last* invocation. The _pdns_* facts
 # below are published per invocation by tasks/main.yml; the role parameters are
 # the fallback for runs that skip tasks/main.yml.
+#
+# One restart handler per unit, and it reloads systemd in the same task, so a
+# restart can never run against a unit systemd has not reloaded. The desired
+# state guard lives in the value of `state`, not in `when`: a `when` guard would
+# skip the daemon reload as well, and a unit file changed while the service is
+# deliberately stopped would never reach systemd.
+#
+# Handlers run in the order they are defined here, not in the order a task lists
+# them in `notify:`, so the reload only handler is defined first.
 
 - name: Reload systemd
   ansible.builtin.systemd_service:
     daemon_reload: true
   listen: reload systemd
   when: not _pdns_disable_handlers | default(pdns_disable_handlers) | bool
-  tags:
-    - service
 
 - name: Restart PowerDNS
   ansible.builtin.systemd_service:
     name: "{{ _pdns_service_name | default(pdns_service_name) }}"
-    state: restarted
-  listen: restart pdns
-  when:
-    - not _pdns_disable_handlers | default(pdns_disable_handlers) | bool
-    - _pdns_service_state | default(pdns_service_state) != 'stopped'
-  tags:
-    - service
+    daemon_reload: true
+    state: >-
+      {{ 'restarted'
+         if (_pdns_service_state | default(pdns_service_state)) != 'stopped'
+         else omit }}
+  listen:
+    - restart pdns
+    - reload systemd and restart pdns
+  when: not _pdns_disable_handlers | default(pdns_disable_handlers) | bool
 
 - name: Update the apt cache
   ansible.builtin.apt:
     update_cache: true
   listen: update the apt cache
-  tags:
-    - install
-    - repository
