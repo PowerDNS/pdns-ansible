@@ -43,6 +43,31 @@ A bare `molecule` command does not pick this configuration up - Molecule only
 auto-discovers a base config at `.config/molecule/config.yml`. Always pass
 `-c molecule/config.yml`, which `tox` does for you.
 
+## Containers and privileges
+
+`molecule/resources/create.yml` builds and starts the containers from the
+`Dockerfile.*.j2` templates next to it, one per init system family, and runs
+systemd as PID 1 so the role manages real units.
+
+Every image creates an unprivileged `ansible` account with passwordless sudo.
+`molecule/config.yml` connects as that account and escalates from it, so the
+tests take the same path a deployment does, and a task only names `become_user`
+when it needs a service account, which here is the `pdnsutil` calls of
+`molecule/resources/tasks/pdns-zone.yml`.
+
+The Enterprise Linux template adds one line to `/etc/pam.d/sudo`:
+
+```
+account    sufficient   pam_localuser.so
+```
+
+Without it the account phase of `pam_unix` cannot retrieve the shadow data of
+the local accounts of these images on some hosts, and it aborts every escalation
+with `PAM account management error: Authentication service cannot retrieve
+authentication info`. Only the account phase of sudo is short-circuited:
+authentication, the shared `system-auth` stack and the sudoers policy are
+untouched, and accounts that do not exist locally are still rejected.
+
 ## Ansible legs
 
 Three ansible-core versions are tested. Which one applies follows from the

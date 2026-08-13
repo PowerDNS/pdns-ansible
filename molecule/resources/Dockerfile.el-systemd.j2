@@ -24,6 +24,21 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
 # Disable requiretty.
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 
+# Approve local accounts before the shadow based account check of sudo.
+#
+# Molecule connects as root and only calls sudo to drop to a service account,
+# for instance `become_user: pdns`. On the CI hosts the account phase of
+# pam_unix cannot retrieve the shadow data of the local accounts of these images
+# and aborts sudo with "PAM account management error: Authentication service
+# cannot retrieve authentication info". pam_localuser approves any account that
+# exists in /etc/passwd, which covers every user sudo can set as PAM_USER here:
+# the invoking user, root and the service account.
+#
+# Only the account phase of sudo is short-circuited. Authentication, password
+# and session handling, the shared system-auth stack and the sudoers policy are
+# untouched, and accounts that do not exist locally are still rejected.
+RUN sed -i '0,/^account/s//account    sufficient   pam_localuser.so\naccount/' /etc/pam.d/sudo
+
 # Create `ansible` user with sudo permissions
 ENV ANSIBLE_USER=ansible SUDO_GROUP=wheel
 RUN set -xe && \

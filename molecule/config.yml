@@ -42,13 +42,17 @@ provisioner:
     group_vars:
       all:
         ansible_connection: community.docker.docker
-        # No ansible_user and no ansible_become: the Docker connection then runs
-        # as the image's own user, root, exactly as the molecule-plugins Docker
-        # driver did before. Ordinary tasks therefore need no sudo at all, and PAM
-        # is only involved in the few tasks that use become_user for a service
-        # account - which is what master did and what CI proved works. Connecting
-        # as an unprivileged user instead put every task through sudo, and the
-        # account check for that user fails on Enterprise Linux images.
+        # Connect as the unprivileged `ansible` account the images create and
+        # escalate through its passwordless sudo, the same path a deployment
+        # takes. Escalation is configured here and not in the playbooks, so a
+        # task only names become_user when it needs a service account, which
+        # here is the pdnsutil calls of molecule/resources/tasks/pdns-zone.yml.
+        #
+        # sudo on the Enterprise Linux images relies on the pam_localuser line
+        # the image template adds: without it the account phase of pam_unix
+        # aborts every escalation with "PAM account management error".
+        ansible_user: ansible
+        ansible_become: true
   playbooks:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
@@ -58,6 +62,10 @@ verifier:
   name: testinfra
   options:
     v: true
+    # The tests read root-owned configuration and query systemd, and they
+    # connect through the inventory above as the unprivileged `ansible` user,
+    # so they escalate the same way the plays do.
+    sudo: true
     hosts: "pdns"
 
 # Platform used when no platform set is given, which keeps a plain

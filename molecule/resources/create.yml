@@ -145,8 +145,16 @@
           echo "== chage"; chage -l ansible 2>&1;
           echo "== login.defs aging"; grep -hE "^(PASS_MAX_DAYS|PASS_MIN_DAYS|PASS_WARN_AGE|INACTIVE)" /etc/login.defs 2>&1;
           echo "== shadow and helper perms"; ls -l /etc/shadow /usr/sbin/unix_chkpwd /sbin/unix_chkpwd 2>&1;
+          echo "== pam.d/sudo account stack"; grep -h "^account" /etc/pam.d/sudo 2>&1;
+          echo "== shadow root"; getent shadow root 2>&1;
+          echo "== root to a service account, what become_user performs";
+          useradd -r molprobe 2>/dev/null;
+          getent passwd molprobe 2>&1; getent shadow molprobe 2>&1;
+          sudo -n -u molprobe true 2>&1; echo "rc=$?";
+          userdel molprobe 2>/dev/null;
           echo "== sudo -l as ansible"; runuser -u ansible -- sudo -n -l 2>&1;
           echo "== sudo true as ansible"; runuser -u ansible -- sudo -n true 2>&1; echo "rc=$?";
+          echo "== pam log"; (journalctl -n 20 --no-pager 2>&1 | tail -10; tail -10 /var/log/secure 2>&1);
           '
       register: _molecule_sudo_probe
       changed_when: false

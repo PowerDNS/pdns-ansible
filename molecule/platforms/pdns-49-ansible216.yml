@@ -6,7 +6,8 @@
 #
 # Enterprise Linux 8 has Python 3.6 and 2.16 is the last ansible-core whose
 # modules run on it. Those hosts cannot move to a newer ansible-core, which is
-# why the role has to keep working with 2.16.#
+# why the role has to keep working with 2.16.
+#
 # Ubuntu 20.04 is here too: its Python is 3.8, and while ansible-core 2.18 could
 # manage that, upstream publishes focal packages for this release only, so it is
 # simplest to keep every old-Python platform on the same leg.
