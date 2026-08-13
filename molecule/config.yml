@@ -42,10 +42,13 @@ provisioner:
     group_vars:
       all:
         ansible_connection: community.docker.docker
-        # Connect as the unprivileged user the image creates and escalate here,
-        # so every playbook and the verifier inherit it.
-        ansible_user: ansible
-        ansible_become: true
+        # No ansible_user and no ansible_become: the Docker connection then runs
+        # as the image's own user, root, exactly as the molecule-plugins Docker
+        # driver did before. Ordinary tasks therefore need no sudo at all, and PAM
+        # is only involved in the few tasks that use become_user for a service
+        # account - which is what master did and what CI proved works. Connecting
+        # as an unprivileged user instead put every task through sudo, and the
+        # account check for that user fails on Enterprise Linux images.
   playbooks:
     create: ../resources/create.yml
     destroy: ../resources/destroy.yml
