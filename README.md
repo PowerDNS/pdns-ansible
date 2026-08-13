@@ -516,10 +516,11 @@ The restart handler reloads the systemd units in the same task, so a restart nev
 unit systemd has not read. The reload happens even when `pdns_service_state: stopped` keeps the
 service down, so the next manual start uses the drop-in this run wrote.
 
-Tag selection filters tasks, not handlers: under `--skip-tags service` the service task is skipped,
-but a configuration change still notifies the restart handler, and restarting an inactive unit
-starts it. Use `pdns_disable_handlers: true` to apply configuration without touching the running
-service.
+Ansible does not filter handlers by tag, so the restart handler reads `ansible_skip_tags` itself:
+under `--skip-tags service` the service task is skipped and the handler restarts nothing, while
+the systemd units of that run are still reloaded. `--tags config` is unaffected and still restarts.
+`pdns_disable_handlers: true` remains the way to apply configuration without restarting in a run
+that is not tag-filtered.
 
 With `pdns_provision: true` the role always flushes the handlers before provisioning, whatever
 `pdns_flush_handlers` is set to: provisioning talks to the API of the running server at the

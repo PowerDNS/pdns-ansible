@@ -12,6 +12,12 @@
 #
 # Handlers run in the order they are defined here, not in the order a task lists
 # them in `notify:`, so the reload only handler is defined first.
+#
+# Tag selection filters tasks, not handlers, so `--skip-tags service` would skip
+# the desired state task and still restart - and restarting an inactive unit
+# starts it. `ansible_skip_tags` puts the restart under the same filter as the
+# task, and sits in the `state` value for the same reason the state guard does:
+# the drop-ins of that run still have to reach systemd.
 
 - name: Reload systemd
   ansible.builtin.systemd_service:
@@ -25,7 +31,8 @@
     daemon_reload: true
     state: >-
       {{ 'restarted'
-         if (_pdns_service_state | default(pdns_service_state)) != 'stopped'
+         if ((_pdns_service_state | default(pdns_service_state)) != 'stopped'
+             and 'service' not in ansible_skip_tags)
          else omit }}
   listen:
     - restart pdns
