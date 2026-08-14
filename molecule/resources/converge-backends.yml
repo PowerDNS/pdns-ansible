@@ -8,6 +8,10 @@
 # PowerDNS repository for the release under test, or none at all.
 ##
 
+  # Zone, record and metadata provisioning rides on this instance: the LMDB backend
+  # supports all three, and unlike the database backends it needs no sibling
+  # container. Autoprimaries are covered on those instead, being the one resource
+  # LMDB has no support for.
 - name: PowerDNS LMDB default instance
   hosts: pdns
   vars_files:
@@ -15,12 +19,16 @@
     - vars/pdns-common.yml
     - vars/pdns-instance-vars.yml
     - vars/pdns-backend-lmdb.yml
+    - vars/pdns-provision-records.yml
   roles:
     - role: powerdns.pdns
   post_tasks:
     - name: Provision the LMDB instance zone
       ansible.builtin.include_tasks: tasks/pdns-zone.yml
 
+  # This instance declares its autoprimaries through the deprecated
+  # `pdns_autoprimaries` name, so the compatibility path stays covered while that
+  # name exists. The other instances use `pdns_provision_autoprimaries`.
 - name: PowerDNS SQLite instance
   hosts: pdns
   vars_files:
@@ -28,7 +36,7 @@
     - vars/pdns-common.yml
     - vars/pdns-instance-vars.yml
     - vars/pdns-backend-sqlite3.yml
-    - vars/pdns-provision-autoprimary.yml
+    - vars/pdns-provision-autoprimary-deprecated.yml
   roles:
     - role: powerdns.pdns
   post_tasks:

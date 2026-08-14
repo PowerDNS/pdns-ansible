@@ -1,0 +1,93 @@
+---
+
+##
+# Zone, record and metadata provisioning through the REST API.
+#
+# Attached to the LMDB instance, which supports every resource declared here.
+# Autoprimaries are the one exception and are covered on the database backends
+# instead, because only gmysql, gpgsql and gsqlite3 implement that feature.
+#
+# The entries below are deliberately awkward, so the comparisons the role makes
+# before it writes anything are exercised rather than only the happy path:
+#
+#   - `www` is declared without a trailing dot, which the API adds;
+#   - its records are declared in reverse order, and record order is not
+#     guaranteed by the API either;
+#   - `ttl` is a string, as a value from an inventory file would be;
+#   - `gone` is a DELETE for a name that was never created, which must be
+#     recognised as nothing to do rather than sent;
+#   - `retired` is created by the zone itself and then removed by a DELETE, which
+#     is the only way a record is taken away.
+##
+
+pdns_provision: true
+
+pdns_provision_zones:
+  - name: provisioned.test.
+    kind: Native
+    nameservers:
+      - ns1.provisioned.test.
+    rrsets:
+      - name: retired.provisioned.test.
+        type: A
+        ttl: 3600
+        records:
+          - content: 192.0.2.254
+            disabled: false
+
+pdns_provision_records:
+  - zone: provisioned.test.
+    name: www.provisioned.test
+    type: A
+    ttl: "3600"
+    records:
+      - content: 192.0.2.2
+      - content: 192.0.2.1
+
+  - zone: provisioned.test.
+    name: provisioned.test.
+    type: MX
+    ttl: 300
+    records:
+      - content: 10 mail.provisioned.test.
+
+  - zone: provisioned.test.
+    name: disabled.provisioned.test.
+    type: A
+    ttl: 300
+    records:
+      - content: 192.0.2.3
+        disabled: true
+
+  - zone: provisioned.test.
+    name: gone.provisioned.test.
+    type: A
+    changetype: DELETE
+
+  - zone: provisioned.test.
+    name: retired.provisioned.test.
+    type: A
+    changetype: DELETE
+
+pdns_provision_zone_metadata:
+  - zone: provisioned.test.
+    kind: ALLOW-AXFR-FROM
+    metadata:
+      - 127.0.0.0/8
+
+##
+# pdnsutil commands.
+#
+# Every entry carries `unless`, so the suite stays idempotent - an entry without
+# one has no way to tell that its work is already done and runs on every converge.
+#
+# This instance's configuration file is pdns-lmdb.conf, so the invocation the role
+# builds has to carry --config-name=lmdb; without it pdnsutil would quietly work on
+# the default instance instead.
+##
+
+pdns_provision_pdnsutils:
+  - args: create-zone pdnsutil.test ns1.pdnsutil.test
+    unless: list-zone pdnsutil.test
+  - args: set-kind pdnsutil.test native
+    unless: show-zone pdnsutil.test

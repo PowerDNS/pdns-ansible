@@ -1,0 +1,104 @@
+---
+
+- name: Provision the records
+  when: not ansible_check_mode
+  tags:
+    - config
+  block:
+    # One read per zone returns every RRset it holds, so all the entries for that
+    # zone are compared against a single response.
+    #
+    # 404 means the zone is not there. With pdns_provision_ignore_missing_zone set
+    # it is accepted as an outcome rather than a failure, and the entries for that
+    # zone are skipped below on the same test.
+    - name: Retrieve the zones that carry declared records
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/zones/{{ _zone }}"
+        method: GET
+        status_code: "{{ [200] + (pdns_provision_ignore_missing_zone | bool | ternary([404], [])) }}"
+      loop: "{{ pdns_provision_records | map(attribute='zone') | unique | list }}"
+      loop_control:
+        loop_var: _zone
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      register: _pdns_record_zones
+      check_mode: false
+      changed_when: false
+
+    # One request per entry. A PATCH carrying several RRsets would bump the zone
+    # serial once instead of once per entry, but it would also have to decide which
+    # of them changed before it could build the body, and the comparison below is
+    # per entry - so the entries are sent one at a time and an unchanged one is not
+    # sent at all. A converge that changes nothing issues no PATCH and bumps no
+    # serial, which is what matters: the serial moves on every PATCH, even one that
+    # changes nothing.
+    #
+    # changetype REPLACE is create-or-update for one name and type and leaves every
+    # other RRset in the zone alone; DELETE removes it. Both are repeat-safe, so the
+    # comparison exists to keep the run honest rather than to keep it correct.
+    - name: Apply the declared records
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/zones/{{ _record.zone }}"
+        method: PATCH
+        body_format: json
+        body:
+          rrsets:
+            - "{{ _rrset }}"
+        status_code:
+          - 204
+      loop: "{{ pdns_provision_records }}"
+      loop_control:
+        loop_var: _record
+        label: "{{ _record.name }}/{{ _record.type }}/{{ _record.changetype | default('REPLACE') }}"
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      vars:
+        _zone_result: >-
+          {{ (_pdns_record_zones.results | default([]))
+             | selectattr('_zone', 'equalto', _record.zone)
+             | first | default({}) }}
+        # The API stores a name in canonical form, so the trailing dot is added
+        # before either comparing or sending it. Without that a declared
+        # "www.example.com" would never match the stored "www.example.com." and the
+        # RRset would be rewritten on every converge.
+        _name: "{{ _record.name if _record.name.endswith('.') else _record.name ~ '.' }}"
+        _changetype: "{{ _record.changetype | default('REPLACE') | upper }}"
+        _rrset: >-
+          {{ _record | dict2items | rejectattr('key', 'in', ['zone']) | items2dict
+             | ansible.builtin.combine({'name': _name, 'changetype': _changetype}) }}
+        _stored: >-
+          {{ (_zone_result.json | default({})).get('rrsets', [])
+             | selectattr('name', 'equalto', _name)
+             | selectattr('type', 'equalto', _record.type)
+             | first | default({}) }}
+        # Only content and the disabled flag are compared. A stored record also
+        # carries modified_at, which no declared entry has, so comparing the record
+        # dicts whole would always differ. Order is not guaranteed either, hence the
+        # sort.
+        _stored_contents: "{{ _stored.get('records', []) | map(attribute='content') | sort | list }}"
+        _declared_contents: "{{ _record.records | default([]) | map(attribute='content') | sort | list }}"
+        _stored_disabled: >-
+          {{ _stored.get('records', []) | selectattr('disabled', 'defined')
+             | selectattr('disabled') | map(attribute='content') | sort | list }}
+        _declared_disabled: >-
+          {{ _record.records | default([]) | selectattr('disabled', 'defined')
+             | selectattr('disabled') | map(attribute='content') | sort | list }}
+      # A DELETE is worth sending only while the RRset is still there; a REPLACE
+      # only while the stored RRset is absent or differs. Written as plain
+      # conjunctions rather than a conditional expression, because `when` is
+      # evaluated as a statement block and a bare `x if y else z` does not parse
+      # there.
+      when:
+        - _zone_result.status | default(0) == 200
+        - >-
+          (_changetype == 'DELETE' and _stored | length > 0)
+          or (_changetype != 'DELETE'
+              and (_stored | length == 0
+                   or (_stored.get('ttl', 0) | int) != (_record.ttl | default(0) | int)
+                   or _stored_contents != _declared_contents
+                   or _stored_disabled != _declared_disabled))

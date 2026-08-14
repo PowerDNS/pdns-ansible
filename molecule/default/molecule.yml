@@ -40,3 +40,4 @@ verifier:
     - ../service-mask/
     - ../systemd-override/
     - ../provision-autoprimary/
+    - ../provision-records/

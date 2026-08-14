@@ -1,0 +1,73 @@
+---
+
+- name: Provision the TSIG keys
+  when: not ansible_check_mode
+  tags:
+    - config
+  vars:
+    # The API stores a TSIG key name with any trailing dot stripped, so both sides
+    # are compared without one. Left in, a declared "axfr-key." would never match
+    # the stored "axfr-key", the create would be repeated, and the API would answer
+    # 409 and fail the run.
+    _pdns_tsigkey_names: >-
+      {{ (_pdns_tsigkeys_current.json | default([]))
+         | map(attribute='name') | map('regex_replace', '\\.$', '') | list }}
+  block:
+    - name: Retrieve the current TSIG keys
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/tsigkeys"
+        method: GET
+        status_code:
+          - 200
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      register: _pdns_tsigkeys_current
+      check_mode: false
+      changed_when: false
+
+    # The entry is the request body as given, with `name` kept because the API
+    # expects it there on a create. A key that is already there is not written
+    # again - the API answers 409 - and its secret is not compared, so rotating
+    # one means removing it first.
+    - name: Create the missing TSIG keys
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/tsigkeys"
+        method: POST
+        body_format: json
+        body: "{{ _tsigkey }}"
+        status_code:
+          - 201
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      loop: "{{ pdns_provision_tsigkeys }}"
+      loop_control:
+        loop_var: _tsigkey
+        label: "{{ _tsigkey.name }}"
+      when: (_tsigkey.name | regex_replace('\\.$', '')) not in _pdns_tsigkey_names
+
+    - name: Remove the undeclared TSIG keys
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/tsigkeys/{{ _tsigkey.id }}"
+        method: DELETE
+        status_code:
+          - 204
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      loop: "{{ _pdns_tsigkeys_current.json | default([]) }}"
+      loop_control:
+        loop_var: _tsigkey
+        label: "{{ _tsigkey.name }}"
+      when:
+        - pdns_provision_prune | bool
+        - >-
+          (_tsigkey.name | regex_replace('\\.$', ''))
+          not in (pdns_provision_tsigkeys | map(attribute='name')
+                  | map('regex_replace', '\\.$', '') | list)

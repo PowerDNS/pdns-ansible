@@ -1,0 +1,58 @@
+---
+
+- name: Provision with pdnsutil
+  when: not ansible_check_mode
+  tags:
+    - config
+  # Run as the account the server runs as, never as root.
+  #
+  # pdnsutil talks to the backend directly rather than through the API, so it
+  # creates and writes the backend's own files - the LMDB database, the SQLite
+  # file, the BIND zone files. Run as root it leaves them owned by root, and the
+  # server, which is unprivileged, then cannot write them: the damage outlives the
+  # converge and is not repaired by running the role again.
+  #
+  # become_user gives the command that account and the groups that account is in,
+  # which is the same set the daemon gets from the unit's User=. A deployment whose
+  # unit sets a Group= outside those groups has to pass it in itself, through
+  # pdns_provision_pdnsutils_command or a become_flags override.
+  become: true
+  become_user: "{{ pdns_user }}"
+  block:
+    # A probe per entry that carries `unless`. pdnsutil commands are not
+    # idempotent by themselves - create-zone on an existing zone fails - so an
+    # entry says how to recognise that its work is already done, and the command
+    # below runs only when the probe fails.
+    #
+    # An entry without `unless` has no such test, so it runs on every converge and
+    # reports changed every time.
+    - name: Probe what the pdnsutil commands would do
+      ansible.builtin.command:
+        cmd: "{{ pdns_provision_pdnsutils_command }} {{ _pdnsutil.unless }}"
+      loop: "{{ pdns_provision_pdnsutils }}"
+      loop_control:
+        loop_var: _pdnsutil
+        index_var: _pdnsutil_index
+        label: "{{ _pdnsutil.unless | default('(no probe)') }}"
+      when: _pdnsutil.unless is defined
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      register: _pdns_pdnsutil_probe
+      check_mode: false
+      changed_when: false
+      failed_when: false
+
+    - name: Run the pdnsutil commands
+      ansible.builtin.command:
+        cmd: "{{ pdns_provision_pdnsutils_command }} {{ _pdnsutil.args }}"
+      loop: "{{ pdns_provision_pdnsutils }}"
+      loop_control:
+        loop_var: _pdnsutil
+        index_var: _pdnsutil_index
+        label: "{{ _pdnsutil.args }}"
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      changed_when: true
+      vars:
+        # The probe task registers one result per entry, skipped entries included,
+        # so the index lines the two loops up. A skipped result has no rc.
+        _probe: "{{ (_pdns_pdnsutil_probe.results | default([]))[_pdnsutil_index] | default({}) }}"
+      when: _pdnsutil.unless is not defined or (_probe.rc | default(1)) != 0

@@ -1,0 +1,21 @@
+---
+
+##
+# The same autoprimaries as vars/pdns-provision-autoprimary.yml, declared through
+# the deprecated `pdns_autoprimaries` name instead of `pdns_provision_autoprimaries`.
+#
+# One backend instance is provisioned this way on purpose, so the compatibility
+# path the deprecation promises - `pdns_provision_autoprimaries` defaults to
+# `pdns_autoprimaries`, so a playbook that still sets the old name keeps working -
+# is exercised for as long as the old name exists. Remove this file together with
+# the variable.
+##
+
+pdns_provision: true
+
+pdns_autoprimaries:
+  - ip: 10.1.0.10
+    nameserver: ns1.example.com
+  - ip: 10.1.0.11
+    nameserver: ns2.example.com
+    account: account1

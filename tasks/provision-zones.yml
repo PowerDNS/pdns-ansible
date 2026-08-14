@@ -1,0 +1,131 @@
+---
+
+- name: Provision the zones
+  when: not ansible_check_mode
+  tags:
+    - config
+  vars:
+    _pdns_zone_names: "{{ (_pdns_zones_current.json | default([])) | map(attribute='name') | list }}"
+    # Accepted on a create and never echoed back by a read, so comparing them
+    # against a stored zone would report a difference on every converge. `name`
+    # is what the URL addresses; `rrsets`, `nameservers` and `zone` are zone
+    # content, which a zone PUT does not carry at all.
+    _pdns_zone_create_only:
+      - name
+      - rrsets
+      - nameservers
+      - zone
+  block:
+    - name: Retrieve the current zones
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/zones"
+        method: GET
+        status_code:
+          - 200
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      register: _pdns_zones_current
+      check_mode: false
+      changed_when: false
+
+    # The entry is the request body as given. `name` stays in it, because that is
+    # where the API expects the zone name on a create.
+    #
+    # A zone that is already there is never re-created: the API answers 409 for
+    # that, and re-creating one would be the single most destructive thing this
+    # file could do.
+    - name: Create the missing zones
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/zones"
+        method: POST
+        body_format: json
+        body: "{{ _zone }}"
+        status_code:
+          - 201
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      loop: "{{ pdns_provision_zones }}"
+      loop_control:
+        loop_var: _zone
+        label: "{{ _zone.name }}"
+      when: _zone.name not in _pdns_zone_names
+
+    - name: Apply the declared attributes to the zones that already existed
+      when: pdns_provision_update_existing | bool
+      block:
+        # The zone listing carries only some of a zone's attributes, so an
+        # attribute that is absent from it - soa_edit_api, nsec3param, and the
+        # rest - would look different on every converge and be written every
+        # time. Each zone is therefore read on its own, which returns the full
+        # object.
+        - name: Retrieve the zones that already existed
+          ansible.builtin.uri:
+            headers:
+              X-Api-Key: "{{ pdns_config['api-key'] }}"
+            url: "{{ pdns_api_url }}/zones/{{ _zone.name }}"
+            method: GET
+            status_code:
+              - 200
+          run_once: "{{ pdns_provision_run_once | bool }}"
+          throttle: 1
+          loop: "{{ pdns_provision_zones | selectattr('name', 'in', _pdns_zone_names) | list }}"
+          loop_control:
+            loop_var: _zone
+            label: "{{ _zone.name }}"
+          register: _pdns_zone_details
+          check_mode: false
+          changed_when: false
+
+        # PUT on a zone carries its attributes - kind, catalog, masters, account
+        # and so on - and not its records, so this cannot overwrite zone content.
+        # `name` is dropped along with the two create-only fields: the URL
+        # addresses the zone, and renaming one is not what this is for.
+        - name: Update the zones whose attributes differ
+          ansible.builtin.uri:
+            headers:
+              X-Api-Key: "{{ pdns_config['api-key'] }}"
+            url: "{{ pdns_api_url }}/zones/{{ _zone.name }}"
+            method: PUT
+            body_format: json
+            body: "{{ _declared }}"
+            status_code:
+              - 204
+          run_once: "{{ pdns_provision_run_once | bool }}"
+          throttle: 1
+          changed_when: true
+          loop: "{{ pdns_provision_zones | selectattr('name', 'in', _pdns_zone_names) | list }}"
+          loop_control:
+            loop_var: _zone
+            label: "{{ _zone.name }}"
+          vars:
+            _declared: >-
+              {{ _zone | dict2items
+                 | rejectattr('key', 'in', _pdns_zone_create_only)
+                 | items2dict }}
+            _current: >-
+              {{ (_pdns_zone_details.results | default([]))
+                 | selectattr('_zone.name', 'equalto', _zone.name)
+                 | map(attribute='json')
+                 | first | default({}) }}
+            # Only the declared attributes are compared, so everything else the
+            # zone carries is left out of the decision.
+            _current_declared: >-
+              {{ _current | dict2items
+                 | selectattr('key', 'in', _declared.keys() | list)
+                 | items2dict }}
+            # `kind` is an enumeration the API stores capitalised - a declared
+            # `native` is returned as `Native` - so each side is folded to lower
+            # case before the comparison. Without that the attributes of such a
+            # zone would look different on every converge and be written each time.
+            _declared_cmp: >-
+              {{ _declared | ansible.builtin.combine(
+                   {'kind': _declared.kind | lower} if _declared.kind is defined else {}) }}
+            _current_cmp: >-
+              {{ _current_declared | ansible.builtin.combine(
+                   {'kind': _current_declared.kind | lower} if _current_declared.kind is defined else {}) }}
+          when: _current_cmp != _declared_cmp

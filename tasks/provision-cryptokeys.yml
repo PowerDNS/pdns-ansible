@@ -1,0 +1,65 @@
+---
+
+- name: Provision the DNSSEC keys
+  when: not ansible_check_mode
+  tags:
+    - config
+  block:
+    # 404 means the zone is not there, and is accepted as an outcome rather than a
+    # failure when pdns_provision_ignore_missing_zone is set. A zone that does
+    # exist and has no keys answers 200 with an empty list, so the two cases stay
+    # apart and the guard below can tell them apart.
+    - name: Retrieve the current DNSSEC keys
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/zones/{{ _zone }}/cryptokeys"
+        method: GET
+        status_code: "{{ [200] + (pdns_provision_ignore_missing_zone | bool | ternary([404], [])) }}"
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      loop: "{{ pdns_provision_cryptokeys | map(attribute='zone') | unique | list }}"
+      loop_control:
+        loop_var: _zone
+      register: _pdns_cryptokeys_current
+      check_mode: false
+      changed_when: false
+
+    # Creating a key is the one request here that cannot be repeated safely. The
+    # API assigns an id, answers 201 every time and returns a freshly generated
+    # key, and it exposes nothing that would let a later run recognise a key this
+    # role created - posting the same entry twice simply leaves the zone with two
+    # different keys.
+    #
+    # So the guard is the only unambiguous one available: an entry is created
+    # while its zone has no keys at all. A zone that already has keys is left
+    # alone, however its entries are written, unless the entry asks for it with
+    # `force: true` - which is what a key rollover needs, driven by the operator
+    # rather than by a converge. An entry left on `force` writes a new key on
+    # every run, so it belongs in a one-off run and not in inventory.
+    - name: Create the DNSSEC keys
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/zones/{{ _cryptokey.zone }}/cryptokeys"
+        method: POST
+        body_format: json
+        body: "{{ _cryptokey | dict2items | rejectattr('key', 'in', ['zone', 'force']) | items2dict }}"
+        status_code:
+          - 201
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      loop: "{{ pdns_provision_cryptokeys }}"
+      loop_control:
+        loop_var: _cryptokey
+        label: "{{ _cryptokey.zone }}/{{ _cryptokey.keytype | default('key') }}"
+      vars:
+        _zone_result: >-
+          {{ (_pdns_cryptokeys_current.results | default([]))
+             | selectattr('_zone', 'equalto', _cryptokey.zone)
+             | first | default({}) }}
+      when:
+        - _zone_result.status | default(0) == 200
+        - (_zone_result.json | default([])) | length == 0
+          or (_cryptokey.force | default(false) | bool)
