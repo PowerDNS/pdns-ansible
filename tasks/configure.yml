@@ -25,8 +25,10 @@
       when: pdns_service_overrides | length > 0
       register: _pdns_service_override
 
-    # Only the file this role writes is removed, never the drop-in directory:
-    # an operator can keep drop-ins of their own next to it.
+    # While the package stays installed only the file this role writes is
+    # removed, so an operator can keep drop-ins of their own next to it. The
+    # uninstall path in tasks/main.yml removes the whole directory, because the
+    # unit it belongs to goes with it.
     - name: Remove the PowerDNS Authoritative Server unit override (systemd)
       ansible.builtin.file:
         path: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"

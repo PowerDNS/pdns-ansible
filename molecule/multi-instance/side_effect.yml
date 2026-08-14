@@ -38,3 +38,42 @@
       vars:
         _before: "{{ _units_before.results | map(attribute='status.ActiveEnterTimestampMonotonic') | map('int') | list }}"
         _after: "{{ _units_after.results | map(attribute='status.ActiveEnterTimestampMonotonic') | map('int') | list }}"
+
+    ##
+    # The same isolation for the drop-in of one instance. A changed drop-in
+    # notifies `reload systemd and restart pdns`, not the plain restart topic
+    # the configuration change above notifies, and the daemon reload of that
+    # handler covers every unit on the host - so this is where a handler reading
+    # the service name of the wrong invocation restarts the wrong instance.
+    ##
+    - name: Change the drop-in of the first instance only
+      ansible.builtin.include_tasks: ../resources/tasks/pdns-instance.yml
+      vars:
+        instance: "{{ pdns_multi_instances | first }}"
+        instance_revision: 2
+        instance_service_overrides: "{{ instance_default_service_overrides | combine({'LimitNOFILE': 12345}) }}"
+
+    - name: Record the unit start timestamps after the drop-in change
+      ansible.builtin.systemd_service:
+        name: "pdns@{{ item }}"
+      loop: "{{ pdns_multi_instances | map(attribute='name') | list }}"
+      register: _units_after_dropin
+      changed_when: false
+
+    - name: Assert that only the instance whose drop-in changed was restarted
+      ansible.builtin.assert:
+        that:
+          - _after_dropin[0] > _after[0]
+          - _after_dropin[1:] == _after[1:]
+          - _units_after_dropin.results[0].status.LimitNOFILE | int == 12345
+          - _units_after_dropin.results[1].status.LimitNOFILE | int != 12345
+        fail_msg: "after={{ _after }} after_dropin={{ _after_dropin }}"
+      vars:
+        _after: "{{ _units_after.results | map(attribute='status.ActiveEnterTimestampMonotonic') | map('int') | list }}"
+        _after_dropin: "{{ _units_after_dropin.results | map(attribute='status.ActiveEnterTimestampMonotonic') | map('int') | list }}"
+
+    - name: Restore the drop-in of the first instance
+      ansible.builtin.include_tasks: ../resources/tasks/pdns-instance.yml
+      vars:
+        instance: "{{ pdns_multi_instances | first }}"
+        instance_revision: 2

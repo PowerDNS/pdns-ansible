@@ -1,0 +1,179 @@
+---
+
+##
+# Handler and daemon reload behaviour, exercised on the LMDB instance of the
+# scenario. The other backend instances are left untouched.
+#
+# Every step re-runs the role with `pdns_flush_handlers: true`, so the notified
+# handlers run before the assertions instead of at the end of the play, and the
+# last step restores the state the converge left, because the verifier runs
+# after this playbook.
+##
+
+- name: Handler and daemon reload behaviour
+  hosts: pdns
+  vars_files:
+    - "../resources/vars/pdns-repo-{{ lookup('env', 'MOLECULE_SCENARIO_NAME') }}.yml"
+    - ../resources/vars/pdns-common.yml
+    - ../resources/vars/pdns-instance-vars.yml
+    - ../resources/vars/pdns-backend-lmdb.yml
+  vars:
+    _unit: "{{ pdns_instance.service_name }}"
+    _dropin_dir: "/etc/systemd/system/{{ pdns_instance.service_name }}.service.d"
+  tasks:
+
+    - name: Skip the whole playbook on hosts without systemd
+      ansible.builtin.meta: end_host
+      when: ansible_facts.service_mgr != 'systemd'
+
+    # The drop-in the converge wrote, as the baseline every step builds on.
+    - name: Record the configured overrides
+      ansible.builtin.set_fact:
+        _base_service_overrides: "{{ pdns_service_overrides }}"
+
+    ##
+    # A run that writes a drop-in has to tell systemd about it, even when no
+    # handler restarts anything: the handlers flush at the end of the play, so
+    # until then systemd would hand out the unit it loaded before the run, and a
+    # service started in between - by the service task of a later role, or by an
+    # operator - would come up with the settings of the stale unit.
+    #
+    # `NeedDaemonReload` is what systemd answers with while its copy of the unit
+    # is older than the files on disk. Handlers are disabled here, so only the
+    # reload of the service task itself can clear it. The running process keeps
+    # its old limits until something restarts it, which is what the reload in
+    # the restart handler is for.
+    ##
+    - name: Change the drop-in with the handlers disabled
+      ansible.builtin.include_role:
+        name: powerdns.pdns
+      vars:
+        pdns_disable_handlers: true
+        pdns_flush_handlers: true
+        pdns_service_overrides: "{{ _base_service_overrides | combine({'LimitNOFILE': 12345}) }}"
+
+    - name: Read the unit after the drop-in changed
+      ansible.builtin.systemd_service:
+        name: "{{ _unit }}"
+      register: _unit_after_start
+      changed_when: false
+
+    - name: Assert that systemd was told about the drop-in of this run
+      ansible.builtin.assert:
+        that:
+          - _unit_after_start.status.NeedDaemonReload == 'no'
+          - _unit_after_start.status.LimitNOFILE | int == 12345
+          - _unit_after_start.status.ActiveState == 'active'
+        fail_msg: >-
+          systemd still holds the unit it loaded before this run:
+          NeedDaemonReload={{ _unit_after_start.status.NeedDaemonReload }},
+          LimitNOFILE={{ _unit_after_start.status.LimitNOFILE }},
+          ActiveState={{ _unit_after_start.status.ActiveState }}
+
+    ##
+    # A drop-in changed while the service is deliberately stopped still has to
+    # reach systemd: the restart handler omits the restart and keeps the reload.
+    ##
+    - name: Change the drop-in while the service is stopped
+      ansible.builtin.include_role:
+        name: powerdns.pdns
+      vars:
+        pdns_flush_handlers: true
+        pdns_service_state: stopped
+        pdns_service_overrides: "{{ _base_service_overrides | combine({'LimitNOFILE': 4242}) }}"
+
+    - name: Read the unit of the stopped service
+      ansible.builtin.systemd_service:
+        name: "{{ _unit }}"
+      register: _unit_stopped
+      changed_when: false
+
+    - name: Assert that the stopped unit was reloaded but not started
+      ansible.builtin.assert:
+        that:
+          - _unit_stopped.status.LimitNOFILE | int == 4242
+          - _unit_stopped.status.ActiveState == 'inactive'
+        fail_msg: >-
+          LimitNOFILE={{ _unit_stopped.status.LimitNOFILE }},
+          ActiveState={{ _unit_stopped.status.ActiveState }}
+
+    ##
+    # Emptying the override dict removes the drop-in of the role alone: a
+    # drop-in the operator added themselves stays, and the service restarts on
+    # the unit without the removed settings.
+    ##
+    - name: Add a drop-in of the operator next to the one of the role
+      ansible.builtin.copy:
+        content: |
+          [Service]
+          LimitMSGQUEUE=1234567
+        dest: "{{ _dropin_dir }}/10-operator.conf"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Read the unit before the overrides are emptied
+      ansible.builtin.systemd_service:
+        name: "{{ _unit }}"
+      register: _unit_before_removal
+      changed_when: false
+
+    - name: Empty the override dict
+      ansible.builtin.include_role:
+        name: powerdns.pdns
+      vars:
+        pdns_flush_handlers: true
+        pdns_service_overrides: {}
+
+    - name: Stat the drop-ins after the overrides were emptied
+      ansible.builtin.stat:
+        path: "{{ _dropin_dir }}/{{ item }}"
+      loop:
+        - override.conf
+        - 10-operator.conf
+      register: _dropins_after_removal
+
+    - name: Read the unit after the overrides were emptied
+      ansible.builtin.systemd_service:
+        name: "{{ _unit }}"
+      register: _unit_after_removal
+      changed_when: false
+
+    - name: Assert that only the drop-in of the role was removed
+      ansible.builtin.assert:
+        that:
+          - not _stats['override.conf']
+          - _stats['10-operator.conf']
+        fail_msg: "drop-ins found on the host: {{ _stats }}"
+      vars:
+        _stats: >-
+          {{ dict(_dropins_after_removal.results
+                  | map(attribute='item')
+                  | zip(_dropins_after_removal.results | map(attribute='stat.exists'))) }}
+
+    - name: Assert that the removal reloaded the unit and restarted the service
+      ansible.builtin.assert:
+        that:
+          - _unit_after_removal.status.LimitNOFILE | int != 4242
+          - _unit_after_removal.status.LimitMSGQUEUE | int == 1234567
+          - >-
+            _unit_after_removal.status.ActiveEnterTimestampMonotonic | int
+            > _unit_before_removal.status.ActiveEnterTimestampMonotonic | int
+        fail_msg: >-
+          before={{ _unit_before_removal.status.ActiveEnterTimestampMonotonic }},
+          after={{ _unit_after_removal.status.ActiveEnterTimestampMonotonic }},
+          LimitNOFILE={{ _unit_after_removal.status.LimitNOFILE }}
+
+    ##
+    # Leave the host as the converge left it, for the verifier.
+    ##
+    - name: Remove the drop-in of the operator
+      ansible.builtin.file:
+        path: "{{ _dropin_dir }}/10-operator.conf"
+        state: absent
+
+    - name: Restore the configured overrides
+      ansible.builtin.include_role:
+        name: powerdns.pdns
+      vars:
+        pdns_flush_handlers: true
