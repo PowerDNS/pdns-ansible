@@ -204,6 +204,10 @@ pdns_service_overrides:
 
 Dict with overrides for the service (systemd only).
 This can be used to change any systemd settings in the `[Service]` category.
+The role writes them to `/etc/systemd/system/<service name>.service.d/override.conf`. Setting
+`pdns_service_overrides: {}` removes that file again and restarts the service on the packaged
+unit, so the `User` and `Group` of the default above go back to the values of the package. Other
+drop-ins in the same directory are left alone.
 
 ```yaml
 pdns_backends_packages: "{{ default_pdns_backends_packages }}"
@@ -503,6 +507,20 @@ Every instance needs its own service name and configuration file; `pdns@<instanc
 
 `meta: flush_handlers` is play-wide: it also runs handlers that earlier roles in the same play
 notified. `pdns_disable_handlers: true` skips the restart handlers entirely.
+
+`pdns_flush_handlers` defaults to `false`, which is correct for a single invocation and wrong for
+more than one: without it the pending restarts of every instance run once, at the end of the play,
+against the service name of the last invocation.
+
+The restart handler reloads the systemd units in the same task, so a restart never runs against a
+unit systemd has not read. The reload happens even when `pdns_service_state: stopped` keeps the
+service down, so the next manual start uses the drop-in this run wrote.
+
+Ansible does not filter handlers by tag, so the restart handler reads `ansible_skip_tags` itself:
+under `--skip-tags service` the service task is skipped and the handler restarts nothing, while
+the systemd units of that run are still reloaded. `--tags config` is unaffected and still restarts.
+`pdns_disable_handlers: true` remains the way to apply configuration without restarting in a run
+that is not tag-filtered.
 
 With `pdns_provision: true` the role always flushes the handlers before provisioning, whatever
 `pdns_flush_handlers` is set to: provisioning talks to the API of the running server at the

@@ -5,6 +5,13 @@
 # scenario. The first entry is the one the side effect reconfigures.
 ##
 
+# Mirrors the role default `default_pdns_service_overrides`, so an instance keeps
+# the packaged User and Group unless a side effect passes
+# `instance_service_overrides`.
+instance_default_service_overrides:
+  User: pdns
+  Group: pdns
+
 pdns_multi_instances:
   - name: a
     port: "5401"

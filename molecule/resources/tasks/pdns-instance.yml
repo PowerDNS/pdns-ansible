@@ -2,7 +2,9 @@
 
 # Configure one Authoritative Server instance. `instance` is an entry of
 # `pdns_multi_instances`; `instance_revision` changes the generated
-# configuration so the restart handler is notified.
+# configuration so the restart handler is notified, and
+# `instance_service_overrides` replaces the systemd drop-in of the instance, so
+# a side effect can notify the drop-in handler topic instead.
 - name: Configure the PowerDNS instance {{ instance.name }}
   ansible.builtin.include_role:
     name: powerdns.pdns
@@ -10,6 +12,7 @@
     pdns_service_name: "pdns@{{ instance.name }}"
     pdns_config_file: "pdns-{{ instance.name }}.conf"
     pdns_flush_handlers: true
+    pdns_service_overrides: "{{ instance_service_overrides | default(instance_default_service_overrides) }}"
     pdns_backends:
       gsqlite3:
         database: "/var/lib/powerdns/pdns-{{ instance.name }}.sqlite3"

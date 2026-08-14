@@ -125,6 +125,37 @@
   tags:
     - config
 
+# The unit is gone by the time the handlers flush, so the reload happens here
+# rather than through the restart handler, and it is not suppressed by
+# pdns_disable_handlers: leaving systemd with drop-ins it still holds but that
+# no longer exist is what this removes.
+#
+# The whole drop-in directory goes here, because the unit it belongs to is being
+# removed. While the package stays installed only the file this role writes is
+# removed, when its override dict is emptied - see tasks/configure.yml.
+- name: Remove the systemd drop-in overrides on uninstall
+  when:
+    - pdns_package_state == 'absent'
+    - ansible_facts.service_mgr == 'systemd'
+  tags:
+    - config
+    - service
+  block:
+    - name: Remove the PowerDNS drop-in override directory (systemd)
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ pdns_service_name }}.service.d"
+        state: absent
+      register: _pdns_uninstall_dropin_dir
+
+    - name: Reload systemd after removing the drop-in overrides  # noqa: no-handler
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      when: _pdns_uninstall_dropin_dir is defined and _pdns_uninstall_dropin_dir.changed
+
+# The handlers flush at the end of the play, so systemd still holds the unit it
+# loaded before this run when this task starts a service that is not running
+# yet: reload first when this run changed a drop-in. An already running service
+# is untouched by the reload, which is what the restart handler is for.
 - name: Start and enable the PowerDNS service (systemd)
   throttle: 1
   ansible.builtin.systemd_service:
@@ -132,6 +163,9 @@
     state: "{{ pdns_service_state }}"
     enabled: "{{ pdns_service_enabled }}"
     masked: "{{ pdns_service_masked }}"
+    daemon_reload: >-
+      {{ (_pdns_service_override is defined and _pdns_service_override.changed)
+         or (_pdns_service_override_removed is defined and _pdns_service_override_removed.changed) }}
   when: pdns_package_state != 'absent'
   tags:
     - service

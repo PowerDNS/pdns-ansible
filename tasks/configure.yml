@@ -12,6 +12,7 @@
         owner: root
         group: root
         mode: "0755"
+      when: pdns_service_overrides | length > 0
 
     - name: Override the PowerDNS Authoritative Server unit (systemd)
       ansible.builtin.template:
@@ -20,10 +21,21 @@
         owner: root
         group: root
         mode: "0644"
-      notify:
-        - reload systemd
-        - restart pdns
+      notify: reload systemd and restart pdns
       when: pdns_service_overrides | length > 0
+      register: _pdns_service_override
+
+    # While the package stays installed only the file this role writes is
+    # removed, so an operator can keep drop-ins of their own next to it. The
+    # uninstall path in tasks/main.yml removes the whole directory, because the
+    # unit it belongs to goes with it.
+    - name: Remove the PowerDNS Authoritative Server unit override (systemd)
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ pdns_service_name }}.service.d/override.conf"
+        state: absent
+      notify: reload systemd and restart pdns
+      when: pdns_service_overrides | length == 0
+      register: _pdns_service_override_removed
 
 - name: Ensure that the PowerDNS configuration directory exists
   ansible.builtin.file:
