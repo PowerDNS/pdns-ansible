@@ -528,6 +528,252 @@ configured address, port and API key, so it fails against a server that has not 
 configuration yet. A configuration change left unapplied by an earlier run cannot be detected, since
 nothing notifies the handler in the next run; restart the service manually in that case.
 
+## Provisioning
+
+With `pdns_provision: true` the role provisions data through the REST API of the
+instance it just configured. Each resource has its own list:
+
+| Variable | Resource |
+|----------|----------|
+| `pdns_provision_autoprimaries` | Autoprimaries |
+| `pdns_provision_zones` | Zones, including catalog zones |
+| `pdns_provision_records` | Records of a zone, one entry per RRset |
+| `pdns_provision_zone_metadata` | Metadata of a zone |
+| `pdns_provision_cryptokeys` | DNSSEC keys of a zone |
+| `pdns_provision_tsigkeys` | TSIG keys |
+| `pdns_provision_views` | Zones of a view |
+| `pdns_provision_networks` | Networks mapped to a view |
+| `pdns_provision_pdnsutils` | Commands run through `pdnsutil` |
+
+> **`pdns_autoprimaries` is deprecated and will be removed in the next release.**
+> Rename it to `pdns_provision_autoprimaries`, which is the same list under the
+> name the rest of the family uses. Nothing breaks in the meantime:
+> `pdns_provision_autoprimaries` defaults to `pdns_autoprimaries`, so a playbook
+> that still sets the old name keeps working, and setting the new name takes
+> precedence over the old one.
+
+**Every entry is submitted to the API as written.** The role does not interpret,
+rename or reorder the fields, so a field the API accepts works whether or not the
+role knows about it - the reference is
+[the API documentation](https://doc.powerdns.com/authoritative/http-api/), not
+this README. Only a few keys per list are read by the role itself, to build the
+request URL, and they are removed from the body before it is sent: `name` for a
+zone or a TSIG key, `zone` for a record, `zone` and `kind` for metadata, `zone` and `force` for a
+DNSSEC key, `view` and `zones` for a view, `network` for a network, and `ip` and
+`nameserver` for an autoprimary.
+
+**Provisioning adds and removes nothing.** An entry that is already there is left
+alone, and anything on the server that no list mentions is left alone as well.
+
+```yaml
+- hosts: all
+  roles:
+    - role: PowerDNS.pdns
+      pdns_provision: true
+      pdns_provision_zones:
+        - name: catalog.invalid.
+          kind: Producer
+        - name: example.com.
+          kind: Native
+          catalog: catalog.invalid.
+          nameservers:
+            - ns1.example.com.
+      pdns_provision_zone_metadata:
+        - zone: example.com.
+          kind: ALLOW-AXFR-FROM
+          metadata:
+            - 127.0.0.0/8
+      pdns_provision_cryptokeys:
+        - zone: example.com.
+          keytype: csk
+          algorithm: ECDSAP256SHA256
+          active: true
+      pdns_provision_tsigkeys:
+        - name: axfr-key
+          algorithm: hmac-sha256
+```
+
+A **catalog zone** is an ordinary zone with `kind` set to `Producer` or
+`Consumer`, and a member joins one by naming it in `catalog`, so both are
+declared in `pdns_provision_zones`.
+
+### Records
+
+A zone and its records are separate resources with separate endpoints, so they are
+declared separately. `pdns_provision_zones` brings the zone into existence;
+`pdns_provision_records` brings its records to the declared state. Records written
+inside a `pdns_provision_zones` entry only apply when that zone is *created*,
+because the create is the one request that carries them - after that the zone
+endpoint deals in attributes alone.
+
+```yaml
+pdns_provision_records:
+  - zone: example.com.
+    name: www.example.com.
+    type: A
+    ttl: 3600
+    records:
+      - content: 192.0.2.1
+      - content: 192.0.2.2
+  - zone: example.com.
+    name: retired.example.com.
+    type: A
+    changetype: DELETE
+```
+
+Each entry is one RRset. `changetype` defaults to `REPLACE`, which creates the
+RRset or replaces it wholesale; it is scoped to one name and type and leaves every
+other record in the zone alone. `DELETE` removes it and needs only `name` and
+`type`. That pair is the whole cycle - create, update and delete - and both verbs
+are safe to repeat.
+
+There is no prune for records. An RRset the list does not mention is left alone,
+and `DELETE` is how one is taken away, because "remove every record I did not
+declare" would empty a zone the moment a list was incomplete.
+
+A trailing dot is added to `name` when it is missing, so `www.example.com` and
+`www.example.com.` both work.
+
+Each entry is compared against the zone as it stands before anything is written,
+so an entry that already matches is not sent. That keeps a repeated converge at
+`changed=0`, and it keeps the zone's SOA serial still: the serial moves on every
+PATCH the API receives, including one that changes nothing.
+
+**Views** need `views: yes` in `pdns_config`. A member of a view is a zone named
+`<zone>..<variant>` and has to be declared in `pdns_provision_zones` before it
+can join, because it has to exist as a zone first.
+
+### Repeating a run
+
+Each list is compared against what the API reports before anything is written, so
+a second converge reports no change. Two resources need more care:
+
+**DNSSEC keys cannot be matched.** Creating one answers 201 every time and
+returns a newly generated key, and the API exposes nothing that would let a later
+run recognise a key this role created - so posting the same entry twice simply
+leaves the zone with two different keys. An entry is therefore only created while
+its zone has no keys at all, and a zone that already has keys is left untouched.
+Set `force: true` on an entry to post it regardless, which is what a key rollover
+needs; an entry left on `force` writes a new key on every run, so it belongs in a
+one-off run rather than in inventory.
+
+A consequence worth knowing: if one entry of a batch is created and a later one
+fails, or the run is interrupted between them, the next converge finds the zone
+already carrying keys and skips the rest **silently**. The zone is left with fewer
+keys than declared and nothing says so. The same guard is why "add a second key to
+a zone that already has one" needs `force: true`.
+
+**Metadata is written with PUT**, which replaces the values of one kind and leaves
+every other kind of the zone alone. An entry declaring `metadata: []` removes
+that kind, which is how metadata is taken away - there is no prune for it.
+
+**Give names and networks in the form the API stores them.** Each list is compared
+against what the API returns, and the API canonicalizes: a zone name needs its
+trailing dot (`example.com.`, not `example.com` - the API rejects the latter with
+`DNS Name is not canonical`), and a network needs its network address rather than
+a host address inside it (`192.0.2.0/24`, not `192.0.2.1/24`). A network given in
+non-canonical form is stored under its canonical name, so the comparison never
+matches it: the mapping is rewritten on every converge, and with
+`pdns_provision_prune` enabled the prune then unmaps what the same run just
+mapped. Zone `kind` and a TSIG key's trailing dot are normalized by the role
+itself and need no care.
+
+### pdnsutil
+
+For what the REST API cannot do - a backend with no API support, a subcommand with
+no API equivalent, a bulk edit - `pdns_provision_pdnsutils` runs commands through
+`pdnsutil`:
+
+```yaml
+pdns_provision_pdnsutils:
+  - args: create-zone example.com ns1.example.com
+    unless: list-zone example.com
+  - args: secure-zone example.com
+    unless: show-zone example.com
+```
+
+`args` is the pdnsutil arguments without the binary. `unless` is optional and is
+the arguments of a probe that succeeds when the work is already done; the command
+runs only when the probe fails. pdnsutil subcommands are not idempotent by
+themselves - `create-zone` on an existing zone fails - so `unless` is what makes an
+entry safe to repeat. **An entry without `unless` runs on every converge and
+reports changed every time**, so give one to anything that should settle.
+
+**The commands run as `pdns_user`, never as root.** pdnsutil writes the backend's
+own files directly - the LMDB database, the SQLite file, the BIND zone files - and
+run as root it leaves them owned by root, after which the unprivileged server can
+no longer write them. That damage outlives the converge and running the role again
+does not repair it. `become_user` also gives the command the groups that account is
+in, which is the set the daemon gets from its unit's `User=`; a unit with a `Group=`
+outside them has to pass it in through `pdns_provision_pdnsutils_command`.
+
+```yaml
+pdns_provision_pdnsutils_command: >-
+  pdnsutil --config-dir={{ pdns_config_dir }} [--config-name=<instance>]
+```
+
+The invocation the arguments are appended to. It carries the configuration
+directory, and for an instance whose configuration file is `pdns-<name>.conf` the
+`--config-name` that selects it - pdnsutil addresses one instance at a time and
+works on the default one otherwise, which is silent until the data is in the wrong
+database. Override it to reach a pdnsutil that is not on `PATH` or to add flags.
+
+### Zones that do not exist yet
+
+Metadata and DNSSEC keys are addressed under a zone, and the API answers 404 when
+that zone is absent. With `pdns_provision_ignore_missing_zone: true`, the default,
+such an entry is skipped instead of failing the play, which is what a zone created
+by something other than this role needs. Set it to `false` to have a missing zone
+fail the run.
+
+### Changing and removing data
+
+```yaml
+pdns_provision_update_existing: false
+pdns_provision_prune: false
+```
+
+`pdns_provision_update_existing` writes the declared attributes of a zone entry -
+`kind`, `catalog`, `masters`, `account` and the rest - onto a zone that already
+exists. Records are not touched: a PUT on a zone carries attributes only.
+
+`pdns_provision_prune` deletes what the lists do not declare: autoprimaries, TSIG
+keys and view members, and it unmaps a network from its view. Zones and DNSSEC
+keys are never deleted whatever it is set to, because dropping a zone or a key is
+not a decision a converge should take.
+
+**A prune only removes entries alongside the ones its own list declares.** A list
+that is empty prunes nothing, so emptying a list does not remove the last entry -
+delete that one by hand. The reason is that this role is written to be included
+more than once in a play, one invocation per instance: an empty list means "this
+invocation has nothing to say about these", and reading it as "delete them all"
+would have the invocation that declares no TSIG keys delete the keys the previous
+one just created, on every converge. View membership is likewise pruned only
+within the views `pdns_provision_views` names.
+
+### Clusters
+
+```yaml
+pdns_provision_run_once: false
+```
+
+Provisioning writes into the storage backend through the API of one instance, so
+where several hosts share one database - `gmysql`, `gpgsql`, or `gsqlite3` on
+shared storage - a play over the cluster otherwise repeats every request once per
+host. `pdns_provision_run_once: true` runs it against the first host of the play
+only.
+
+It is off by default because it is only correct when the backend really is
+shared. With a per-host backend - `lmdb`, `bind`, or a local `gsqlite3` file -
+each host has a database of its own, and running once would leave every host but
+the first unprovisioned.
+
+### Check mode
+
+Provisioning is skipped under `ansible-playbook --check`. `ansible.builtin.uri`
+has no check mode of its own and fails outright, and there is nothing to simulate
+either, since provisioning talks to a running instance.
+
 ## Example Playbooks
 
 Run as a primary using the bind backend (when you already have a `named.conf` file):

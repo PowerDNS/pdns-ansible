@@ -20,6 +20,24 @@
   vars:
     _unit: "{{ pdns_instance.service_name }}"
     _dropin_dir: "/etc/systemd/system/{{ pdns_instance.service_name }}.service.d"
+    _rotated_api_key: rotated-molecule-api-key
+    # Built from the same three layers as pdns_config in
+    # ../resources/vars/pdns-instance-vars.yml rather than from pdns_config
+    # itself. Deriving it from pdns_config and then passing the result back in as
+    # the include_role variable of that same name is a self-reference: inside the
+    # role pdns_config would resolve to this expression, which resolves to
+    # pdns_config, and ansible aborts the play with "recursive loop detected in
+    # template string".
+    _rotated_config: >-
+      {{ pdns_config_common
+         | combine(pdns_instance.config_overrides | default({}), recursive=true)
+         | combine(pdns_config_overrides | default({}), recursive=true)
+         | combine({'api-key': _rotated_api_key}) }}
+    _probe_zone: api-key-rotation.test.
+    # Read from the merged configuration, not from the instance overrides, so it
+    # still resolves for a backend profile that does not override the port.
+    _api_url: >-
+      http://127.0.0.1:{{ pdns_config['webserver-port'] }}/api/v1/servers/localhost
   tasks:
 
     - name: Skip the whole playbook on hosts without systemd
@@ -165,8 +183,91 @@
           LimitNOFILE={{ _unit_after_removal.status.LimitNOFILE }}
 
     ##
+    # Provisioning in the same run that changes the API key.
+    #
+    # The key lives in the configuration file, so changing it rewrites the file
+    # and notifies a restart, while the instance carries on serving the old key
+    # until that restart happens. Provisioning authenticates with the key that is
+    # configured now, so it can only succeed once the restart has been done -
+    # which is why the role flushes the handlers before provisioning starts
+    # rather than at the end of the play. Without that flush every request here
+    # is answered 401 and the play fails.
+    #
+    # Both requests below are made with the rotated key alone. Reaching the API
+    # with it at all is the assertion: the old key would still be in the
+    # configuration, and still in use by the running instance, had either half of
+    # this failed.
+    ##
+    - name: Change the API key and provision in the same run
+      ansible.builtin.include_role:
+        name: powerdns.pdns
+      vars:
+        pdns_flush_handlers: true
+        pdns_config: "{{ _rotated_config }}"
+        pdns_provision: true
+        pdns_provision_zones:
+          - name: "{{ _probe_zone }}"
+            kind: Native
+            nameservers:
+              - "ns1.{{ _probe_zone }}"
+        pdns_provision_zone_metadata:
+          - zone: "{{ _probe_zone }}"
+            kind: ALLOW-AXFR-FROM
+            metadata:
+              - 127.0.0.0/8
+
+    - name: Read the provisioned zone with the rotated API key
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ _rotated_api_key }}"
+        url: "{{ _api_url }}/zones/{{ _probe_zone }}"
+        method: GET
+        status_code:
+          - 200
+      register: _pdns_rotated_zone
+      changed_when: false
+
+    - name: Assert that the zone was provisioned through the rotated API key
+      ansible.builtin.assert:
+        that:
+          - _pdns_rotated_zone.json.name == _probe_zone
+          - >-
+            (_pdns_rotated_zone.json.rrsets | selectattr('type', 'equalto', 'SOA') | list)
+            | length == 1
+        fail_msg: >-
+          provisioning did not reach the instance with the rotated key:
+          {{ _pdns_rotated_zone.json | default('no response') }}
+
+    - name: Read the metadata provisioned with the rotated API key
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ _rotated_api_key }}"
+        url: "{{ _api_url }}/zones/{{ _probe_zone }}/metadata/ALLOW-AXFR-FROM"
+        method: GET
+        status_code:
+          - 200
+      register: _pdns_rotated_metadata
+      changed_when: false
+
+    - name: Assert that the metadata was provisioned as declared
+      ansible.builtin.assert:
+        that:
+          - _pdns_rotated_metadata.json.metadata == ['127.0.0.0/8']
+        fail_msg: "{{ _pdns_rotated_metadata.json | default('no response') | to_json }}"
+
+    ##
     # Leave the host as the converge left it, for the verifier.
     ##
+    - name: Remove the probe zone
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ _rotated_api_key }}"
+        url: "{{ _api_url }}/zones/{{ _probe_zone }}"
+        method: DELETE
+        status_code:
+          - 204
+      changed_when: true
+
     - name: Remove the drop-in of the operator
       ansible.builtin.file:
         path: "{{ _dropin_dir }}/10-operator.conf"

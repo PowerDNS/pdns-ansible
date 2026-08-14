@@ -1,0 +1,99 @@
+---
+
+- name: Provision the views
+  when: not ansible_check_mode
+  tags:
+    - config
+  block:
+    # A view that holds no zones does not exist as far as the API is concerned and
+    # answers 404, which is the state before the first zone joins one, so that is
+    # accepted here and read as an empty membership.
+    - name: Retrieve the current zones of the views
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/views/{{ _view }}"
+        method: GET
+        status_code:
+          - 200
+          - 404
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      loop: "{{ pdns_provision_views | map(attribute='view') | unique | list }}"
+      loop_control:
+        loop_var: _view
+      register: _pdns_views_current
+      check_mode: false
+      changed_when: false
+
+    # One request per zone: the API takes a single member at a time. It answers
+    # 204 whether or not the zone was already a member, so the membership that is
+    # already stored is checked first, to keep a converge that changes nothing
+    # reporting nothing.
+    #
+    # A member is a zone named <zone>..<variant> and has to exist as a zone before
+    # it can join, so declare it in pdns_provision_zones. Views also need
+    # `views: yes` in pdns_config; without it the API rejects both the variant
+    # zone and the membership.
+    - name: Add the zones to the views
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/views/{{ _member.0.view }}"
+        method: POST
+        body_format: json
+        body:
+          name: "{{ _member.1 }}"
+        status_code:
+          - 204
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      loop: "{{ pdns_provision_views | subelements('zones', skip_missing=True) }}"
+      loop_control:
+        loop_var: _member
+        label: "{{ _member.0.view }}/{{ _member.1 }}"
+      vars:
+        _stored_zones: >-
+          {{ ((_pdns_views_current.results | default([]))
+              | selectattr('_view', 'equalto', _member.0.view)
+              | map(attribute='json')
+              | first | default({})).get('zones', []) }}
+      when: _member.1 not in _stored_zones
+
+    # The stored membership is walked with subelements, which pairs each view
+    # result with one of its zones, so the loop addresses a single member without
+    # anything having to be accumulated first. A set_fact that appends to itself
+    # would be wrong here: facts live for the whole run, not the play, and this
+    # role is included once per instance - so invocation two would inherit
+    # invocation one's members and try to delete them from an API that never had
+    # them, which answers 404 and fails the task.
+    #
+    # skip_missing drops a view that answered 404, whose result carries no
+    # json.zones at all.
+    - name: Remove the undeclared zones from the views
+      ansible.builtin.uri:
+        headers:
+          X-Api-Key: "{{ pdns_config['api-key'] }}"
+        url: "{{ pdns_api_url }}/views/{{ _member.0._view }}/{{ _member.1 }}"
+        method: DELETE
+        status_code:
+          - 204
+      run_once: "{{ pdns_provision_run_once | bool }}"
+      throttle: 1
+      changed_when: true
+      loop: >-
+        {{ (_pdns_views_current.results | default([]))
+           | subelements('json.zones', skip_missing=True) }}
+      loop_control:
+        loop_var: _member
+        label: "{{ _member.0._view }}/{{ _member.1 }}"
+      vars:
+        _declared_zones: >-
+          {{ pdns_provision_views
+             | selectattr('view', 'equalto', _member.0._view)
+             | map(attribute='zones')
+             | first | default([]) }}
+      when:
+        - pdns_provision_prune | bool
+        - _member.1 not in _declared_zones

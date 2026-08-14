@@ -180,11 +180,16 @@
   tags:
     - always
 
+# ansible.builtin.uri has no check mode of its own and fails under --check, and
+# there is nothing to simulate here anyway: provisioning talks to a running
+# instance. Every included file repeats the guard on its own outer block, because
+# include_tasks does not pass its condition or its tags to the tasks it includes.
 - name: Provision PowerDNS
   ansible.builtin.include_tasks: provision.yml
   when:
     - pdns_package_state != 'absent'
     - pdns_provision | bool
+    - not ansible_check_mode
   tags:
     - config
 

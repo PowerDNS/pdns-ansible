@@ -335,21 +335,285 @@ pdns_sqlite_schema_file: ""
 # Set debug mode flag from Ansible verbosity
 pdns_verbose: "{{ ansible_verbosity | int >= 2 }}"
 
-# Enable managing the autoprimaries using the role.
-# NOTE: Only available on the following backends:
+# Enable provisioning through the REST API of the running instance.
+pdns_provision: false
+
+##
+# Provisioning through the REST API.
+#
+# Every list below is submitted to the API as written. The role does not
+# interpret, rename or reorder the fields of an entry, so any setting the API
+# accepts can be given whether or not the role knows about it - look up the
+# fields in https://doc.powerdns.com/authoritative/http-api/ rather than here.
+# Only the few keys named in each comment are read by the role itself, to build
+# the request URL, and those are removed from the body before it is sent.
+#
+# Provisioning adds and never removes. An entry that is already there is left
+# alone; anything on the server that no list mentions is left alone as well.
+# pdns_provision_prune and pdns_provision_update_existing opt into the two
+# behaviours that change or drop data that is already on the server.
+##
+
+# DEPRECATED: use pdns_provision_autoprimaries below.
+#
+# This name is the odd one out in a family where every other list is
+# pdns_provision_*, and it will be removed in the next release. It is still read
+# for now, because pdns_provision_autoprimaries defaults to it, so an existing
+# playbook keeps working unchanged. Setting pdns_provision_autoprimaries takes
+# precedence over it.
+pdns_autoprimaries: []
+
+# Autoprimaries.
+#
+# The role reads `ip` and `nameserver`, which identify an autoprimary together and
+# are what its DELETE path is built from. Both are sent in the body as well, where
+# the API expects them on a create. `account` defaults to an empty string, because
+# the API rejects a body without it.
+#
+# NOTE: only the backends that implement the autoprimary feature accept these:
 #   - gmysql
 #   - gpgsql
 #   - gsqlite3
-pdns_provision: false
-
-# Dict containing provisioning configuration.
-pdns_autoprimaries: []
-# pdns_autoprimaries:
+pdns_provision_autoprimaries: "{{ pdns_autoprimaries }}"
+# pdns_provision_autoprimaries:
 #   - ip: 10.1.0.10
 #     nameserver: ns1.example.com
-#     account: "account1" 
 #   - ip: 10.1.0.11
 #     nameserver: ns2.example.com
+#     account: account1
+
+# Zones, including catalog zones.
+#
+# A catalog is an ordinary zone with `kind` set to Producer or Consumer, and a
+# member zone joins one by naming it in `catalog`, so both are declared here.
+#
+# The role reads `name`: it is the identity the existence check and the request
+# URL are built from. Everything else is the request body.
+pdns_provision_zones: []
+# pdns_provision_zones:
+#   - name: catalog.invalid.
+#     kind: Producer
+#   - name: example.com.
+#     kind: Native
+#     catalog: catalog.invalid.
+#     nameservers:
+#       - ns1.example.com.
+#     soa_edit_api: DEFAULT
+#     rrsets:
+#       - name: www.example.com.
+#         type: A
+#         ttl: 3600
+#         records:
+#           - content: 192.0.2.1
+#             disabled: false
+
+# Records of a zone, one entry per RRset.
+#
+# A zone and its records are separate resources with separate endpoints, so they
+# are declared separately: pdns_provision_zones brings the zone into existence,
+# this brings its records to the declared state. Records given inside a
+# pdns_provision_zones entry are only written when that zone is created, because
+# the create is the one request that carries them.
+#
+# The role reads `zone`, which names the zone in the request URL. The rest of the
+# entry is one RRset of the request body: `name`, `type`, `ttl`, `records` and
+# `changetype`.
+#
+# `changetype` defaults to REPLACE, which creates the RRset or replaces it
+# wholesale - it is scoped to one name and type and leaves every other record in
+# the zone alone. DELETE removes it, and needs only `name` and `type`. There is no
+# prune: an RRset the lists do not mention is left alone, and DELETE is how one is
+# taken away, because "remove every record I did not declare" would empty a zone
+# on an incomplete list.
+#
+# A trailing dot is added to `name` if it is missing, since that is how the API
+# stores it.
+pdns_provision_records: []
+# pdns_provision_records:
+#   - zone: example.com.
+#     name: www.example.com.
+#     type: A
+#     ttl: 3600
+#     records:
+#       - content: 192.0.2.1
+#       - content: 192.0.2.2
+#   - zone: example.com.
+#     name: example.com.
+#     type: MX
+#     ttl: 3600
+#     records:
+#       - content: "10 mail.example.com."
+#   - zone: example.com.
+#     name: retired.example.com.
+#     type: A
+#     changetype: DELETE
+
+# Metadata of a zone.
+#
+# The role reads `zone` and `kind`, which name the zone and the metadata kind in
+# the request URL. The rest is the body, so in practice that is `metadata`.
+#
+# Written with PUT, which replaces the values of that one kind and leaves every
+# other kind of the zone untouched. A POST would append to the existing values
+# instead, which does not converge on a declared list.
+pdns_provision_zone_metadata: []
+# pdns_provision_zone_metadata:
+#   - zone: example.com.
+#     kind: ALLOW-AXFR-FROM
+#     metadata:
+#       - 127.0.0.0/8
+#   - zone: example.com.
+#     kind: SOA-EDIT-API
+#     metadata:
+#       - DEFAULT
+
+# DNSSEC keys of a zone.
+#
+# The role reads `zone`, which names the zone in the request URL, and `force`.
+# The rest is the body: `keytype`, `algorithm`, `bits`, `active`, `published`,
+# and `content` to import a private key instead of generating one.
+#
+# Creating a key is the one request that cannot be repeated safely: the API
+# assigns an id and answers 201 every time, so posting the same entry twice
+# leaves the zone with two different keys, and it exposes nothing that would let
+# the role recognise a key it created earlier. So a zone that already has keys is
+# left alone, and an entry is only created while the zone has none at all. Set
+# `force: true` on an entry to post it regardless, which is what a key rollover
+# needs - the operator decides when that happens, not the converge.
+pdns_provision_cryptokeys: []
+# pdns_provision_cryptokeys:
+#   - zone: example.com.
+#     keytype: csk
+#     algorithm: ECDSAP256SHA256
+#     active: true
+#   - zone: rollover.example.
+#     keytype: ksk
+#     algorithm: ECDSAP256SHA256
+#     active: false
+#     force: true
+
+# TSIG keys.
+#
+# The whole entry is the request body. The role reads `name` as the identity of
+# the key. Leave `key` out to have the server generate the secret.
+pdns_provision_tsigkeys: []
+# pdns_provision_tsigkeys:
+#   - name: axfr-key
+#     algorithm: hmac-sha256
+#   - name: pinned-key
+#     algorithm: hmac-sha256
+#     key: "a base64 encoded secret"
+
+# Zones of a view.
+#
+# The role reads both keys: `view` names the view in the request URL and `zones`
+# is submitted one entry at a time. A member is a zone named
+# `<zone>..<variant>`, and it has to exist as a zone - declare it in
+# pdns_provision_zones - before it can join a view.
+#
+# Views need `views: yes` in pdns_config. Without it the API rejects both the
+# variant zone and the view membership.
+pdns_provision_views: []
+# pdns_provision_views:
+#   - view: internal
+#     zones:
+#       - example.com..intern
+
+# Networks mapped to a view.
+#
+# The role reads `network`, which names the network in the request URL. The rest
+# is the body, so in practice that is `view`.
+pdns_provision_networks: []
+# pdns_provision_networks:
+#   - network: 192.0.2.0/24
+#     view: internal
+
+# Commands to run through pdnsutil.
+#
+# For the things the REST API cannot do - a backend that has no API support, a
+# subcommand with no API equivalent, a bulk edit. Each entry is:
+#
+#   args:    the pdnsutil arguments, without the binary
+#   unless:  optional, the arguments of a probe that succeeds when the work is
+#            already done. The command runs only when the probe fails.
+#
+# pdnsutil commands are not idempotent by themselves - create-zone on an existing
+# zone fails - so `unless` is how an entry becomes safe to repeat. An entry without
+# it runs on every converge and reports changed every time.
+#
+# The commands run as pdns_user, never as root: pdnsutil writes the backend's own
+# files, and root-owned ones leave the unprivileged server unable to write them.
+pdns_provision_pdnsutils: []
+# pdns_provision_pdnsutils:
+#   - args: create-zone example.com ns1.example.com
+#     unless: list-zone example.com
+#   - args: set-kind example.com native
+#   - args: secure-zone example.com
+#     unless: show-zone example.com
+#   - args: increase-serial example.com
+
+# The pdnsutil invocation the commands above are appended to.
+#
+# It carries the configuration directory and, for an instance whose configuration
+# file is pdns-<name>.conf, the --config-name that selects it - pdnsutil addresses
+# one instance at a time and silently works on the default one otherwise. Override
+# it to reach a pdnsutil that is not on PATH, or to add flags of your own.
+pdns_provision_pdnsutils_command: >-
+  pdnsutil --config-dir={{ pdns_config_dir }}
+  {{ ('--config-name=' ~ (pdns_config_file | regex_replace('^pdns-', '') | regex_replace('\.conf$', '')))
+     if pdns_config_file != 'pdns.conf' else '' }}
+
+# Apply the declared attributes to zones that already exist.
+#
+# Off by default, because the role otherwise never changes a zone it did not
+# create. When enabled, the attributes of a zone entry - kind, catalog, masters,
+# account and so on - are written onto the existing zone with PUT. Its records
+# are not touched: PUT on a zone carries attributes only.
+pdns_provision_update_existing: false
+
+# Delete what the lists do not declare.
+#
+# Off by default: provisioning adds and leaves everything else alone, so a host
+# whose lists are incomplete does not lose data. When enabled, autoprimaries, TSIG
+# keys and view members that no list mentions are deleted, and a network no list
+# mentions is unmapped from its view.
+#
+# Zones and DNSSEC keys are never deleted, whatever this is set to; dropping a zone
+# or a key is not something a converge should decide. Zone metadata needs nothing
+# here either - an entry declaring `metadata: []` removes that kind.
+#
+# A prune only ever removes entries alongside the ones its own list declares, and
+# a list that is empty prunes nothing - so emptying a list does not remove the
+# last entry. That is because the role is written to be included more than once in
+# a play, one invocation per instance: an empty list means "this invocation has
+# nothing to say about these", and reading it as "delete them all" would have the
+# invocation that declares no TSIG keys delete the keys the previous one just
+# created, on every converge. View membership is likewise pruned only within the
+# views pdns_provision_views names.
+pdns_provision_prune: false
+
+# Run the provisioning once per play, against the first host, instead of once per
+# host.
+#
+# Provisioning writes into the storage backend through the API of one instance, so
+# where several hosts share one database - gmysql, gpgsql, or gsqlite3 on shared
+# storage - the second host onwards has nothing left to do, and a play over a
+# cluster otherwise repeats every request once per host.
+#
+# Off by default, because it is only correct when the backend really is shared.
+# With a per-host backend - lmdb, bind, or a local gsqlite3 file - each host has a
+# database of its own, and running once would leave every host but the first
+# unprovisioned.
+pdns_provision_run_once: false
+
+# Tolerate an entry whose zone does not exist.
+#
+# Metadata and DNSSEC keys are addressed under a zone, and the API answers 404
+# when that zone is absent - which happens routinely while a zone is created by
+# something other than this role, or is declared for a host that does not serve
+# it yet. The entry is then skipped instead of failing the play. Set this to
+# false to have the missing zone fail the run.
+pdns_provision_ignore_missing_zone: true
 
 # URL of the PowerDNS api endpoint.
 pdns_api_url: http://{{ pdns_config['webserver-address'] | default('127.0.0.1') | replace('0.0.0.0', '127.0.0.1') | replace('::', '::1') }}:{{ pdns_config["webserver-port"] | default("8081") }}/api/v1/servers/{{ pdns_api_server_id }}
