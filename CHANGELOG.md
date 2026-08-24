@@ -1,4 +1,4 @@
-## v1.11.0 (Unreleased)
+## v1.11.0 (24-08-2026)
 
 NEW FEATURES:
 - Provision autoprimaries (`pdns_provision_autoprimaries`), zones and catalog zones (`pdns_provision_zones`), records (`pdns_provision_records`), zone metadata (`pdns_provision_zone_metadata`), DNSSEC keys (`pdns_provision_cryptokeys`), TSIG keys (`pdns_provision_tsigkeys`), view membership (`pdns_provision_views`) and networks mapped to a view (`pdns_provision_networks`) through the REST API. Every entry is submitted as written, with only the few keys that build the request URL read by the role and removed from the body, so any field the API accepts can be given whether or not the role knows about it. Provisioning adds and removes nothing: an entry that is already there is left alone, and so is anything on the server that no list mentions ([\#276](https://github.com/PowerDNS/pdns-ansible/pull/276))
