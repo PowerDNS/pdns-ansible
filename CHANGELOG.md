@@ -1,3 +1,9 @@
+## Unreleased
+
+BUG FIXES:
+- Move the `pdns_backends` default to `default_pdns_backends` and reference it through a template string, the way `pdns_backends_packages` already is. With `hash_behaviour=merge` the plain dict default was merged into the backends declared in inventory, so `launch+=bind` appeared next to the intended backend and, the bind module not being installed, the server failed to start
+- Add `bind` to the Debian backend package map (`pdns-backend-bind`), so a declared bind backend gets its package installed; on repo.powerdns.com 4.8+ and on Debian/Ubuntu it is a separate package
+
 ## v1.11.0 (24-08-2026)
 
 NEW FEATURES:
