@@ -212,9 +212,7 @@ drop-ins in the same directory are left alone.
 ```yaml
 pdns_backends_packages: "{{ default_pdns_backends_packages }}"
 pdns_backends_packages_state: "{{ pdns_package_state }}"
-pdns_backends:
-  bind:
-    config: '/dev/null'
+pdns_backends: "{{ default_pdns_backends }}"
 ```
 
 Dictionary declaring all the backends you'd like to enable. You can use
@@ -239,7 +237,8 @@ pdns_backends:
     'dnssec-db': '{{ pdns_config_dir }}/dnssec.db'
 ```
 
-By default this role starts just the bind-backend with an empty config file.
+By default this role starts just the bind-backend with an empty config file
+(`default_pdns_backends`).
 `pdns_backends_packages_state` controls install/update/removal of backend packages.
 
 ```yaml

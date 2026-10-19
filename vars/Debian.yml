@@ -29,6 +29,7 @@ default_pdns_pgsql_packages:
 
 # List of PowerDNS Authoritative Server Backends packages on Debian
 default_pdns_backends_packages:
+  bind: pdns-backend-bind
   geo: pdns-backend-geo
   geoip: pdns-backend-geoip
   gmysql: pdns-backend-mysql

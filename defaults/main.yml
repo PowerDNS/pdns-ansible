@@ -140,10 +140,13 @@ pdns_backends_packages: "{{ default_pdns_backends_packages }}"
 pdns_backends_packages_state: "{{ pdns_package_state }}"
 
 # A dict with all the backends you'd like to configure.
-# This default starts just the bind-backend with an empty config file
-pdns_backends:
+# This default starts just the bind-backend with an empty config file.
+# Indirection via default_pdns_backends keeps the default from being merged
+# into inventory-defined backends under hash_behaviour=merge.
+default_pdns_backends:
   bind:
     config: '/dev/null'
+pdns_backends: "{{ default_pdns_backends }}"
 # pdns_backends:
 #   'gmysql:one':
 #     'user': root
